@@ -125,17 +125,29 @@
   let fullMenuData = {};
 
   window.onload = function() {
-    google.script.run.withSuccessHandler(function(data) {
+  google.script.run
+    .withSuccessHandler(function(data) {
+      console.log("從 Excel 抓到的資料：", data); // 在瀏覽器按 F12 可以看到有沒有抓到資料
       fullMenuData = data;
       const catSelect = document.getElementById('catSelect');
-      catSelect.innerHTML = '<option value="">-- 點擊選擇部位 --</option>';
-      for (let cat in data) {
-        catSelect.options.add(new Option(cat, cat));
+      
+      // 如果 data 是空的，給個提示
+      if (Object.keys(data).length === 0) {
+        catSelect.innerHTML = '<option value="">Excel Settings 分頁是空的！</option>';
+      } else {
+        catSelect.innerHTML = '<option value="">-- 點擊選擇部位 --</option>';
+        for (let cat in data) {
+          catSelect.options.add(new Option(cat, cat));
+        }
       }
       catSelect.options.add(new Option("+ 新增其他部位", "Other"));
-    }).getMenuSettings();
-  };
-
+    })
+    .withFailureHandler(function(err) {
+      alert("抓取資料失敗：" + err.message);
+    })
+    .getMenuSettings();
+};
+  
   function onCategoryChange() {
     const cat = document.getElementById('catSelect').value;
     const itemSelect = document.getElementById('itemSelect');
