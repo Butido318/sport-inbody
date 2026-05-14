@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <!-- 引入 Bootstrap 讓介面變漂亮 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f4f7f6; padding: 15px; }
+    .card { border-radius: 15px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    .header-section { text-align: center; margin-bottom: 20px; }
+    .inbody-locked { background: #dee2e6; border-radius: 10px; padding: 30px; text-align: center; }
+    #inbodyContent { display: none; }
+    #itemImg { max-height: 180px; object-fit: contain; margin-top: 10px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="container" style="max-width: 500px;">
+  <div class="header-section">
+    <h2>💪 我的健身日記</h2>
+  </div>
+
+  <!-- InBody 區塊 -->
+  <div class="card p-3">
+    <h5 class="card-title">📊 InBody 儀表板</h5>
+    <div id="lockScreen" class="inbody-locked">
+      <input type="password" id="unlockPwd" class="form-control mb-2" placeholder="請輸入查看密碼">
+      <button class="btn btn-dark w-100" onclick="checkPwd()">展開數據</button>
+    </div>
+    <div id="inbodyContent">
+      <p class="text-center text-muted">數據趨勢加載中...</p>
+      <!-- 未來 Chart.js 放這裡 -->
+      <button class="btn btn-sm btn-outline-secondary w-100" onclick="document.getElementById('lockScreen').style.display='block'; document.getElementById('inbodyContent').style.display='none';">隱藏</button>
+    </div>
+  </div>
+
+  <!-- 運動紀錄區塊 -->
+  <div class="card p-3">
+    <h5 class="card-title">📝 紀錄今日訓練</h5>
+    
+    <!-- 選單一：部位 -->
+    <div class="mb-3">
+      <label class="form-label">選擇部位</label>
+      <select id="catSelect" class="form-select" onchange="onCategoryChange()">
+        <option value="">載入中...</option>
+      </select>
+      <input type="text" id="newCatInput" class="form-control mt-2" style="display:none;" placeholder="輸入新部位名稱">
+    </div>
+
+    <!-- 選單二：動作 -->
+    <div class="mb-3">
+      <label class="form-label">選擇項目</label>
+      <select id="itemSelect" class="form-select" onchange="onItemChange()">
+        <option value="">請先選擇部位</option>
+      </select>
+      <input type="text" id="newItemInput" class="form-control mt-2" style="display:none;" placeholder="輸入新動作名稱">
+    </div>
+
+    <!-- 圖片顯示區 -->
+    <div class="text-center mb-3">
+      <img src="https://via.placeholder.com/200x150?text=No+Image" id="itemImg">
+    </div>
+
+    <!-- 數據輸入 -->
+    <div class="row g-2 mb-3">
+      <div class="col-4"><input type="number" id="w" class="form-control" placeholder="KG"></div>
+      <div class="col-4"><input type="number" id="s" class="form-control" placeholder="組數"></div>
+      <div class="col-4"><input type="number" id="r" class="form-control" placeholder="次數"></div>
+    </div>
+
+    <button id="saveBtn" class="btn btn-primary w-100" onclick="submitForm()">儲存紀錄回 Excel</button>
+  </div>
+</div>
+
+<script>
+  let fullMenuData = {};
+
+  // 頁面載入時初始化
+  window.onload = function() {
+    google.script.run.withSuccessHandler(function(data) {
+      fullMenuData = data;
+      const catSelect = document.getElementById('catSelect');
+      catSelect.innerHTML = '<option value="">-- 請選擇 --</option>';
+      for (let cat in data) {
+        catSelect.options.add(new Option(cat, cat));
+      }
+      catSelect.options.add(new Option("+ 新增其他部位", "Other"));
+    }).getMenuSettings();
+  };
+
+  // 當部位改變時
+  function onCategoryChange() {
+    const cat = document.getElementById('catSelect').value;
+    const itemSelect = document.getElementById('itemSelect');
+    const newCatInput = document.getElementById('newCatInput');
+    
+    newCatInput.style.display = (cat === 'Other') ? 'block' : 'none';
+    itemSelect.innerHTML = '<option value="">-- 選擇動作 --</option>';
+
+    if (cat && cat !== 'Other') {
+      fullMenuData[cat].forEach(obj => {
+        itemSelect.options.add(new Option(obj.name, obj.name));
+      });
+    }
+    itemSelect.options.add(new Option("+ 新增其他動作", "Other"));
+    onItemChange(); // 重置圖片
+  }
+
+  // 當動作改變時 (換圖片)
+  function onItemChange() {
+    const cat = document.getElementById('catSelect').value;
+    const item = document.getElementById('itemSelect').value;
+    const newItemInput = document.getElementById('newItemInput');
+    const imgTag = document.getElementById('itemImg');
+
+    newItemInput.style.display = (item === 'Other') ? 'block' : 'none';
+
+    // 尋找圖片 URL
+    if (cat && item && fullMenuData[cat]) {
+      const found = fullMenuData[cat].find(obj => obj.name === item);
+      imgTag.src = (found && found.img) ? found.img : "https://via.placeholder.com/200x150?text=Wait+for+Image";
+    } else {
+      imgTag.src = "https://via.placeholder.com/200x150?text=No+Image";
+    }
+  }
+
+  // 密碼檢查
+  function checkPwd() {
+    const p = document.getElementById('unlockPwd').value;
+    if (p === "1234") { // 你的預設密碼
+      document.getElementById('lockScreen').style.display = 'none';
+      document.getElementById('inbodyContent').style.display = 'block';
+    } else { alert("密碼錯誤！"); }
+  }
+
+  // 提交表單
+  function submitForm() {
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true;
+    btn.innerText = "儲存中...";
+
+    const payload = {
+      category: document.getElementById('catSelect').value,
+      newCategory: document.getElementById('newCategoryInput') ? document.getElementById('newCategoryInput').value : document.getElementById('newCatInput').value,
+      item: document.getElementById('itemSelect').value,
+      newItem: document.getElementById('newItemInput').value,
+      weight: document.getElementById('w').value,
+      sets: document.getElementById('s').value,
+      reps: document.getElementById('r').value
+    };
+
+    google.script.run.withSuccessHandler(function(res) {
+      alert(res);
+      location.reload(); // 儲存後自動整理，抓取新選單
+    }).saveWorkoutData(payload);
+  }
+</script>
+
+</body>
+</html>
