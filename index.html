@@ -6,7 +6,6 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
   
   <base target="_top">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -33,23 +32,21 @@
       font-size: 16px; 
       border-radius: 12px; 
     }
-    .form-control::placeholder { color: #a5d6a7; font-size: 16px; }
     
     .btn-primary { background-color: #43a047; border: none; height: 60px; font-size: 18px; font-weight: bold; border-radius: 12px; transition: 0.3s; }
     .btn-primary:active { background-color: #2e7d32; transform: translateY(2px); }
     .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 25px; border: 2px dashed #a5d6a7; font-size: 16px; }
     
-    /* 圖表容器外框：增加高度至 260px，給上方與下方的文字留出充足空間 */
+    /* 加大圖表框，確保文字不被切掉 */
     .chart-container { 
       background-color: #e8f5e9; 
       border: 1px solid #c8e6c9; 
       border-radius: 12px; 
-      padding: 15px 10px 5px 10px; 
+      padding: 20px 10px 5px 10px; 
       position: relative; 
       width: 100%;
-      min-height: 260px;
+      min-height: 270px;
     }
-
     input[type="number"]:focus, input[type="date"]:focus { border-color: #43a047 !important; box-shadow: 0 0 0 0.25rem rgba(67, 160, 71, 0.2); }
   </style>
 </head>
@@ -215,44 +212,35 @@
     }
   }
 
-  // 🎯 核心升級：將最近 10 筆資料完整圖像化，並在點點上顯示組數、次數
   function renderChart(historyData) {
-    // 1. 調整為只顯示「最近 10 筆」資料，避免手機畫面過度擁擠
+    // 🎯 只取最新 10 筆，並反轉成時間軸由舊到新
     const recentData = historyData.slice(0, 10);
-    const sortedData = recentData.reverse(); // 轉成時間軸從舊到新（左到右）
+    const sortedData = recentData.reverse(); 
     
-    // 2. 解析 X 軸與 Y 軸，同時分離出組數與次數
-    const labels = sortedData.map(log => log.date.substring(5)); // 顯示格式 MM/DD
+    const labels = sortedData.map(log => log.date.substring(5)); 
     
     const chartPoints = sortedData.map(log => {
-      const content = log.displayContent; // 例如 "27*1" 或 "32*1(10)" 或 "已完成"
+      const content = log.displayContent.toString(); 
       let weight = 0;
       let setRepStr = "";
       
-      // 用正規表達式拆解數據
       const match = content.match(/^([0-9.]+)\*([0-9.]+)(?:\(([0-9.]+)\))?/);
       if (match) {
         weight = parseFloat(match[1]);
         const sets = match[2];
         const reps = match[3];
         setRepStr = reps ? `${sets}組*${reps}次` : `${sets}組`;
-      } else if (content === "已完成") {
-        weight = 0;
-        setRepStr = "已完成";
       } else {
-        // 防呆處理只有重量的情況
         const pureWeight = content.match(/^([0-9.]+)/);
         weight = pureWeight ? parseFloat(pureWeight[1]) : 0;
+        setRepStr = "無數據";
       }
-      
-      return { weight: weight, labelStr: setRepStr, rawContent: content };
+      return { weight: weight, labelStr: setRepStr };
     });
 
     if (myChart) { myChart.destroy(); }
-
     const ctx = document.getElementById('weightChart').getContext('2d');
     
-    // 註冊 ChartDataLabels 外掛
     Chart.register(ChartDataLabels);
 
     myChart = new Chart(ctx, {
@@ -264,8 +252,7 @@
           borderColor: '#2e7d32',        
           backgroundColor: '#81c784',    
           borderWidth: 3,
-          pointRadius: 7, // 點點放大更清楚
-          pointHoverRadius: 10,
+          pointRadius: 6, 
           fill: false,
           tension: 0.15
         }]
@@ -273,48 +260,30 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: {
-          padding: { top: 25, bottom: 10, left: 5, right: 5 } // 給頂部標籤留出空間，防文字被切掉
-        },
+        layout: { padding: { top: 30, bottom: 10, left: 5, right: 5 } },
         plugins: {
           legend: { display: false },
-          // 🎯 重點武器：設定點點上的文字標籤
+          // 🎯 在點點上直接秀出：重量 \n (組數*次數)
           datalabels: {
-            align: 'top',      // 文字貼在點點上方
-            offset: 4,         // 距離點點 4 像素
-            color: '#1b5e20',  // 綠色深字體
-            font: { size: 14, weight: 'bold' }, // 字體加大至 14px 方便閱讀
+            align: 'top',      
+            offset: 4,         
+            color: '#1b5e20',  
+            font: { size: 12, weight: 'bold' }, 
             formatter: function(value, context) {
-              const pIdx = context.dataIndex;
-              const pt = chartPoints[pIdx];
-              // 點點上直接呈現：重量 \n (組數*次數)
-              if (pt.rawContent === "已完成") return "✓ 完成";
+              const pt = chartPoints[context.dataIndex];
               return `${value}kg\n(${pt.labelStr})`;
             },
-            textAlign: 'center' // 文字上下對齊置中
-          },
-          // 手指點擊時的提示框優化
-          tooltip: {
-            titleFont: { size: 15 },
-            bodyFont: { size: 15 },
-            callbacks: {
-              label: function(context) {
-                const pt = chartPoints[context.dataIndex];
-                if (pt.rawContent === "已完成") return " 狀態: 已完成";
-                return ` 重量: ${context.parsed.y} kg (${pt.labelStr})`;
-              }
-            }
+            textAlign: 'center' 
           }
         },
         scales: {
           x: {
             grid: { display: false },
-            ticks: { font: { size: 14, weight: 'bold' }, color: '#2d4030' }
+            ticks: { font: { size: 13, weight: 'bold' }, color: '#2d4030' }
           },
           y: {
-            ticks: { font: { size: 14, weight: 'bold' }, color: '#2d4030' },
-            title: { display: true, text: '重量 (kg)', font: { size: 14, weight: 'bold' } },
-            grace: '25%' // 讓 Y 軸頂部自動多留 25% 的空白高度，防止最高點的字塞不下
+            ticks: { font: { size: 13, weight: 'bold' }, color: '#2d4030' },
+            grace: '35%' // 留白拉高到 35%，保證文字絕不被天花板吃掉
           }
         }
       }
