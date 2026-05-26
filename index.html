@@ -217,24 +217,32 @@
     const recentData = historyData.slice(0, 10);
     const sortedData = recentData.reverse(); 
     
-    const labels = sortedData.map(log => log.date.substring(5)); 
+    const labels = sortedData.map(log => log.date.substring(5)); // 取出 MM/DD
     
     const chartPoints = sortedData.map(log => {
-      const content = log.displayContent.toString(); 
+      const content = log.displayContent ? log.displayContent.toString().trim() : ""; 
       let weight = 0;
       let setRepStr = "";
       
-      const match = content.match(/^([0-9.]+)\*([0-9.]+)(?:\(([0-9.]+)\))?/);
-      if (match) {
-        weight = parseFloat(match[1]);
-        const sets = match[2];
-        const reps = match[3];
-        setRepStr = reps ? `${sets}組*${reps}次` : `${sets}組`;
+      // 🔬 超強壯的格式拆解器：支援 "重量*組數(次數)"、"重量*組數"、"純重量"
+      if (content.includes('*')) {
+        const parts = content.split('*'); // 拆開重量與後面
+        weight = parseFloat(parts[0]) || 0;
+        
+        const rest = parts[1]; // 可能是 "3.5" 或 "4(12)"
+        if (rest.includes('(') && rest.includes(')')) {
+          const subParts = rest.split('(');
+          const sets = subParts[0]; // "4"
+          const reps = subParts[1].replace(')', ''); // "12"
+          setRepStr = `${sets}組*${reps}次`;
+        } else {
+          setRepStr = `${rest}組`; // "3.5組"
+        }
       } else {
-        const pureWeight = content.match(/^([0-9.]+)/);
-        weight = pureWeight ? parseFloat(pureWeight[1]) : 0;
-        setRepStr = "無數據";
+        weight = parseFloat(content) || 0;
+        setRepStr = "無組數";
       }
+      
       return { weight: weight, labelStr: setRepStr };
     });
 
@@ -260,7 +268,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: { padding: { top: 30, bottom: 10, left: 5, right: 5 } },
+        layout: { padding: { top: 35, bottom: 10, left: 5, right: 5 } }, // 給上方文字留足空間
         plugins: {
           legend: { display: false },
           // 🎯 在點點上直接秀出：重量 \n (組數*次數)
@@ -283,7 +291,7 @@
           },
           y: {
             ticks: { font: { size: 13, weight: 'bold' }, color: '#2d4030' },
-            grace: '35%' // 留白拉高到 35%，保證文字絕不被天花板吃掉
+            grace: '40%' // 留白拉高到 40%，確保兩行字絕對不會被框框切掉
           }
         }
       }
