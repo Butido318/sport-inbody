@@ -37,7 +37,6 @@
     .btn-primary:active { background-color: #2e7d32; transform: translateY(2px); }
     .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 25px; border: 2px dashed #a5d6a7; font-size: 16px; }
     
-    /* 加大圖表框，確保文字不被切掉 */
     .chart-container { 
       background-color: #e8f5e9; 
       border: 1px solid #c8e6c9; 
@@ -192,7 +191,7 @@
       
       fetch(GAS_WEB_APP_URL, {
         method: "POST",
-        body: JSON.stringify({ action: "getHistory", item: item })
+        body: JSON.stringify({ "action": "getHistory", "item": item })
       })
       .then(res => res.json())
       .then(data => {
@@ -213,36 +212,31 @@
   }
 
   function renderChart(historyData) {
-    // 🎯 只取最新 10 筆，並反轉成時間軸由舊到新
     const recentData = historyData.slice(0, 10);
     const sortedData = recentData.reverse(); 
-    
-    const labels = sortedData.map(log => log.date.substring(5)); // 取出 MM/DD
+    const labels = sortedData.map(log => log.date.substring(5)); 
     
     const chartPoints = sortedData.map(log => {
       const content = log.displayContent ? log.displayContent.toString().trim() : ""; 
       let weight = 0;
       let setRepStr = "";
       
-      // 🔬 超強壯的格式拆解器：支援 "重量*組數(次數)"、"重量*組數"、"純重量"
       if (content.includes('*')) {
-        const parts = content.split('*'); // 拆開重量與後面
+        const parts = content.split('*');
         weight = parseFloat(parts[0]) || 0;
-        
-        const rest = parts[1]; // 可能是 "3.5" 或 "4(12)"
+        const rest = parts[1];
         if (rest.includes('(') && rest.includes(')')) {
           const subParts = rest.split('(');
-          const sets = subParts[0]; // "4"
-          const reps = subParts[1].replace(')', ''); // "12"
+          const sets = subParts[0];
+          const reps = subParts[1].replace(')', '');
           setRepStr = `${sets}組*${reps}次`;
         } else {
-          setRepStr = `${rest}組`; // "3.5組"
+          setRepStr = `${rest}組`;
         }
       } else {
         weight = parseFloat(content) || 0;
         setRepStr = "無組數";
       }
-      
       return { weight: weight, labelStr: setRepStr };
     });
 
@@ -268,10 +262,9 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: { padding: { top: 35, bottom: 10, left: 5, right: 5 } }, // 給上方文字留足空間
+        layout: { padding: { top: 35, bottom: 10, left: 5, right: 5 } },
         plugins: {
           legend: { display: false },
-          // 🎯 在點點上直接秀出：重量 \n (組數*次數)
           datalabels: {
             align: 'top',      
             offset: 4,         
@@ -291,7 +284,7 @@
           },
           y: {
             ticks: { font: { size: 13, weight: 'bold' }, color: '#2d4030' },
-            grace: '40%' // 留白拉高到 40%，確保兩行字絕對不會被框框切掉
+            grace: '40%'
           }
         }
       }
