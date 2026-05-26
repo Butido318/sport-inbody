@@ -113,7 +113,10 @@
     </div>
 
     <div class="text-center mb-3">
-      <img src="https://via.placeholder.com/300x200?text=Wait+for+Image" id="itemImg">
+      <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500" 
+           id="itemImg" 
+           style="width: 100%; height: auto; max-height: 200px; object-fit: contain; background-color: #fff; border-radius: 12px; border: 2px solid #e8f5e9;"
+           onerror="this.src='https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500';">
     </div>
 
     <div class="row g-2 mb-3 align-items-center">
@@ -121,17 +124,17 @@
     <img src="https://via.placeholder.com/150?text=Pro+Fitness" id="itemImg" style="width:100%; max-height:150px; object-fit:contain;">
   </div>
   
-  <div class="col-6">
-    <div class="p-2 rounded" style="background-color: #e8f5e9; border: 1px solid #c8e6c9; min-height: 150px; font-size: 0.85rem;">
-      <div class="d-flex justify-content-between align-items-center mb-1">
-        <span class="fw-bold text-success">⏱️ 歷史紀錄</span>
-        <div>
-          <button class="btn btn-xs btn-outline-success py-0 px-1" onclick="changePage(1)" id="prevBtn" style="font-size:0.75rem;">⬅️</button>
-          <button class="btn btn-xs btn-outline-success py-0 px-1" onclick="changePage(-1)" id="nextBtn" style="font-size:0.75rem;">➡️</button>
+  <div class="mb-3">
+      <div class="p-3 rounded d-flex flex-column" style="background-color: #e8f5e9; border: 1px solid #c8e6c9; min-height: 120px; font-size: 1rem;">
+        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-white">
+          <span class="fw-bold text-success" style="font-size: 1.1rem;">⏱️ 歷史訓練紀錄</span>
+          <div>
+            <button class="btn btn-sm btn-outline-success py-1 px-2 me-1" onclick="changePage(1)" id="prevBtn" style="font-size:0.85rem;" disabled>⬅️ 更舊</button>
+            <button class="btn btn-sm btn-outline-success py-1 px-2" onclick="changePage(-1)" id="nextBtn" style="font-size:0.85rem;" disabled>更新 ➡️</button>
+          </div>
         </div>
-      </div>
-      <div id="historyLogs">
-        <p class="text-muted text-center pt-4">請先選擇運動項目</p>
+     <div id="historyLogs" class="flex-grow-1">
+          <p class="text-muted text-center pt-3">請先選擇運動項目</p>
       </div>
     </div>
   </div>
@@ -277,12 +280,12 @@ function renderHistory() {
   const end = Math.min(start + 2, currentItemHistory.length);
 
   for (let i = start; i < end; i++) {
-    const log = currentItemHistory[i];
-    html += `
-      <div class="mb-2 pb-1 border-bottom border-white">
-        <div class="text-muted" style="font-size:0.75rem;">📅 ${log.date}</div>
-        <div class="fw-bold text-dark">🏋️ ${log.weight} kg × ${log.sets} 組 <span class="text-success">(${log.reps})</span></div>
-      </div>
+      const log = currentItemHistory[i];
+      html += `
+        <div class="mb-2 pb-2 border-bottom border-white">
+          <div class="text-muted small">📅 ${log.date}</div>
+          <div class="fw-bold text-dark mt-1" style="font-size: 1.05rem;">🏋️ ${log.weight} kg × ${log.sets} 組 <span class="text-success">(${log.reps})</span></div>
+        </div>
     `;
   }
   historyDiv.innerHTML = html;
