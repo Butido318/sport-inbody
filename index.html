@@ -120,7 +120,8 @@
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('logDate').value = today;
 
-    fetch(GAS_WEB_APP_URL)
+    // 🎯 核心修正 1：移除任何可能誤導為 POST 的設定，使用最單純標準的 GET 請求拿選單
+    fetch(GAS_WEB_APP_URL, { method: "GET" })
       .then(response => response.json())
       .then(data => {
         fullMenuData = data;
@@ -171,7 +172,8 @@
       historyDiv.innerHTML = '<p class="text-center text-muted pt-3">載入紀錄中...</p>';
       currentPageIndex = 0; 
       
-      fetch(`${GAS_WEB_APP_URL}?action=getHistory&item=${encodeURIComponent(item)}`)
+      // 🎯 核心修正 2：明確指定使用 GET 方法來索取歷史紀錄，不給瀏覽器亂猜的機會
+      fetch(`${GAS_WEB_APP_URL}?action=getHistory&item=${encodeURIComponent(item)}`, { method: "GET" })
         .then(res => res.json())
         .then(data => {
           currentItemHistory = data;
@@ -236,7 +238,7 @@
       newCategory: document.getElementById('newCatInput').value,
       item: document.getElementById('itemSelect').value,
       newItem: document.getElementById('newItemInput').value,
-      date: document.getElementById('logDate').value, // ✨ 傳送使用者選取的日期
+      date: document.getElementById('logDate').value,
       weight: document.getElementById('w').value,
       sets: document.getElementById('s').value,
       reps: document.getElementById('r').value
