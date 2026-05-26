@@ -37,15 +37,15 @@
     .btn-primary:active { background-color: #2e7d32; transform: translateY(2px); }
     .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 25px; border: 2px dashed #a5d6a7; font-size: 16px; }
     
-    /* 📈 圖表外框容器樣式 */
+    /* 📈 圖表容器固定高度，確保不崩塌 */
     .chart-container { 
       background-color: #e8f5e9; 
       border: 1px solid #c8e6c9; 
       border-radius: 12px; 
-      padding: 25px 10px 10px 10px; 
+      padding: 30px 10px 10px 10px; 
       position: relative; 
       width: 100%;
-      min-height: 280px;
+      min-height: 290px;
     }
     input[type="number"]:focus, input[type="date"]:focus { border-color: #43a047 !important; box-shadow: 0 0 0 0.25rem rgba(67, 160, 71, 0.2); }
   </style>
@@ -128,7 +128,6 @@
 </div>
 
 <script>
-  // 🔗 你的 GAS 部署網址
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTdrao1uUJS_PqrQ4-1Fxz4_foSfsqC4meWjL9RqHnGLxc8IwAC4WzKBpk8_s9ZWACCQ/exec";
 
   let fullMenuData = {};
@@ -191,7 +190,6 @@
       statusDiv.innerText = "正在讀取並繪製前 10 次曲線圖...";
       canvas.style.display = 'none';
       
-      // 向後端請求歷史資料
       fetch(GAS_WEB_APP_URL, {
         method: "POST",
         body: JSON.stringify({ "action": "getHistory", "item": item })
@@ -205,7 +203,7 @@
         statusDiv.style.display = 'none';
         canvas.style.display = 'block';
         
-        // 🔮 把撈到的歷史數據，丟進去畫圖！
+        // 🔮 強力繪製
         renderChart(data);
       })
       .catch(err => { 
@@ -219,12 +217,12 @@
     }
   }
 
-  // 🎨 核心功能：精準解析 "54*4(12)" 並繪製 Chart 圖表
+  // 📊 超級安全的 Chart.js 數據渲染器
   function renderChart(historyData) {
-    // 後端給的是最新到最舊，折線圖時間軸要「左舊右新」，所以進行反轉
+    // 讓時間軸由舊到新排列（左到右）
     const sortedData = [...historyData].reverse(); 
     
-    // 1. 萃取日期作為 X 軸標籤 (格式化為 MM/DD 精簡顯示)
+    // 1. 日期標籤 (簡化為 MM/DD)
     const labels = sortedData.map(log => {
       if (log.date && log.date.includes('/')) {
         const p = log.date.split('/');
@@ -233,38 +231,40 @@
       return log.date || "";
     });
     
-    // 2. 拆解分析 displayContent (例如 "54*4(12)" -> 重量=54, 組數=4, 次數=12)
+    // 2. 核心穩定拆解：把 "54*4(12)" 拆回 54公斤、4組、12次
     const chartPoints = sortedData.map(log => {
-      const content = log.displayContent ? log.displayContent.toString().trim() : ""; 
+      const content = log.displayContent ? log.displayContent.toString().trim() : "";
       let weight = 0;
       let setRepStr = "";
       
-      if (content.includes('*')) {
-        const parts = content.split('*');
-        weight = parseFloat(parts[0]) || 0; // 拿前面的重量數字作為折線高低
-        
-        const rest = parts[1] || "";
-        if (rest.includes('(') && rest.includes(')')) {
-          const subParts = rest.split('(');
-          const sets = subParts[0] || "0";
-          const reps = subParts[1].replace(')', '') || "0";
-          setRepStr = `${sets}組\n${reps}次`; // 換行顯示在點點上
+      try {
+        if (content.includes('*')) {
+          const parts = content.split('*');
+          weight = parseFloat(parts[0]) || 0; // 折線圖高低的 Y 軸數值
+          
+          const rest = parts[1] || "";
+          if (rest.includes('(') && rest.includes(')')) {
+            const subParts = rest.split('(');
+            const sets = subParts[0] || "0";
+            const reps = subParts[1].replace(')', '') || "0";
+            setRepStr = `${sets}組/${reps}次`; // 格式化為乾淨的 4組/12次
+          } else {
+            setRepStr = rest ? `${rest}組` : "";
+          }
         } else {
-          setRepStr = rest ? `${rest}組` : "";
+          weight = parseFloat(content) || 0;
+          setRepStr = "";
         }
-      } else {
-        weight = parseFloat(content) || 0;
+      } catch (e) {
+        weight = 0;
         setRepStr = "";
       }
       return { weight: weight, labelStr: setRepStr };
     });
 
-    // 如果先前有舊圖表，先清除，避免畫面重疊閃爍
     if (myChart) { myChart.destroy(); }
     
     const ctx = document.getElementById('weightChart').getContext('2d');
-    
-    // 註冊 DataLabels 外掛（用來在點點上面噴文字）
     Chart.register(ChartDataLabels);
 
     myChart = new Chart(ctx, {
@@ -273,29 +273,32 @@
         labels: labels,
         datasets: [{
           data: chartPoints.map(p => p.weight),
-          borderColor: '#2e7d32',        // 深綠線條
-          backgroundColor: '#81c784',    // 淺綠圓點
+          borderColor: '#2e7d32',        
+          backgroundColor: '#81c784',    
           borderWidth: 3,
           pointRadius: 5, 
           fill: false,
-          tension: 0.15                  // 微微的微曲線滑順感
+          tension: 0.1
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: { padding: { top: 40, bottom: 5, left: 10, right: 10 } },
+        layout: { padding: { top: 35, bottom: 5, left: 10, right: 10 } },
         plugins: {
-          legend: { display: false },    // 不需要圖例說明
-          datalabels: {                  // 🎯 核心亮點：點點上秀出「重量與組數次數」
+          legend: { display: false },
+          datalabels: {
             align: 'top',      
             offset: 4,         
             color: '#1b5e20',  
             font: { size: 11, weight: 'bold' }, 
             formatter: function(value, context) {
               const pt = chartPoints[context.dataIndex];
-              // 呈現格式：54kg \n (4組/12次)
-              return `${value}kg\n(${pt ? pt.labelStr.replace('\n', '/') : ''})`;
+              // 🎯 完美噴出：54kg\n(4組/12次)
+              if (pt && pt.labelStr) {
+                return `${value}kg\n(${pt.labelStr})`;
+              }
+              return `${value}kg`;
             },
             textAlign: 'center' 
           }
@@ -307,7 +310,7 @@
           },
           y: {
             ticks: { font: { size: 12, weight: 'bold' }, color: '#2d4030' },
-            grace: '30%' // 讓圖表上方保留空間塞文字標籤，不會被頂到邊緣切掉
+            grace: '35%' // 保留上方天花板高度，不讓文字被切掉
           }
         }
       }
