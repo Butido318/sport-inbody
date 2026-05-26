@@ -19,7 +19,7 @@
 
     .container-fluid { padding: 15px; }
 
-    /* 卡片設計：淡綠色漸層 */
+    /* 卡片設計 */
     .card { 
       background: #ffffff; 
       border-radius: 16px; 
@@ -32,7 +32,6 @@
     h2 { color: #2e7d32; font-weight: 800; text-align: center; margin-bottom: 20px; }
     h5 { color: #388e3c; border-left: 5px solid #81c784; padding-left: 10px; margin-bottom: 20px; font-weight: bold; }
 
-    /* 修正標題顯示：確保標題文字顏色與粗細 */
     .form-label { color: #2e7d32; font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
 
     .form-select, .form-control {
@@ -98,10 +97,10 @@
     </div>
 
     <div class="text-center mb-3">
-      <img src="https://lh3.googleusercontent.com/pw/AP1GczN4KaWeCf90T4ouVW8oArLTu7wlklpfRPHrTQGdiOHzJ0KtN9xdgA5NcFhSG9lrmaQn-OFg2TKm7XeckB2hEfAs7LTeoL38gcFSPaPvHG2jUtemEfQCm4rcIsKZndzJwQodOLPP14rc_m_4NUx30FU0Ww=w635-h894-s-no-gm?authuser=0" 
+      <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500" 
            id="itemImg" 
            style="width: 100%; height: auto; max-height: 200px; object-fit: contain; background-color: #fff; border-radius: 12px; border: 2px solid #e8f5e9;"
-           onerror="https://lh3.googleusercontent.com/pw/AP1GczNWVV2w3dBdAKzIW1kHiNs7Gj7hkSeC1myThF5Qirm1GUkg1H3LdF95st09vmuyh6oC7BJdkGb4Tlq7-zznNazZivSf5gE2jfqBH7NH9k6Y3uuuK19xk2Ng7x2DJUFCGE2P-2vhLkKmYO99E-gwMOHD3A=w671-h894-s-no-gm?authuser=0">
+           onerror="this.src='https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500';">
     </div>
 
     <div class="mb-3">
@@ -139,12 +138,11 @@
 </div>
 
 <script>
-  // 🚨 請確認這串是否與你最新部署的 Google API 網址一致
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTdrao1uUJS_PqrQ4-1Fxz4_foSfsqC4meWjL9RqHnGLxc8IwAC4WzKBpk8_s9ZWACCQ/exec";
 
   let fullMenuData = {};
-  let currentItemHistory = []; // 存放當前項目的所有歷史
-  let currentPageIndex = 0;    // 當前分頁索引 (0 代表最近 2 筆)
+  let currentItemHistory = []; 
+  let currentPageIndex = 0;    
  
   // 頁面載入時：向 Google 拿選單資料
   window.onload = function() {
@@ -183,7 +181,7 @@
     onItemChange();
   }
 
-  // 融合後的單一物件變更處理函式
+  // 完美修復：處理物件變更並精準發送 getHistory 請求
   function onItemChange() {
     const cat = document.getElementById('catSelect').value;
     const item = document.getElementById('itemSelect').value;
@@ -196,15 +194,15 @@
     // 1. 更換大圖片
     if (cat && item && fullMenuData[cat]) {
       const found = fullMenuData[cat].find(obj => obj.name === item);
-      imgTag.src = (found && found.img && found.img !== "") ? found.img : "https://lh3.googleusercontent.com/pw/AP1GczN4KaWeCf90T4ouVW8oArLTu7wlklpfRPHrTQGdiOHzJ0KtN9xdgA5NcFhSG9lrmaQn-OFg2TKm7XeckB2hEfAs7LTeoL38gcFSPaPvHG2jUtemEfQCm4rcIsKZndzJwQodOLPP14rc_m_4NUx30FU0Ww=w635-h894-s-no-gm?authuser=0";
+      imgTag.src = (found && found.img && found.img !== "") ? found.img : "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500";
     } else {
-      imgTag.src = ""https://lh3.googleusercontent.com/pw/AP1GczNWVV2w3dBdAKzIW1kHiNs7Gj7hkSeC1myThF5Qirm1GUkg1H3LdF95st09vmuyh6oC7BJdkGb4Tlq7-zznNazZivSf5gE2jfqBH7NH9k6Y3uuuK19xk2Ng7x2DJUFCGE2P-2vhLkKmYO99E-gwMOHD3A=w671-h894-s-no-gm?authuser=0";
+      imgTag.src = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500";
     }
 
     // 2. 向 Google API 請求該項目的歷史紀錄
     if (item && item !== 'Other') {
       historyDiv.innerHTML = '<p class="text-center text-muted pt-3">載入紀錄中...</p>';
-      currentPageIndex = 0; // 重置頁數
+      currentPageIndex = 0; 
       
       fetch(`${GAS_WEB_APP_URL}?action=getHistory&item=${encodeURIComponent(item)}`)
         .then(res => res.json())
@@ -222,7 +220,7 @@
     }
   }
 
-  // 渲染歷史數據到面板（每次顯示最近的 2 筆）
+  // 渲染歷史數據（適應你的橫向 Excel 輸出格式）
   function renderHistory() {
     const historyDiv = document.getElementById('historyLogs');
     if (!currentItemHistory || currentItemHistory.length === 0) {
@@ -241,13 +239,12 @@
       html += `
         <div class="mb-2 pb-2 border-bottom border-white">
           <div class="text-muted small">📅 ${log.date}</div>
-          <div class="fw-bold text-dark mt-1" style="font-size: 1.05rem;">🏋️ ${log.weight} kg × ${log.sets} 組 <span class="text-success">(${log.reps})</span></div>
+          <div class="fw-bold text-dark mt-1" style="font-size: 1.1rem;">💪 訓練數據：<span class="text-success">${log.displayContent}</span></div>
         </div>
       `;
     }
     historyDiv.innerHTML = html;
 
-    // 控制翻頁按鈕
     document.getElementById('prevBtn').disabled = (end >= currentItemHistory.length);
     document.getElementById('nextBtn').disabled = (currentPageIndex === 0);
   }
