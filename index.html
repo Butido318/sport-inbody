@@ -1,20 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-<!-- 1. 這裡改成你想要的捷徑名稱（Android 預設抓這個） -->
-<title>Do愛運動</title>
- <!-- 2. 補上這行：iOS Safari 專用捷徑名稱 -->
-<meta name="apple-mobile-web-app-title" content="Do愛運動"> 
-<!-- 引入 PWA 設定檔（Android 必備） -->
-<link rel="manifest" href="manifest.json">
-    
-<!-- 針對 iPhone / iOS 主畫面捷徑 -->
-<link rel="apple-touch-icon" href="icon.png">
+  <title>Do愛運動</title>
+  <meta name="apple-mobile-web-app-title" content="Do愛運動"> 
+  <link rel="manifest" href="manifest.json">
+      
+  <link rel="apple-touch-icon" href="icon.png">
 
-<!-- 針對 Android / Chrome 主畫面捷徑 -->
-<link rel="icon" type="image/png" sizes="192x192" href="icon.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon.png">
-  
+  <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
   
   <base target="_top">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -52,13 +46,6 @@
 
     .form-control::placeholder { color: #a5d6a7; }
 
-    /* 圖片區域 */
-    #itemImg { 
-      width: 100%; height: auto; min-height: 150px; max-height: 200px;
-      object-fit: contain; background-color: #fff; border-radius: 12px;
-      border: 2px solid #e8f5e9; margin-bottom: 15px;
-    }
-
     /* 按鈕：深綠色高品質感 */
     .btn-primary {
       background-color: #43a047; border: none; height: 60px;
@@ -79,7 +66,6 @@
 <div class="container-fluid">
   <h2>🌿 運動健康紀錄</h2>
 
-  <!-- 第一區塊：InBody -->
   <div class="card">
     <h5>📊 InBody 儀表板</h5>
     <div id="lockScreen" class="inbody-locked text-center">
@@ -92,7 +78,6 @@
     </div>
   </div>
 
-  <!-- 第二區塊：運動紀錄 -->
   <div class="card">
     <h5>📝 今日訓練內容</h5>
     
@@ -119,12 +104,7 @@
            onerror="this.src='https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500';">
     </div>
 
-    <div class="row g-2 mb-3 align-items-center">
-  <div class="col-6 text-center">
-    <img src="https://via.placeholder.com/150?text=Pro+Fitness" id="itemImg" style="width:100%; max-height:150px; object-fit:contain;">
-  </div>
-  
-  <div class="mb-3">
+    <div class="mb-3">
       <div class="p-3 rounded d-flex flex-column" style="background-color: #e8f5e9; border: 1px solid #c8e6c9; min-height: 120px; font-size: 1rem;">
         <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-white">
           <span class="fw-bold text-success" style="font-size: 1.1rem;">⏱️ 歷史訓練紀錄</span>
@@ -133,14 +113,12 @@
             <button class="btn btn-sm btn-outline-success py-1 px-2" onclick="changePage(-1)" id="nextBtn" style="font-size:0.85rem;" disabled>更新 ➡️</button>
           </div>
         </div>
-     <div id="historyLogs" class="flex-grow-1">
+        <div id="historyLogs" class="flex-grow-1">
           <p class="text-muted text-center pt-3">請先選擇運動項目</p>
+        </div>
       </div>
     </div>
-  </div>
-</div>
     
-    <!-- 重量、組數、次數 標題與輸入框 -->
     <div class="row g-2 mb-4">
       <div class="col-4">
         <label class="form-label text-center d-block">重量</label>
@@ -161,15 +139,14 @@
 </div>
 
 <script>
-// 🚨 請把下方這行換成你剛剛部署得到的 Google API 網址
+  // 🚨 請確認這串是否與你最新部署的 Google API 網址一致
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTdrao1uUJS_PqrQ4-1Fxz4_foSfsqC4meWjL9RqHnGLxc8IwAC4WzKBpk8_s9ZWACCQ/exec";
 
   let fullMenuData = {};
-
   let currentItemHistory = []; // 存放當前項目的所有歷史
   let currentPageIndex = 0;    // 當前分頁索引 (0 代表最近 2 筆)
  
-// 頁面載入時：改用 fetch 向 Google 拿資料
+  // 頁面載入時：向 Google 拿選單資料
   window.onload = function() {
     fetch(GAS_WEB_APP_URL)
       .then(response => response.json())
@@ -206,18 +183,78 @@
     onItemChange();
   }
 
+  // 融合後的單一物件變更處理函式
   function onItemChange() {
     const cat = document.getElementById('catSelect').value;
     const item = document.getElementById('itemSelect').value;
     const newItemInput = document.getElementById('newItemInput');
     const imgTag = document.getElementById('itemImg');
+    const historyDiv = document.getElementById('historyLogs');
+
     newItemInput.style.display = (item === 'Other') ? 'block' : 'none';
+
+    // 1. 更換大圖片
     if (cat && item && fullMenuData[cat]) {
       const found = fullMenuData[cat].find(obj => obj.name === item);
-      imgTag.src = (found && found.img) ? found.img : "https://via.placeholder.com/300x200?text=Ready+to+Train";
+      imgTag.src = (found && found.img && found.img !== "") ? found.img : "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500";
     } else {
-      imgTag.src = "https://via.placeholder.com/300x200?text=Pro+Fitness";
+      imgTag.src = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500";
     }
+
+    // 2. 向 Google API 請求該項目的歷史紀錄
+    if (item && item !== 'Other') {
+      historyDiv.innerHTML = '<p class="text-center text-muted pt-3">載入紀錄中...</p>';
+      currentPageIndex = 0; // 重置頁數
+      
+      fetch(`${GAS_WEB_APP_URL}?action=getHistory&item=${encodeURIComponent(item)}`)
+        .then(res => res.json())
+        .then(data => {
+          currentItemHistory = data;
+          renderHistory();
+        })
+        .catch(err => {
+          historyDiv.innerHTML = '<p class="text-danger text-center pt-3">載入歷史失敗</p>';
+        });
+    } else {
+      historyDiv.innerHTML = '<p class="text-muted text-center pt-3">請先選擇運動項目</p>';
+      document.getElementById('prevBtn').disabled = true;
+      document.getElementById('nextBtn').disabled = true;
+    }
+  }
+
+  // 渲染歷史數據到面板（每次顯示最近的 2 筆）
+  function renderHistory() {
+    const historyDiv = document.getElementById('historyLogs');
+    if (!currentItemHistory || currentItemHistory.length === 0) {
+      historyDiv.innerHTML = '<p class="text-muted text-center pt-2">這是全新項目<br>尚無歷史紀錄</p>';
+      document.getElementById('prevBtn').disabled = true;
+      document.getElementById('nextBtn').disabled = true;
+      return;
+    }
+
+    let html = "";
+    const start = currentPageIndex * 2;
+    const end = Math.min(start + 2, currentItemHistory.length);
+
+    for (let i = start; i < end; i++) {
+      const log = currentItemHistory[i];
+      html += `
+        <div class="mb-2 pb-2 border-bottom border-white">
+          <div class="text-muted small">📅 ${log.date}</div>
+          <div class="fw-bold text-dark mt-1" style="font-size: 1.05rem;">🏋️ ${log.weight} kg × ${log.sets} 組 <span class="text-success">(${log.reps})</span></div>
+        </div>
+      `;
+    }
+    historyDiv.innerHTML = html;
+
+    // 控制翻頁按鈕
+    document.getElementById('prevBtn').disabled = (end >= currentItemHistory.length);
+    document.getElementById('nextBtn').disabled = (currentPageIndex === 0);
+  }
+
+  function changePage(direction) {
+    currentPageIndex += direction;
+    renderHistory();
   }
 
   function checkPwd() {
@@ -232,76 +269,6 @@
     document.getElementById('inbodyContent').style.display = 'none';
   }
 
-// 當運動項目改變時，觸發抓取歷史紀錄
-function onItemChange() {
-  const cat = document.getElementById('catSelect').value;
-  const item = document.getElementById('itemSelect').value;
-  const newItemInput = document.getElementById('newItemInput');
-  const imgTag = document.getElementById('itemImg');
-  const historyDiv = document.getElementById('historyLogs');
-
-  newItemInput.style.display = (item === 'Other') ? 'block' : 'none';
-
-  // 1. 更換圖片
-  if (cat && item && fullMenuData[cat]) {
-    const found = fullMenuData[cat].find(obj => obj.name === item);
-    imgTag.src = (found && found.img) ? found.img : "https://via.placeholder.com/150?text=Ready";
-  } else {
-    imgTag.src = "https://via.placeholder.com/150?text=Pro+Fitness";
-  }
-
-  // 2. 向 Google API 請求歷史紀錄
-  if (item && item !== 'Other') {
-    historyDiv.innerHTML = '<p class="text-center text-muted pt-4">載入紀錄中...</p>';
-    currentPageIndex = 0; // 重置頁數
-    
-    fetch(`${GAS_WEB_APP_URL}?action=getHistory&item=${encodeURIComponent(item)}`)
-      .then(res => res.json())
-      .then(data => {
-        currentItemHistory = data;
-        renderHistory();
-      });
-  } else {
-    historyDiv.innerHTML = '<p class="text-muted text-center pt-4">無歷史數據</p>';
-  }
-}
-
-// 渲染歷史數據到右側框框（每次顯示 2 筆）
-function renderHistory() {
-  const historyDiv = document.getElementById('historyLogs');
-  if (currentItemHistory.length === 0) {
-    historyDiv.innerHTML = '<p class="text-muted text-center pt-4">這是全新項目<br>尚無歷史紀錄</p>';
-    return;
-  }
-
-  let html = "";
-  // 每次抓取 2 筆紀錄
-  const start = currentPageIndex * 2;
-  const end = Math.min(start + 2, currentItemHistory.length);
-
-  for (let i = start; i < end; i++) {
-      const log = currentItemHistory[i];
-      html += `
-        <div class="mb-2 pb-2 border-bottom border-white">
-          <div class="text-muted small">📅 ${log.date}</div>
-          <div class="fw-bold text-dark mt-1" style="font-size: 1.05rem;">🏋️ ${log.weight} kg × ${log.sets} 組 <span class="text-success">(${log.reps})</span></div>
-        </div>
-    `;
-  }
-  historyDiv.innerHTML = html;
-
-  // 控制按鈕狀態
-  document.getElementById('prevBtn').disabled = (end >= currentItemHistory.length);
-  document.getElementById('nextBtn').disabled = (currentPageIndex === 0);
-}
-
-// 按鈕上下選擇更舊的紀錄
-function changePage(direction) {
-  currentPageIndex += direction;
-  renderHistory();
-}
-  
- // 提交表單時：改用 POST 傳送給 Google
   function submitForm() {
     const btn = document.getElementById('saveBtn');
     const payload = {
@@ -319,7 +286,6 @@ function changePage(direction) {
     btn.disabled = true;
     btn.innerText = "正在儲存...";
 
-    // 使用 fetch 傳送資料
     fetch(GAS_WEB_APP_URL, {
       method: "POST",
       body: JSON.stringify(payload)
