@@ -12,17 +12,39 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     html, body { width: 100%; margin: 0; padding: 0; overflow-x: hidden; background-color: #f0f7f4; }
-    body { font-family: -apple-system, sans-serif; color: #2d4030; }
+    body { font-family: -apple-system, sans-serif; color: #2d4030; font-size: 16px; } /* 全域基本字體調大至 16px */
     .container-fluid { padding: 15px; }
     .card { background: #ffffff; border-radius: 16px; border: 1px solid #d1e7dd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; padding: 20px; }
-    h2 { color: #2e7d32; font-weight: 800; text-align: center; margin-bottom: 20px; }
-    h5 { color: #388e3c; border-left: 5px solid #81c784; padding-left: 10px; margin-bottom: 20px; font-weight: bold; }
-    .form-label { color: #2e7d32; font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
-    .form-select, .form-control { background-color: #f9fdfa !important; border: 2px solid #c8e6c9 !important; color: #1b5e20 !important; height: 55px; font-size: 1.1rem; border-radius: 12px; }
-    .form-control::placeholder { color: #a5d6a7; }
-    .btn-primary { background-color: #43a047; border: none; height: 60px; font-size: 1.2rem; font-weight: bold; border-radius: 12px; transition: 0.3s; }
+    
+    /* 標題放大 */
+    h2 { color: #2e7d32; font-weight: 800; text-align: center; margin-bottom: 20px; font-size: 24px; }
+    h5 { color: #388e3c; border-left: 5px solid #81c784; padding-left: 10px; margin-bottom: 20px; font-weight: bold; font-size: 18px; }
+    
+    /* 欄位標籤字體調大 */
+    .form-label { color: #2e7d32; font-weight: 700; margin-bottom: 8px; font-size: 16px; }
+    
+    /* 下拉選單與輸入框字體、高度調大 */
+    .form-select, .form-control { 
+      background-color: #f9fdfa !important; 
+      border: 2px solid #c8e6c9 !important; 
+      color: #1b5e20 !important; 
+      height: 55px; 
+      font-size: 16px; 
+      border-radius: 12px; 
+    }
+    .form-control::placeholder { color: #a5d6a7; font-size: 15px; }
+    
+    /* 按鈕字體調大 */
+    .btn-primary { background-color: #43a047; border: none; height: 60px; font-size: 18px; font-weight: bold; border-radius: 12px; transition: 0.3s; }
     .btn-primary:active { background-color: #2e7d32; transform: translateY(2px); }
-    .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 25px; border: 2px dashed #a5d6a7; }
+    .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 25px; border: 2px dashed #a5d6a7; font-size: 16px; }
+    
+    /* 歷史紀錄字體調大 */
+    #historyLogs { font-size: 16px; }
+    .history-title { font-size: 17px !important; }
+    .history-date { font-size: 14px !important; }
+    .history-data { font-size: 16px !important; }
+
     input[type="number"]:focus, input[type="date"]:focus { border-color: #43a047 !important; box-shadow: 0 0 0 0.25rem rgba(67, 160, 71, 0.2); }
   </style>
 </head>
@@ -35,11 +57,11 @@
     <h5>📊 InBody 儀表板</h5>
     <div id="lockScreen" class="inbody-locked text-center">
       <input type="password" id="unlockPwd" class="form-control mb-3" placeholder="輸入密碼查看數據">
-      <button class="btn btn-outline-success w-100" onclick="checkPwd()">展開數據</button>
+      <button class="btn btn-outline-success w-100" style="font-size:16px;" onclick="checkPwd()">展開數據</button>
     </div>
     <div id="inbodyContent" style="display:none;">
-      <div class="text-center p-3 text-success">（數據繪製區域）</div>
-      <button class="btn btn-sm btn-link w-100 text-success" onclick="lockInBody()">隱藏數據</button>
+      <div class="text-center p-3 text-success" style="font-size:16px;">（數據繪製區域）</div>
+      <button class="btn btn-sm btn-link w-100 text-success" style="font-size:15px;" onclick="lockInBody()">隱藏數據</button>
     </div>
   </div>
 
@@ -51,7 +73,7 @@
       <select id="catSelect" class="form-select" onchange="onCategoryChange()">
         <option value="">載入選單中...</option>
       </select>
-      <input type="text" id="newCatInput" class="form-control mt-2" style="display:none;" placeholder="請輸入新部位">
+      <input type="text" id="newCatInput" class="form-control mt-2" style="display:none; font-size:16px;" placeholder="請輸入新部位">
     </div>
 
     <div class="mb-3">
@@ -59,7 +81,7 @@
       <select id="itemSelect" class="form-select" onchange="onItemChange()">
         <option value="">請先選擇部位</option>
       </select>
-      <input type="text" id="newItemInput" class="form-control mt-2" style="display:none;" placeholder="請輸入新動作">
+      <input type="text" id="newItemInput" class="form-control mt-2" style="display:none; font-size:16px;" placeholder="請輸入新動作">
     </div>
 
     <div class="mb-3">
@@ -68,23 +90,23 @@
     </div>
 
     <div class="text-center mb-3">
-      <img src="https://lh3.googleusercontent.com/pw/AP1GczMdXh_qq38ozXAfjDB3tf7RRM9YGTLruM-b_c0187WJFkman-m7YiKT_qzJSXvG6bVhuoIvy2Vd55Bez7eFspl8o-CFsF5bBQLXGgzABVcdznw_APo8SRlhiLghX4yM8HOfUAd7gnyGHv3XbVRz1vjaGQ=w1341-h894-s-no-gm?authuser=0" 
+      <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500" 
            id="itemImg" 
            style="width: 100%; height: auto; max-height: 200px; object-fit: contain; background-color: #fff; border-radius: 12px; border: 2px solid #e8f5e9;"
-           onerror="this.src='https://lh3.googleusercontent.com/pw/AP1GczMdXh_qq38ozXAfjDB3tf7RRM9YGTLruM-b_c0187WJFkman-m7YiKT_qzJSXvG6bVhuoIvy2Vd55Bez7eFspl8o-CFsF5bBQLXGgzABVcdznw_APo8SRlhiLghX4yM8HOfUAd7gnyGHv3XbVRz1vjaGQ=w1341-h894-s-no-gm?authuser=0';">
+           onerror="this.src='https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500';">
     </div>
 
     <div class="mb-3">
-      <div class="p-3 rounded d-flex flex-column" style="background-color: #e8f5e9; border: 1px solid #c8e6c9; min-height: 120px; font-size: 1rem;">
+      <div class="p-3 rounded d-flex flex-column" style="background-color: #e8f5e9; border: 1px solid #c8e6c9; min-height: 120px;">
         <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-white">
-          <span class="fw-bold text-success" style="font-size: 1.1rem;">⏱️ 歷史訓練紀錄 (最近2次)</span>
+          <span class="fw-bold text-success history-title">⏱️ 歷史訓練紀錄 (最近2次)</span>
           <div>
-            <button class="btn btn-sm btn-outline-success py-1 px-2 me-1" onclick="changePage(1)" id="prevBtn" style="font-size:0.85rem;" disabled>⬅️ 更舊</button>
-            <button class="btn btn-sm btn-outline-success py-1 px-2" onclick="changePage(-1)" id="nextBtn" style="font-size:0.85rem;" disabled>更新 ➡️</button>
+            <button class="btn btn-sm btn-outline-success py-1 px-2 me-1" onclick="changePage(1)" id="prevBtn" style="font-size:14px;" disabled>⬅️ 更舊</button>
+            <button class="btn btn-sm btn-outline-success py-1 px-2" onclick="changePage(-1)" id="nextBtn" style="font-size:14px;" disabled>更新 ➡️</button>
           </div>
         </div>
         <div id="historyLogs" class="flex-grow-1">
-          <p class="text-muted text-center pt-3">請先選擇運動項目</p>
+          <p class="text-muted text-center pt-3" style="font-size:16px;">請先選擇運動項目</p>
         </div>
       </div>
     </div>
@@ -116,12 +138,11 @@
   let currentPageIndex = 0;    
  
   window.onload = function() {
-    // 預設日期欄位為「今天」
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('logDate').value = today;
 
-    // 🎯 核心修正 1：移除任何可能誤導為 POST 的設定，使用最單純標準的 GET 請求拿選單
-    fetch(GAS_WEB_APP_URL, { method: "GET" })
+    // 加上隨機數防快取
+    fetch(`${GAS_WEB_APP_URL}?_nocache=${Date.now()}`, { method: "GET" })
       .then(response => response.json())
       .then(data => {
         fullMenuData = data;
@@ -163,25 +184,31 @@
 
     if (cat && item && fullMenuData[cat]) {
       const found = fullMenuData[cat].find(obj => obj.name === item);
-      imgTag.src = (found && found.img && found.img !== "") ? found.img : "https://lh3.googleusercontent.com/pw/AP1GczMdXh_qq38ozXAfjDB3tf7RRM9YGTLruM-b_c0187WJFkman-m7YiKT_qzJSXvG6bVhuoIvy2Vd55Bez7eFspl8o-CFsF5bBQLXGgzABVcdznw_APo8SRlhiLghX4yM8HOfUAd7gnyGHv3XbVRz1vjaGQ=w1341-h894-s-no-gm?authuser=0";
+      imgTag.src = (found && found.img && found.img !== "") ? found.img : "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500";
     } else {
-      imgTag.src = "https://lh3.googleusercontent.com/pw/AP1GczMdXh_qq38ozXAfjDB3tf7RRM9YGTLruM-b_c0187WJFkman-m7YiKT_qzJSXvG6bVhuoIvy2Vd55Bez7eFspl8o-CFsF5bBQLXGgzABVcdznw_APo8SRlhiLghX4yM8HOfUAd7gnyGHv3XbVRz1vjaGQ=w1341-h894-s-no-gm?authuser=0";
+      imgTag.src = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500";
     }
 
     if (item && item !== 'Other') {
-      historyDiv.innerHTML = '<p class="text-center text-muted pt-3">載入紀錄中...</p>';
+      historyDiv.innerHTML = '<p class="text-center text-muted pt-3" style="font-size:16px;">載入紀錄中...</p>';
       currentPageIndex = 0; 
       
-      // 🎯 核心修正 2：明確指定使用 GET 方法來索取歷史紀錄，不給瀏覽器亂猜的機會
-      fetch(`${GAS_WEB_APP_URL}?action=getHistory&item=${encodeURIComponent(item)}`, { method: "GET" })
-        .then(res => res.json())
-        .then(data => {
-          currentItemHistory = data;
-          renderHistory();
+      // 🎯 終極修正：將所有參數打包進 POST Payload，完美繞過 Google 網址跳轉的 Method 錯亂 Bug！
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "getHistory",
+          item: item
         })
-        .catch(err => { historyDiv.innerHTML = '<p class="text-danger text-center pt-3">載入歷史失敗</p>'; });
+      })
+      .then(res => res.json())
+      .then(data => {
+        currentItemHistory = data;
+        renderHistory();
+      })
+      .catch(err => { historyDiv.innerHTML = '<p class="text-danger text-center pt-3" style="font-size:16px;">載入歷史失敗</p>'; });
     } else {
-      historyDiv.innerHTML = '<p class="text-muted text-center pt-3">請先選擇運動項目</p>';
+      historyDiv.innerHTML = '<p class="text-muted text-center pt-3" style="font-size:16px;">請先選擇運動項目</p>';
       document.getElementById('prevBtn').disabled = true;
       document.getElementById('nextBtn').disabled = true;
     }
@@ -190,7 +217,7 @@
   function renderHistory() {
     const historyDiv = document.getElementById('historyLogs');
     if (!currentItemHistory || currentItemHistory.length === 0) {
-      historyDiv.innerHTML = '<p class="text-muted text-center pt-2">這是全新項目<br>尚無歷史紀錄</p>';
+      historyDiv.innerHTML = '<p class="text-muted text-center pt-2" style="font-size:16px;">這是全新項目<br>尚無歷史紀錄</p>';
       document.getElementById('prevBtn').disabled = true;
       document.getElementById('nextBtn').disabled = true;
       return;
@@ -204,8 +231,8 @@
       const log = currentItemHistory[i];
       html += `
         <div class="mb-2 pb-2 border-bottom border-white">
-          <div class="text-muted small">📅 ${log.date}</div>
-          <div class="fw-bold text-dark mt-1" style="font-size: 1.1rem;">💪 訓練數據：<span class="text-success">${log.displayContent}</span></div>
+          <div class="text-muted history-date">📅 ${log.date}</div>
+          <div class="fw-bold text-dark mt-1 history-data">💪 訓練數據：<span class="text-success">${log.displayContent}</span></div>
         </div>
       `;
     }
@@ -234,6 +261,7 @@
   function submitForm() {
     const btn = document.getElementById('saveBtn');
     const payload = {
+      action: "saveLog", // 與拿歷史紀錄做區隔
       category: document.getElementById('catSelect').value,
       newCategory: document.getElementById('newCatInput').value,
       item: document.getElementById('itemSelect').value,
