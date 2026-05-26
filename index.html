@@ -203,7 +203,10 @@
         canvas.style.display = 'block';
         renderChart(data);
       })
-      .catch(err => { statusDiv.innerText = "圖表載入失敗"; });
+      .catch(err => { 
+        console.error(err);
+        statusDiv.innerText = "歷史紀錄載入失敗"; 
+      });
     } else {
       statusDiv.style.display = 'block';
       statusDiv.innerText = "請先選擇運動項目";
@@ -212,9 +215,17 @@
   }
 
   function renderChart(historyData) {
-    const recentData = historyData.slice(0, 10);
-    const sortedData = recentData.reverse(); 
-    const labels = sortedData.map(log => log.date.substring(5)); 
+    // 🎯 直接拿後端整理好的最新 10 筆反轉
+    const sortedData = [...historyData].reverse(); 
+    
+    // 安全取得日期 MM/DD
+    const labels = sortedData.map(log => {
+      if (log.date && log.date.includes('/')) {
+        const p = log.date.split('/');
+        return p.length >= 3 ? `${p[1]}/${p[2]}` : log.date;
+      }
+      return log.date || "";
+    });
     
     const chartPoints = sortedData.map(log => {
       const content = log.displayContent ? log.displayContent.toString().trim() : ""; 
@@ -224,14 +235,14 @@
       if (content.includes('*')) {
         const parts = content.split('*');
         weight = parseFloat(parts[0]) || 0;
-        const rest = parts[1];
+        const rest = parts[1] || "";
         if (rest.includes('(') && rest.includes(')')) {
           const subParts = rest.split('(');
-          const sets = subParts[0];
-          const reps = subParts[1].replace(')', '');
+          const sets = subParts[0] || "0";
+          const reps = subParts[1].replace(')', '') || "0";
           setRepStr = `${sets}組*${reps}次`;
         } else {
-          setRepStr = `${rest}組`;
+          setRepStr = rest ? `${rest}組` : "無組數";
         }
       } else {
         weight = parseFloat(content) || 0;
@@ -272,7 +283,7 @@
             font: { size: 12, weight: 'bold' }, 
             formatter: function(value, context) {
               const pt = chartPoints[context.dataIndex];
-              return `${value}kg\n(${pt.labelStr})`;
+              return `${value}kg\n(${pt ? pt.labelStr : ''})`;
             },
             textAlign: 'center' 
           }
@@ -328,7 +339,7 @@
     })
     .then(res => res.json())
     .then(result => {
-      alert(result.message);
+      alert(result.message || "儲存成功！");
       location.reload();
     })
     .catch(err => {
