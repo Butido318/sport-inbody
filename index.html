@@ -34,30 +34,30 @@ body {
 .container-fluid { padding: 12px; max-width: 1400px; }
 
 /* ==========================================
-   2. 頂部大標題（Do愛運動健康紀錄 - 升級質感純白）
+   2. 頂部大標題（升級質感純白）
    ========================================== */
 h1, .main-title {
-  color: #ffffff !important; /* 主標題改成大氣的純白 */
+  color: #ffffff !important; 
   font-weight: 800;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 
 /* ==========================================
-   3. 區塊卡片與自訂標題（深灰岩石襯托 鈦銀/霓虹藍 質感）
+   3. 區塊卡片與自訂標題（黑金奢華質感回歸）
    ========================================== */
 .card { 
-  background: #1e2421 !important; /* 高級深軍綠灰卡片 */
+  background: #181d1a !important; /* 暗黑磨砂綠黑底 */
   border-radius: 16px; 
-  border: 1px solid #2d3733 !important; /* 微光暗邊框 */
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important; 
+  border: 1px solid #28302b !important; /* 微光暗邊框 */
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4) !important; 
   margin-bottom: 15px; 
-  padding: 16px; 
+  padding: 18px; 
   color: #ffffff !important;
 }
 
-/* 各卡片的大標題（如：InBody儀表板、健身紀錄） */
+/* 各卡片的大標題（奢華淡金） */
 h2 { 
-  color: #49c991 !important; /* 原本的香檳金改為亮眼運動綠 */
+  color: #e5c158 !important; 
   font-weight: 800; 
   text-align: center; 
   margin-bottom: 15px; 
@@ -66,8 +66,8 @@ h2 {
 
 /* 區域小標題（如：第一層：身體組成分析） */
 h5 { 
-  color: #d1dcd6 !important; /* 鈦金銀 */
-  border-left: 5px solid #49c991 !important; /* 左側裝飾條：活力綠襯托 */
+  color: #e5c158 !important; /* 奢華淡金 */
+  border-left: 5px solid #ccaf52 !important; /* 左側裝飾條：霧面金 */
   padding-left: 10px; 
   margin-bottom: 15px; 
   font-weight: bold; 
@@ -75,78 +75,85 @@ h5 {
 }
 
 /* 項目提示塊或欄位名稱 */
-h6 { 
-  color: #ffffff !important; 
-  font-weight: 800; 
-  margin-top: 15px; 
-  margin-bottom: 8px; 
-  font-size: 15px; 
-  background: #151917 !important; /* 深度內凹暗塊 */
-  padding: 6px 10px; 
-  border-radius: 6px; 
+h6, label, .form-label { 
+  color: #d1dcd6 !important; 
+  font-weight: bold;
 }
 
 /* ==========================================
-   4. 表格基本外殼與數據儲存格（全體底部邊框）
+   4. 🚀 INBODY 表格外殼：全面消滅白底！進化為半透明霧面底
    ========================================== */
 .table-responsive {
   position: relative;
   border-radius: 12px;
   overflow-x: auto;
-  background: #2c3531; 
-  border: 1px solid #3a4842; 
+  background: rgba(30, 38, 34, 0.65) !important; /* 科技感半透明黑綠底 */
+  backdrop-filter: blur(10px); /* 磨砂玻璃效果 */
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(204, 175, 82, 0.15) !important; /* 淡淡的金色邊框微光 */
+}
+
+/* 強制清除所有 Bootstrap 自帶的白底與雜亂內距 */
+.inbody-table {
+  width: 100%;
+  background: transparent !important;
+  margin-bottom: 0 !important;
 }
 .inbody-table th, .inbody-table td {
-  border-bottom: 1px solid #3a4842 !important; /* 細緻的暗灰色內部線 */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important; /* 細緻微透光線 */
+  color: #ffffff !important;
+  font-weight: 600;
+  background: transparent !important; /* 確保不穿幫 */
 }
+
+/* 數據儲存格：強制限定寬高，確保畫布不跑位 */
 .col-data, .inbody-table td:not(.metric-name) {
-  width: 75px;
-  min-width: 75px;
-  max-width: 75px;
-  height: 56px;
+  width: 78px;
+  min-width: 78px;
+  max-width: 78px;
+  height: 58px;
   position: relative; 
   text-align: center;
   vertical-align: middle;
-  padding: 0 !important;
-  color: #ffffff; 
+  padding: 0 !important; /* 清空內距，全權交給 cell-content 置中 */
 }
 
-/* 確保文字和標籤置中 */
+/* 🚀 強效文字與標籤置中（升級加入了強制覆蓋，防止被 Bootstrap 蓋掉） */
 .cell-content {
-  position: relative;
+  position: absolute !important;
+  top: 0; left: 0; right: 0; bottom: 0;
   z-index: 2; 
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important; /* 垂直置中 */
+  align-items: center !important;     /* 水平置中 */
+  height: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
   pointer-events: none; 
 }
 
 /* ==========================================
-   5. 左側項目欄位與表頭凍結
+   5. 左側項目欄位與表頭凍結（黑金對比強化）
    ========================================== */
 .metric-name {
   font-weight: bold;
-  background: #28322e !important; 
-  color: #b2c0bc !important;      
+  background: rgba(20, 26, 23, 0.9) !important; /* 磨砂黑深底 */
+  color: #e5c158 !important; /* 項目名稱換上高質感淡金字 */
   text-align: left !important;
-  width: 105px;
-  min-width: 105px;
-  padding-left: 12px !important;
+  width: 110px;
+  min-width: 110px;
+  padding-left: 14px !important;
   position: -webkit-sticky;
   position: sticky;
   left: 0;
   z-index: 4; 
-  border-right: 2px solid #3a4842 !important; 
+  border-right: 1px solid rgba(204, 175, 82, 0.2) !important; 
 }
 .inbody-table th.metric-name {
-  background: #232b28 !important; 
+  background: rgba(15, 20, 18, 0.95) !important;
   color: #ffffff !important;
-  position: -webkit-sticky;
-  position: sticky;
-  left: 0;
-  z-index: 5;
 }
 
 /* ==========================================
@@ -161,77 +168,83 @@ h6 {
   z-index: 1; 
   pointer-events: none;
 }
-.row-spark-canvas {
-  display: block;
-  height: 100%;
-  pointer-events: none;
-}
 
 /* 特殊數值警告與優良顏色調整 */
 .val-warn div { color: #ffbc42 !important; } /* 警告：亮橘黃字 */
 .val-good div { color: #2ecc71 !important; } /* 優良：亮綠字 */
 
 /* ==========================================
-   7. 數據變動霓虹活潑 Badge（🚀 配色優化核心）
+   7. 數據變動霓虹活潑 Badge（半透明底色下更顯眼）
    ========================================== */
 .diff-badge {
   font-size: 11px;
-  padding: 1px 6px;
+  padding: 2px 6px;
   border-radius: 4px;
   font-weight: bold;
+  display: inline-block;
+  margin-top: 2px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 .diff-up {
-  background-color: rgba(255, 107, 107, 0.18) !important;
-  color: #ff7676 !important; /* 鮮豔霓虹紅 */
+  background-color: rgba(255, 74, 74, 0.22) !important;
+  color: #ff5c5c !important; /* 鮮豔霓虹紅 */
 }
 .diff-down {
-  background-color: rgba(77, 173, 255, 0.18) !important;
-  color: #5cc0ff !important; /* 清爽霓虹藍 */
+  background-color: rgba(0, 163, 255, 0.22) !important;
+  color: #33b5ff !important; /* 清爽霓虹藍 */
 }
 
 /* ==========================================
-   8. 輸入框、下拉選單深色岩石質感（告別突兀白框）
+   8. 輸入框、下拉選單深色岩石質感
    ========================================== */
-.form-control, select, input[type="password"], input[type="date"], input[type="number"], input[type="text"] {
-  background-color: #252e2a !important; /* 內凹暗綠岩石底 */
-  border: 1px solid #43524b !important;   /* 鈦銀質感的微亮外框 */
+.form-control, select, input {
+  background-color: #202723 !important; /* 內凹暗綠岩石底 */
+  border: 1px solid #36423b !important;   /* 鈦銀質感的微亮外框 */
   color: #ffffff !important;            
   border-radius: 8px;
   padding: 8px 12px;
 }
-/* 當點擊輸入框時，邊框綻放活力綠微光 */
 .form-control:focus, select:focus {
-  border-color: #49c991 !important;
-  box-shadow: 0 0 0 0.2rem rgba(73, 201, 145, 0.25) !important;
+  border-color: #ccaf52 !important; /* 聚焦時散發金光 */
+  box-shadow: 0 0 0 0.2rem rgba(204, 175, 82, 0.2) !important;
 }
-    
-/* 🚀 儲存按鈕：升級為活潑跳出的運動霓虹綠漸層，搭配白字 */
-    .btn-primary, .btn-success, button[onclick*="submitForm"] { 
-      background: linear-gradient(135deg, #42b983, #34a873) !important;
-      border: none !important; 
-      height: 55px; 
-      font-size: 18px; 
-      font-weight: bold; 
-      border-radius: 11px; 
-      transition: 0.3s; 
-      color: #ffffff !important; /* 改為白字，在霓虹綠上非常清晰活潑 */
-      box-shadow: 0 4px 12px rgba(66, 185, 131, 0.2) !important;
-    }
-    .btn-primary:active, button[onclick*="submitForm"]:active { 
-      background: linear-gradient(135deg, #5cd699, #42b983) !important;
-      transform: translateY(2px); 
-    }
-    
-    /* 🚀 右側力量大圖表容器（安全保留：維持高質感暗色底，不亮瞎眼） */
-    .chart-container { 
-      background-color: #19201d !important; /* 深軍綠黑內凹底 */
-      border: 1px solid #2d3733 !important; 
-      border-radius: 12px; 
-      padding: 35px 5px 5px 5px; 
-      position: relative; 
-      width: 100%;
-      min-height: 280px;
-    }
+.form-control::placeholder, input::placeholder {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* ==========================================
+   9. 🚀 招牌奢華金屬漸層金按鈕（強勢完美回歸）
+   ========================================== */
+.btn-primary, .btn-success, button[onclick*="submitForm"] { 
+  background: linear-gradient(135deg, #ccaf52, #ad923b) !important; 
+  border: none !important; 
+  height: 55px; 
+  font-size: 18px; 
+  font-weight: bold; 
+  border-radius: 11px; 
+  transition: 0.3s; 
+  color: #121614 !important; /* 內文深色對比極佳 */
+  box-shadow: 0 5px 15px rgba(204, 175, 82, 0.25) !important;
+  width: 100%;
+}
+.btn-primary:hover, button[onclick*="submitForm"]:hover {
+  background: linear-gradient(135deg, #e5c158, #ccaf52) !important;
+  box-shadow: 0 6px 20px rgba(204, 175, 82, 0.4) !important;
+}
+.btn-primary:active, button[onclick*="submitForm"]:active { 
+  transform: translateY(2px); 
+}
+
+/* 右側力量大圖表容器 */
+.chart-container { 
+  background-color: #161c19 !important; /* 深軍綠黑內凹底 */
+  border: 1px solid #28302b !important; 
+  border-radius: 12px; 
+  padding: 30px 10px 10px 10px;
+  position: relative; 
+  width: 100%;
+  min-height: 280px;
+}
     /* ==========================================
        8. 🎬 媒體顯示區域（保留原有全套核心縮放結構，微調底色）
        ========================================== */
@@ -800,42 +813,49 @@ function formatDate(dateStr) {
   }
 
 function submitForm() {
-  // 1. 安全取值：先檢查元件存在才抓值，避免 null 崩潰
+  // 1. 安全抓取三大核心元件
   const dateEl = document.getElementById('date');
   const catEl  = document.getElementById('category');
   const itemEl = document.getElementById('item');
   
-  if (!dateEl || !catEl || !itemEl) {
-    return alert('系統錯誤：找不到基本的日期、部位或項目下拉選單元件！');
-  }
+  if (!dateEl) return alert('系統找不到 [date] 日期輸入欄位！');
+  if (!catEl) return alert('系統找不到 [category] 部位下拉選單！');
+  if (!itemEl) return alert('系統找不到 [item] 項目下拉選單！');
   
   const dateVal = dateEl.value;
   const catSel  = catEl.value;
   const itemSel = itemEl.value;
   
-  // 🚀 關鍵安全遞補：先確認新輸入框有在畫面上，才去讀取 value
+  // 🚀 智慧判斷：只要選單選到包含「新增」或「Other」或「自訂」，就去抓新輸入框
+  const isNewCat  = catSel.includes('新增') || catSel === 'Other' || catSel.includes('自訂');
+  const isNewItem = itemSel.includes('新增') || itemSel === 'Other' || itemSel.includes('自訂');
+
   const newCatEl  = document.getElementById('newCategory');
   const newItemEl = document.getElementById('newItem');
-  
-  const finalCategory = (catSel === 'Other') ? (newCatEl ? newCatEl.value.trim() : '') : catSel;
-  const finalItem     = (itemSel === 'Other') ? (newItemEl ? newItemEl.value.trim() : '') : itemSel;
 
-  // 2. 驗證
+  const finalCategory = isNewCat ? (newCatEl ? newCatEl.value.trim() : '') : catSel;
+  const finalItem     = isNewItem ? (newItemEl ? newItemEl.value.trim() : '') : itemSel;
+
+  // 2. 基礎驗證
   if (!dateVal) return alert('請選擇日期！');
-  if (!finalCategory || finalCategory === '-- 部位 --') return alert('請選擇或填寫訓練部位！');
-  if (!finalItem || finalItem === '選擇部位') return alert('請選擇或填寫運動項目！');
+  if (!finalCategory || finalCategory.includes('--') || finalCategory.includes('選擇')) return alert('請選擇或輸入訓練部位！');
+  if (!finalItem || finalItem.includes('--') || finalItem.includes('選擇')) return alert('請選擇或輸入運動項目！');
 
-  // 3. 打包資料
+  // 3. 安全抓取數值欄位（防 null 機制）
+  const weightEl = document.getElementById('weight');
+  const setsEl   = document.getElementById('sets');
+  const repsEl   = document.getElementById('reps');
+
   const form = {
     date: dateVal,
     category: finalCategory, 
     item: finalItem,         
-    weight: document.getElementById('weight') ? document.getElementById('weight').value : '',
-    sets: document.getElementById('sets') ? document.getElementById('sets').value : '',
-    reps: document.getElementById('reps') ? document.getElementById('reps').value : ''
+    weight: weightEl ? weightEl.value : '0',
+    sets: setsEl ? setsEl.value : '0',
+    reps: repsEl ? repsEl.value : '0'
   };
 
-  // 4. 按鈕動畫
+  // 4. 按鈕視覺過渡
   const btn = document.querySelector('button[onclick*="submitForm"]');
   let oriText = "儲存紀錄至 Excel";
   if (btn) {
@@ -848,20 +868,17 @@ function submitForm() {
   google.script.run
     .withSuccessHandler(function(res) {
       if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
-      
       const data = JSON.parse(res);
       if (data.status === 'success') {
         alert(data.message);
+        if (typeof initWorkoutForm === 'function') { initWorkoutForm(); }
         
-        if (typeof initWorkoutForm === 'function') {
-          initWorkoutForm(); 
-        }
-        
-        if (document.getElementById('newCategory')) document.getElementById('newCategory').value = '';
-        if (document.getElementById('newItem')) document.getElementById('newItem').value = '';
-        if (document.getElementById('weight')) document.getElementById('weight').value = '';
-        if (document.getElementById('sets')) document.getElementById('sets').value = '';
-        if (document.getElementById('reps')) document.getElementById('reps').value = '';
+        // 成功後安全清空
+        if (newCatEl) newCatEl.value = '';
+        if (newItemEl) newItemEl.value = '';
+        if (weightEl) weightEl.value = '';
+        if (setsEl) setsEl.value = '';
+        if (repsEl) repsEl.value = '';
       } else {
         alert('儲存失敗：' + data.message);
       }
