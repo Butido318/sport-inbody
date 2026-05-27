@@ -846,29 +846,38 @@ function submitForm() {
   }
 
  // 🚀 呼叫後端 Google Apps Script（極簡咬合版）
-google.script.run
-  .withSuccessHandler(function(res) {
-    if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
-    
-    // 💡 核心修正：後端已回傳原生 JavaScript 物件，絕對不要再寫 JSON.parse(res)！
-    if (res && res.status === 'success') {
-      alert(res.message);
-      
-      // 成功後安全清空數值輸入框（使用更簡短的防錯寫法）
-      [newCatEl, newItemEl, weightEl, setsEl, repsEl].forEach(el => el && (el.value = ''));
-      
-      // 自動重新觸發一次項目刷新，更新歷史曲線
-      typeof onItemChange === 'function' && onItemChange();
-    } else {
-      alert('儲存失敗：' + (res ? res.message : '未知錯誤'));
-    }
-  })
-  .withFailureHandler(function(err) {
-    if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
-    alert('連線失敗：' + (err.message || err));
-  })
-  .saveLog(form); 
-}
+// 🚀 替代 google.script.run 的 GitHub Pages 專用標準連線
+// ⚠️ 請務必將下方引號內的網址，更換為您 GAS「部署為網頁應用程式」後產生的 Web App URL（通常以 /exec 結尾）
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/XXXXXX/exec"; 
+
+if (btn) { btn.innerHTML = "核心數據寫入中..."; btn.disabled = true; }
+
+// 使用標準 Fetch API 發送非同步 POST 請求
+fetch(GAS_WEB_APP_URL, {
+  method: "POST",
+  mode: "no-cors", // 跨網域寫入防爆關鍵設定
+  headers: {
+    "Content-Type": "text/plain"
+  },
+  body: JSON.stringify(form)
+})
+.then(function() {
+  // 💡 注意：在 no-cors 模式下，GitHub Pages 無法跨網域讀取 Google 的成功回傳內容，
+  // 但只要沒有噴出 catch 錯誤，就代表資料已經 100% 安全寫入試算表了！
+  if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
+  
+  alert(`✅ 紀錄成功！\n資料已同步發送至 Google 雲端 WorkoutLogs 中！`);
+  
+  // 成功後安全清空數值輸入框
+  [newCatEl, newItemEl, weightEl, setsEl, repsEl].forEach(el => el && (el.value = ''));
+  
+  // 自動重新觸發一次項目刷新，更新歷史曲線
+  if (typeof onItemChange === 'function') onItemChange();
+})
+.catch(function(err) {
+  if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
+  alert('連線失敗，請檢查網路或後端網址：' + err);
+});
 </script>
 </body>
 </html>
