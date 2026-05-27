@@ -17,52 +17,52 @@
   
   <style>
     html, body { width: 100%; margin: 0; padding: 0; overflow-x: hidden; background-color: #f0f7f4; }
-    /* 🎨 大字體基礎設定，確保手機看毫不費力 */
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #2d4030; font-size: 18px; } 
-    .container-fluid { padding: 15px; max-width: 1400px; } /* 限制電腦版最大寬度 */
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #2d4030; font-size: 16px; } 
+    .container-fluid { padding: 12px; max-width: 1400px; }
     
-    .card { background: #ffffff; border-radius: 16px; border: 1px solid #d1e7dd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; padding: 22px; }
-    h2 { color: #2e7d32; font-weight: 800; text-align: center; margin-bottom: 25px; font-size: 28px; }
-    h5 { color: #388e3c; border-left: 6px solid #81c784; padding-left: 12px; margin-bottom: 20px; font-weight: bold; font-size: 20px; }
+    .card { background: #ffffff; border-radius: 16px; border: 1px solid #d1e7dd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; padding: 16px; }
+    h2 { color: #2e7d32; font-weight: 800; text-align: center; margin-bottom: 15px; font-size: 24px; }
+    h5 { color: #388e3c; border-left: 5px solid #81c784; padding-left: 10px; margin-bottom: 15px; font-weight: bold; font-size: 18px; }
     
-    .form-label { color: #2e7d32; font-weight: 700; margin-bottom: 10px; font-size: 18px; }
+    .form-label { color: #2e7d32; font-weight: 700; margin-bottom: 6px; font-size: 15px; }
     
-    /* 🔘 輸入框、選擇器全部增高加大，高質感綠色外框 */
+    /* 🔘 優化輸入框高度與內距，確保緊湊且好點擊 */
     .form-select, .form-control { 
       background-color: #f9fdfa !important; 
       border: 2px solid #c8e6c9 !important; 
       color: #1b5e20 !important; 
-      height: 58px; 
-      font-size: 18px; 
-      border-radius: 12px; 
+      height: 50px; 
+      font-size: 16px; 
+      border-radius: 10px;
+      padding: 6px 10px;
     }
     .form-select:focus, .form-control:focus { border-color: #43a047 !important; box-shadow: 0 0 0 0.25rem rgba(67, 160, 71, 0.2); }
     
-    /* 🚀 大顆好按的儲存按鈕 */
-    .btn-primary { background-color: #43a047; border: none; height: 65px; font-size: 22px; font-weight: bold; border-radius: 12px; transition: 0.3s; }
+    /* 🚀 儲存按鈕 */
+    .btn-primary { background-color: #43a047; border: none; height: 55px; font-size: 18px; font-weight: bold; border-radius: 11px; transition: 0.3s; }
     .btn-primary:active { background-color: #2e7d32; transform: translateY(2px); }
-    .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 25px; border: 2px dashed #a5d6a7; font-size: 18px; }
+    .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 20px; border: 2px dashed #a5d6a7; font-size: 16px; }
     
-    /* 📈 圖表外殼容器固定高度 */
+    /* 📈 圖表外殼容器 */
     .chart-container { 
       background-color: #e8f5e9; 
       border: 1px solid #c8e6c9; 
       border-radius: 12px; 
-      padding: 35px 10px 10px 10px; 
+      padding: 35px 5px 5px 5px; 
       position: relative; 
       width: 100%;
-      min-height: 300px;
+      min-height: 280px;
     }
-    
-    /* 📱 手機版專屬優化：當寬度小於 576px 時，將重量組數次數改為垂直排列 */
+
+    /* 📱 手機版微調：減少左右邊距，避免字體被擠壓 */
     @media (max-width: 575.98px) {
-      .mobile-stack {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
+      .row.g-1 .col-4, .row.g-1 .col-6 {
+        padding-left: 3px !important;
+        padding-right: 3px !important;
       }
-      .mobile-stack .col-4 {
-        width: 100% !important;
+      .form-control.px-1 {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
       }
     }
   </style>
@@ -80,11 +80,11 @@
         <h5>📊 InBody 儀表板</h5>
         <div id="lockScreen" class="inbody-locked text-center">
           <input type="password" id="unlockPwd" class="form-control mb-3" placeholder="輸入密碼查看數據">
-          <button class="btn btn-outline-success w-100" style="font-size:18px;" onclick="checkPwd()">展開數據</button>
+          <button class="btn btn-outline-success w-100" style="font-size:16px;" onclick="checkPwd()">展開數據</button>
         </div>
         <div id="inbodyContent" style="display:none;">
-          <div class="text-center p-3 text-success" style="font-size:18px;">（數據繪製區域）</div>
-          <button class="btn btn-sm btn-link w-100 text-success" style="font-size:18px;" onclick="lockInBody()">隱藏數據</button>
+          <div class="text-center p-3 text-success" style="font-size:16px;">（數據繪製區域）</div>
+          <button class="btn btn-sm btn-link w-100 text-success" style="font-size:16px;" onclick="lockInBody()">隱藏數據</button>
         </div>
       </div>
 
@@ -92,30 +92,32 @@
         <h5>⚙️ 項目選擇</h5>
         
         <div class="mb-3">
-          <label class="form-label">部位分類</label>
-          <select id="catSelect" class="form-select" onchange="onCategoryChange()">
-            <option value="">載入選單中...</option>
-          </select>
-          <input type="text" id="newCatInput" class="form-control mt-2" style="font-size:18px; display:none;" placeholder="請輸入新部位">
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">運動項目</label>
-          <select id="itemSelect" class="form-select" onchange="onItemChange()">
-            <option value="">請先選擇部位</option>
-          </select>
-          <input type="text" id="newItemInput" class="form-control mt-2" style="font-size:18px; display:none;" placeholder="請輸入新動作">
-        </div>
-
-        <div class="mb-3">
           <label class="form-label">📅 訓練日期</label>
           <input type="date" id="logDate" class="form-control">
         </div>
+
+        <div class="row g-1 mb-2">
+          <div class="col-6">
+            <label class="form-label">部位分類</label>
+            <select id="catSelect" class="form-select" onchange="onCategoryChange()">
+              <option value="">載入中...</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">運動項目</label>
+            <select id="itemSelect" class="form-select" onchange="onItemChange()">
+              <option value="">選擇部位</option>
+            </select>
+          </div>
+        </div>
+
+        <input type="text" id="newCatInput" class="form-control mb-2" style="font-size:16px; display:none;" placeholder="請輸入新部位">
+        <input type="text" id="newItemInput" class="form-control mb-2" style="font-size:16px; display:none;" placeholder="請輸入新動作">
         
-        <div class="text-center mt-3">
+        <div class="text-center mt-2">
           <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500" 
                id="itemImg" 
-               style="width: 100%; height: auto; max-height: 180px; object-fit: contain; background-color: #fff; border-radius: 12px; border: 2px solid #e8f5e9;"
+               style="width: 100%; height: auto; max-height: 140px; object-fit: contain; background-color: #fff; border-radius: 12px; border: 2px solid #e8f5e9;"
                onerror="this.src='https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500';">
         </div>
       </div>
@@ -127,28 +129,28 @@
       <div class="card">
         <h5>📈 力量成長曲線 (最近 10 次數據)</h5>
         <div class="chart-container">
-          <div id="chartStatus" class="text-muted text-center pt-5" style="font-size:18px; position:absolute; width:100%; z-index:2;">
+          <div id="chartStatus" class="text-muted text-center pt-5" style="font-size:16px; position:absolute; width:100%; z-index:2;">
             請先選擇運動項目
           </div>
-          <canvas id="weightChart" style="width: 100%; height: 260px; display:none;"></canvas>
+          <canvas id="weightChart" style="width: 100%; height: 250px; display:none;"></canvas>
         </div>
       </div>
 
       <div class="card">
         <h5>💪 今日訓練成果</h5>
         
-        <div class="row g-2 mobile-stack mb-4">
+        <div class="row g-1 mb-4">
           <div class="col-4">
-            <label class="form-label text-center d-block">重量 (Weight)</label>
-            <input type="number" id="w" class="form-control text-center" placeholder="kg" inputmode="decimal">
+            <label class="form-label text-center d-block">重量</label>
+            <input type="number" id="w" class="form-control text-center px-1" placeholder="kg" inputmode="decimal">
           </div>
           <div class="col-4">
-            <label class="form-label text-center d-block">組數 (Sets)</label>
-            <input type="number" id="s" class="form-control text-center" placeholder="組" inputmode="numeric">
+            <label class="form-label text-center d-block">組數</label>
+            <input type="number" id="s" class="form-control text-center px-1" placeholder="組" inputmode="numeric">
           </div>
           <div class="col-4">
-            <label class="form-label text-center d-block">次數 (Reps)</label>
-            <input type="number" id="r" class="form-control text-center" placeholder="次" inputmode="numeric">
+            <label class="form-label text-center d-block">次數</label>
+            <input type="number" id="r" class="form-control text-center px-1" placeholder="次" inputmode="numeric">
           </div>
         </div>
 
@@ -176,14 +178,14 @@
         fullMenuData = data;
         const catSelect = document.getElementById('catSelect');
         if (Object.keys(data).length === 0) {
-          catSelect.innerHTML = '<option value="">Excel 內沒有設定資料</option>';
+          catSelect.innerHTML = '<option value="">無設定資料</option>';
         } else {
-          catSelect.innerHTML = '<option value="">-- 點擊選擇部位 --</option>';
+          catSelect.innerHTML = '<option value="">-- 部位 --</option>';
           for (let cat in data) {
             catSelect.options.add(new Option(cat, cat));
           }
         }
-        catSelect.options.add(new Option("+ 新增其他部位", "Other"));
+        catSelect.options.add(new Option("+ 新增部位", "Other"));
       })
       .catch(err => { alert("連線到 Google 失敗：" + err.message); });
   };
@@ -193,11 +195,11 @@
     const itemSelect = document.getElementById('itemSelect');
     const newCatInput = document.getElementById('newCatInput');
     newCatInput.style.display = (cat === 'Other') ? 'block' : 'none';
-    itemSelect.innerHTML = '<option value="">-- 選擇動作 --</option>';
+    itemSelect.innerHTML = '<option value="">-- 動作 --</option>';
     if (cat && cat !== 'Other' && fullMenuData[cat]) {
       fullMenuData[cat].forEach(obj => itemSelect.options.add(new Option(obj.name, obj.name)));
     }
-    itemSelect.options.add(new Option("+ 新增其他動作", "Other"));
+    itemSelect.options.add(new Option("+ 新增動作", "Other"));
     onItemChange();
   }
 
@@ -220,7 +222,7 @@
 
     if (item && item !== 'Other') {
       statusDiv.style.display = 'block';
-      statusDiv.innerText = "正在讀取並繪製前 10 次曲線圖...";
+      statusDiv.innerText = "正在讀取歷史曲線...";
       canvas.style.display = 'none';
       
       fetch(GAS_WEB_APP_URL, {
@@ -251,7 +253,7 @@
   function renderChart(historyData) {
     if (typeof Chart === 'undefined') {
       document.getElementById('chartStatus').style.display = 'block';
-      document.getElementById('chartStatus').innerText = "圖表套件載入失敗，請重新整理網頁";
+      document.getElementById('chartStatus').innerText = "圖表套件載入失敗";
       return;
     }
 
@@ -320,7 +322,7 @@
             align: 'top',      
             offset: 4,         
             color: '#1b5e20',  
-            font: { size: 12, weight: 'bold' }, 
+            font: { size: 11, weight: 'bold' }, 
             formatter: function(value, context) {
               const pt = chartPoints[context.dataIndex];
               if (pt && pt.labelStr) {
@@ -334,10 +336,10 @@
         scales: {
           x: {
             grid: { display: false },
-            ticks: { font: { size: 13, weight: 'bold' }, color: '#2d4030' }
+            ticks: { font: { size: 12, weight: 'bold' }, color: '#2d4030' }
           },
           y: {
-            ticks: { font: { size: 13, weight: 'bold' }, color: '#2d4030' },
+            ticks: { font: { size: 12, weight: 'bold' }, color: '#2d4030' },
             grace: '35%' 
           }
         }
