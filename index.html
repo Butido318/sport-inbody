@@ -413,7 +413,9 @@ h6, label, .form-label {
 </div>
 
 <script>
+  // 🚀 統一集中管理你的後端 API URL 變數
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTdrao1uUJS_PqrQ4-1Fxz4_foSfsqC4meWjL9RqHnGLxc8IwAC4WzKBpk8_s9ZWACCQ/exec";
+  
   let activeInBodyCharts = []; 
   let fullMenuData = {};
   let myChart = null; 
@@ -442,12 +444,11 @@ h6, label, .form-label {
   }
 
 /* ══════════════════════════════════════════════════════════════
-   1. 渲染 InBody 表格主引擎 (大掃除時機修復版)
+   1. 渲染 InBody 表格主引擎
    ══════════════════════════════════════════════════════════════ */
 function renderInBody(raw) {
   if (!raw || raw.length < 2) return;
 
-  // 🚀 【核心修復點 1】：大掃除要在大齒輪轉動之前做！只在進入表格渲染時徹底清除一次舊物件
   if (window.activeInBodyCharts && Array.isArray(window.activeInBodyCharts)) {
     window.activeInBodyCharts.forEach(c => { if(c && typeof c.destroy === 'function') c.destroy(); });
   }
@@ -455,7 +456,7 @@ function renderInBody(raw) {
 
   const originalDates = raw[0].slice(1); 
   const sliceCount = originalDates.length; 
-  const viewDates = originalDates.slice(0, sliceCount).reverse(); // 舊到新排序
+  const viewDates = originalDates.slice(0, sliceCount).reverse(); 
   const rows = raw.slice(1);
 
   const tables = {
@@ -523,7 +524,7 @@ function renderInBody(raw) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   2. 格子獨立微型畫布繪製邏輯 (移除了錯誤大掃除，曲線完美重現)
+   2. 格子獨立微型畫布繪製邏輯
    ══════════════════════════════════════════════════════════════ */
 function drawGridSparkline(rowIndex, rowDataPoints) {
   const validValues = rowDataPoints.map(v => parseFloat(v)).filter(v => !isNaN(v));
@@ -536,7 +537,6 @@ function drawGridSparkline(rowIndex, rowDataPoints) {
   const yMin = valRange === 0 ? minVal - 1 : minVal - (valRange * 0.25);
   const yMax = valRange === 0 ? maxVal + 1 : maxVal + (valRange * 0.25);
 
-  // 🚀【核心修復點 2】：移除原本會誤殺前面所有格子的全域銷毀邏輯，讓每一格各自專心繪圖！
   rowDataPoints.forEach((_, colIndex) => {
     const canvasId = `canvas-r${rowIndex}-c${colIndex}`;
     const canvas = document.getElementById(canvasId);
@@ -689,7 +689,6 @@ function formatDate(dateStr) {
         labels: labels,
         datasets: [{
           data: chartPoints.map(p => p.weight),
-          // 🚀 配色優化：大力量曲線換上高質感的黑金配（金線 + 柔和金底點）
           borderColor: '#ccaf52', 
           backgroundColor: '#e5c158', 
           borderWidth: 3, 
@@ -706,7 +705,7 @@ function formatDate(dateStr) {
           tooltip: { enabled: true },
           datalabels: {
             display: true, align: 'top', offset: 4, 
-            color: '#e5c158', // 數據文字換成金色
+            color: '#e5c158', 
             font: { size: 11, weight: 'bold' }, 
             formatter: function(value, context) {
               const pt = chartPoints[context.dataIndex];
@@ -716,7 +715,6 @@ function formatDate(dateStr) {
           }
         },
         scales: {
-          // 坐標軸文字優化為柔和灰白色，在深黑底上清晰不刺眼
           x: { grid: { display: false }, ticks: { font: { size: 12, weight: 'bold' }, color: '#d1dcd6' } },
           y: { ticks: { font: { size: 12, weight: 'bold' }, color: '#d1dcd6' }, grace: '35%' }
         }
@@ -790,25 +788,25 @@ function formatDate(dateStr) {
   }
 
 /* ══════════════════════════════════════════════════════════════
-   3. 🚀 儲存紀錄表單對接引擎 (完全對接精準欄位 ID，除蟲完全體)
+   3. 🚀 儲存紀錄表單對接引擎（完全對接精準欄位除蟲版）
    ══════════════════════════════════════════════════════════════ */
 function submitForm() {
-  // 🚀【核心對接修正】：將變數精準對應你 HTML 裡的實體元素 ID
+  // 🚀【變數修正】：精準綁定 HTML 現有元素 ID
   const dateEl = document.getElementById('logDate');
   const catEl  = document.getElementById('catSelect');
   const itemEl = document.getElementById('itemSelect');
   
-  if (!dateEl) return alert('系統找不到 [logDate] 日期輸入欄位！');
-  if (!catEl) return alert('系統找不到 [catSelect] 部位下拉選單！');
-  if (!itemEl) return alert('系統找不到 [itemSelect] 項目下拉選單！');
+  if (!dateEl) return alert('系統找不到 [logDate] 日期欄位！');
+  if (!catEl) return alert('系統找不到 [catSelect] 部位選單！');
+  if (!itemEl) return alert('系統找不到 [itemSelect] 項目選單！');
   
   const dateVal = dateEl.value;
   const catSel  = catEl.value;
   const itemSel = itemEl.value;
   
-  // 智慧判斷自訂項目
-  const isNewCat  = catSel.includes('新增') || catSel === 'Other' || catSel.includes('自訂');
-  const isNewItem = itemSel.includes('新增') || itemSel === 'Other' || itemSel.includes('自訂');
+  // 智慧自訂項目解析
+  const isNewCat  = catSel === 'Other';
+  const isNewItem = itemSel === 'Other';
 
   const newCatEl  = document.getElementById('newCatInput');
   const newItemEl = document.getElementById('newItemInput');
@@ -818,25 +816,25 @@ function submitForm() {
 
   // 基礎欄位防呆
   if (!dateVal) return alert('請選擇日期！');
-  if (!finalCategory || finalCategory.includes('--') || finalCategory.includes('選擇')) return alert('請選擇或輸入訓練部位！');
-  if (!finalItem || finalItem.includes('--') || finalItem.includes('選擇')) return alert('請選擇或輸入運動項目！');
+  if (!finalCategory || finalCategory.includes('--')) return alert('請選擇或輸入訓練部位！');
+  if (!finalItem || finalItem.includes('--')) return alert('請選擇或輸入運動項目！');
 
-  // 🚀【核心對接修正】：精準抓取今日訓練成果欄位：w、s、r
+  // 🚀【變數修正】：精準抓取今日訓練成果的實體欄位：w、s、r
   const weightEl = document.getElementById('w');
   const setsEl   = document.getElementById('s');
   const repsEl   = document.getElementById('r');
 
- const form = {
-  // ⚠️ 請確保網頁裡的日期輸入框有 id="date" 或者是用正確的 class 抓取
-  date: document.getElementById('date').value, 
-  category: document.getElementById('category').value,
-  item: document.getElementById('item').value,
-  weight: document.getElementById('weight').value,
-  sets: document.getElementById('sets').value,
-  reps: document.getElementById('reps').value
-};
+  // 封裝成要傳給後端的 JSON 欄位物件
+  const form = {
+    date: dateVal, 
+    category: finalCategory,
+    item: finalItem,
+    weight: weightEl ? weightEl.value : "0",
+    sets: setsEl ? setsEl.value : "0",
+    reps: repsEl ? repsEl.value : "0"
+  };
 
-  // 按鈕動態鎖定
+  // 按鈕動態鎖定效果
   const btn = document.getElementById('saveBtn');
   let oriText = "儲存紀錄至 Excel";
   if (btn) {
@@ -845,39 +843,35 @@ function submitForm() {
     btn.disabled = true;
   }
 
- // 🚀 呼叫後端 Google Apps Script（極簡咬合版）
-// 🚀 替代 google.script.run 的 GitHub Pages 專用標準連線
-// ⚠️ 請務必將下方引號內的網址，更換為您 GAS「部署為網頁應用程式」後產生的 Web App URL（通常以 /exec 結尾）
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/XXXXXX/exec"; 
-
-if (btn) { btn.innerHTML = "核心數據寫入中..."; btn.disabled = true; }
-
-// 使用標準 Fetch API 發送非同步 POST 請求
-fetch(GAS_WEB_APP_URL, {
-  method: "POST",
-  mode: "no-cors", // 跨網域寫入防爆關鍵設定
-  headers: {
-    "Content-Type": "text/plain"
-  },
-  body: JSON.stringify(form)
-})
-.then(function() {
-  // 💡 注意：在 no-cors 模式下，GitHub Pages 無法跨網域讀取 Google 的成功回傳內容，
-  // 但只要沒有噴出 catch 錯誤，就代表資料已經 100% 安全寫入試算表了！
-  if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
-  
-  alert(`✅ 紀錄成功！\n資料已同步發送至 Google 雲端 WorkoutLogs 中！`);
-  
-  // 成功後安全清空數值輸入框
-  [newCatEl, newItemEl, weightEl, setsEl, repsEl].forEach(el => el && (el.value = ''));
-  
-  // 自動重新觸發一次項目刷新，更新歷史曲線
-  if (typeof onItemChange === 'function') onItemChange();
-})
-.catch(function(err) {
-  if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
-  alert('連線失敗，請檢查網路或後端網址：' + err);
-});
+  // 執行 Fetch 跨網域非同步寫入
+  fetch(GAS_WEB_APP_URL, {
+    method: "POST",
+    mode: "no-cors", // 跨網域安全寫入不爆錯設定
+    headers: {
+      "Content-Type": "text/plain"
+    },
+    body: JSON.stringify(form)
+  })
+  .then(function() {
+    if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
+    
+    alert(`✅ 紀錄成功！\n資料已安全發送至 Google 雲端 WorkoutLogs 中！`);
+    
+    // 成功後清空輸入框數值
+    if (weightEl) weightEl.value = '';
+    if (setsEl) setsEl.value = '';
+    if (repsEl) repsEl.value = '';
+    if (newCatEl) newCatEl.value = '';
+    if (newItemEl) newItemEl.value = '';
+    
+    // 自動重新刷新歷史力量曲線
+    if (typeof onItemChange === 'function') onItemChange();
+  })
+  .catch(function(err) {
+    if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
+    alert('連線失敗，請確認網路連線：' + err);
+  });
+} // 👈 完美閉合，大功告成！
 </script>
 </body>
 </html>
