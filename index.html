@@ -16,8 +16,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   
   <style>
-    html, body { width: 100%; margin: 0; padding: 0; overflow-x: hidden; background-color: #f0f7f4; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #2d4030; font-size: 16px; } 
+    html, body { width: 100%; margin: 0; padding: 0; overflow-x: hidden; background-color: #1e2522; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #ffffff; font-size: 16px; } 
     .container-fluid { padding: 12px; max-width: 1400px; }
     
     .card { background: #ffffff; border-radius: 16px; border: 1px solid #d1e7dd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; padding: 16px; }
@@ -32,8 +32,8 @@
   position: relative;
   border-radius: 12px;
   overflow-x: auto;
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: #2c3531; /* 稍微提亮的卡片深綠灰 */
+  border: 1px solid #3a4842; /* 暗色邊框 */
 }
 
 /* 🚀 每個數字格：設定為相對定位基準，寬 75px，高 56px */
@@ -46,6 +46,7 @@
   text-align: center;
   vertical-align: middle;
   padding: 0 !important;
+  color: #ffffff; /* 數據文字改成純白 */
 }
 
 /* 確保文字和標籤疊在線條最上方，且置中 */
@@ -59,11 +60,18 @@
   height: 100%;
   pointer-events: none; /* 不干擾滑鼠操作 */
 }
-
+    
+3. 一般數據儲存格與表頭格（全體底部邊框）
+   ========================================== */
+.inbody-table th, .inbody-table td {
+  border-bottom: 1px solid #3a4842 !important; /* 調整內部分隔線為暗灰色 */
+}
+    
 /* 凍結左側項目欄位 */
 .metric-name {
   font-weight: bold;
-  background: #f9fdfa !important;
+  background: #28322e !important; /* 凍結欄位的專屬深色 */
+  color: #b2c0bc !important;      /* 項目名稱用優雅的淡灰綠字 */
   text-align: left !important;
   width: 105px;
   min-width: 105px;
@@ -72,10 +80,12 @@
   position: sticky;
   left: 0;
   z-index: 4; 
-  border-right: 2px solid #d1e7dd !important; 
+  border-right: 2px solid #3a4842 !important; /* 右側邊框加深 */
 }
+ /* 表頭的「項目」欄位同步更新 */
 .inbody-table th.metric-name {
-  background: #f1f8e9 !important;
+  background: #232b28 !important; /* 表頭稍微再深一點點 */
+  color: #ffffff !important;
   z-index: 5;
 }
 
@@ -95,12 +105,24 @@
   height: 100%;
   pointer-events: none;
 }
-    /* 條件顏色與標籤 */
-    .val-good { color: #2e7d32 !important; font-weight: bold; } 
-    .val-warn { background-color: #fff9c4 !important; color: #f57f17 !important; } 
-    .diff-badge { font-size: 9px; font-weight: bold; padding: 1px 2px; border-radius: 4px; display: block; line-height: 1; margin-top: 2px; }
-    .diff-up { background-color: #ffebee; color: #d32f2f; } 
-    .diff-down { background-color: #e3f2fd; color: #1976d2; } 
+   /* 特殊數值警告與優良顏色調整 */
+.val-warn div { color: #ffbc42 !important; } /* 警告改用亮橘黃字 */
+.val-good div { color: #2ecc71 !important; } /* 優良用亮綠字 */
+    
+.diff-badge {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+.diff-up {
+  background-color: rgba(255, 107, 107, 0.18) !important;
+  color: #ff7676 !important;
+}
+.diff-down {
+  background-color: rgba(77, 173, 255, 0.18) !important;
+  color: #5cc0ff !important;
+}
 
     .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 20px; border: 2px dashed #a5d6a7; font-size: 16px; }
     .form-label { color: #2e7d32; font-weight: 700; margin-bottom: 6px; font-size: 15px; }
@@ -413,20 +435,20 @@ function drawGridSparkline(rowIndex, rowDataPoints) {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    const chart = new Chart(ctx, {
+const chart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: rowDataPoints.map((_, idx) => idx),
         datasets: [{
           data: rowDataPoints,
-          borderColor: '#cccccc',       // 質感淺灰色線
+          borderColor: '#d1dcd6',           // 🚀 改成顯眼的「淺銀綠灰色」線條
           borderWidth: 1.5,
-          pointRadius: 4,               // 圓圈大小
-          pointBackgroundColor: '#ffffff', 
-          pointBorderColor: '#aaaaaa',  
+          pointRadius: 4,
+          pointBackgroundColor: '#2c3531',  // 🚀 點點圓心填滿成跟儲存格一樣的深色
+          pointBorderColor: '#ffffff',      // 🚀 點點外圈用「純白」，像星光一樣亮眼
           pointBorderWidth: 1.5,
           fill: false,
-          tension: 0                    // 直折線 (比照 InBody 原廠風格)
+          tension: 0 
         }]
       },
       options: {
