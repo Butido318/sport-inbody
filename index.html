@@ -26,19 +26,53 @@
     h6 { color: #1b5e20; font-weight: 800; margin-top: 15px; margin-bottom: 8px; font-size: 15px; background: #e8f5e9; padding: 6px 10px; border-radius: 6px; }
 
     /* InBody 專用滾動外殼 */
-    .table-responsive { border-radius: 12px; overflow-x: auto; background: #fff; border: 1px solid #e0e0e0; }
-    .inbody-table { font-size: 14px; width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 0; }
-    .inbody-table th, .inbody-table td { padding: 8px 4px; border: 1px solid #eaeaea; text-align: center; vertical-align: middle; }
-    .inbody-table th { background: #f1f8e9; color: #2e7d32; font-weight: bold; height: 38px; }
-    
-    /* 欄位寬度固定，維持整齊度 */
-    .metric-name { font-weight: bold; background: #f9fdfa !important; text-align: left !important; width: 105px; min-width: 105px; padding-left: 8px !important; }
-    .col-data { width: 75px; min-width: 75px; font-weight: 600; }
-    .col-spark { width: 100px; min-width: 100px; background: #fafafa; }
-    
-    /* 🚀 點線圖包覆在該項目同區域（整列最右側） */
-    .row-sparkline-container { width: 100%; height: 32px; position: relative; }
-    
+   /* 讓表格外殼可以橫向捲動，但維持相對定位基準 */
+.table-responsive {
+  position: relative;
+  border-radius: 12px;
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+}
+
+/* 🚀 重頭戲：凍結左側項目欄位 */
+.metric-name {
+  font-weight: bold;
+  background: #f9fdfa !important;
+  text-align: left !important;
+  width: 105px;
+  min-width: 105px;
+  padding-left: 8px !important;
+  
+  /* 關鍵：滑動時固定在左側 */
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0;
+  z-index: 3; /* 層級提高，確保滑動時蓋在數據上方 */
+  border-right: 2px solid #d1e7dd !important; /* 加上一條明顯的分隔線 */
+}
+
+/* 表頭的「項目」也要一起凍結，不然滑動時會穿幫 */
+.inbody-table th.metric-name {
+  background: #f1f8e9 !important;
+  z-index: 4; /* 表頭的左上角階層最高 */
+}
+
+/* 數據欄位提高層級，確保字體在線條上方，且點擊得到 */
+.col-data, .inbody-table td:not(.metric-name) {
+  position: relative;
+  z-index: 2;
+  background: transparent !important; /* 必須透明，線條才看得到 */
+}
+
+/* 🚀 馴服蜘蛛網的關鍵：一筆一筆乖乖對齊的 Canvas 樣式 */
+.row-spark-canvas {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
     /* 條件顏色與標籤 */
     .val-good { color: #2e7d32 !important; font-weight: bold; } 
     .val-warn { background-color: #fff9c4 !important; color: #f57f17 !important; } 
@@ -248,95 +282,91 @@
   }
 
   // 📊 InBody 三層渲染引擎
-  function renderInBody(raw) {
-    activeInBodyCharts.forEach(c => c.destroy());
-    activeInBodyCharts = [];
+function renderInBody(raw) {
+  activeInBodyCharts.forEach(c => c.destroy());
+  activeInBodyCharts = [];
 
-    const originalDates = raw[0].slice(1); 
-    // 限制最多顯示最近 4 次數據，留最後一欄給「趨勢線圖」包覆
-    const sliceCount = Math.min(originalDates.length, 4);
-    const viewDates = originalDates.slice(0, sliceCount).reverse(); // 舊到新
-    const rows = raw.slice(1);
+  const originalDates = raw[0].slice(1); 
+  const sliceCount = Math.min(originalDates.length, 4);
+  const viewDates = originalDates.slice(0, sliceCount).reverse(); // 舊到新
+  const rows = raw.slice(1);
 
-    const tables = {
-      bodyComp: { head: document.getElementById('headBodyComp'), data: document.getElementById('dataBodyComp'), html: "" },
-      muscle: { head: document.getElementById('headMuscle'), data: document.getElementById('dataMuscle'), html: "" },
-      fat: { head: document.getElementById('headFat'), data: document.getElementById('dataFat'), html: "" }
-    };
+  const tables = {
+    bodyComp: { head: document.getElementById('headBodyComp'), data: document.getElementById('dataBodyComp'), html: "" },
+    muscle: { head: document.getElementById('headMuscle'), data: document.getElementById('dataMuscle'), html: "" },
+    fat: { head: document.getElementById('headFat'), data: document.getElementById('dataFat'), html: "" }
+  };
 
-    // 1. 修改表頭：拿掉最後一欄，歷史趨勢直接變背景
-let headerHTML = `<tr><th class="metric-name">項目</th>`;
-viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
-headerHTML += `</tr>`; // 👈 這裡拿掉 <th class="col-spark">
-
-// 2. 修改行資料（請在 rows.forEach 迴圈內替換）
-rows.forEach((rowData, rowIndex) => {
-  const name = rowData[0];
-  const allValues = rowData.slice(1).map(v => parseFloat(v) || 0).reverse(); 
-  const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();        
-
-  // 給 tr 加上 position: relative，並埋入一個絕對定位的 canvas
-  const canvasId = `row-spark-${rowIndex}`;
-  let rowHTML = `<tr style="position: relative;">
-                    <td class="metric-name">${name}</td>`;
+  // 表頭加上 metric-name class 確保同步凍結
+  let headerHTML = `<tr><th class="metric-name">項目</th>`;
+  viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
+  headerHTML += `</tr>`; 
   
-  viewValues.forEach((v, i) => {
-    let cellClass = "";
-    if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
-    if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
+  tables.bodyComp.head.innerHTML = headerHTML;
+  tables.muscle.head.innerHTML = headerHTML;
+  tables.fat.head.innerHTML = headerHTML;
 
-    let diffHTML = "";
-    if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
-      const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
-      if (diff > 0) diffHTML = `<span class="diff-badge diff-up">▲${diff}</span>`;
-      else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
+  // 動態計算：4個欄位 * 每欄75px = 300px 數據總寬度
+  const dataAreaWidth = sliceCount * 75; 
+
+  rows.forEach((rowData, rowIndex) => {
+    const name = rowData[0];
+    const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();        
+
+    // tr 必須設定為 relative，Canvas 才會以它為基準對齊
+    const canvasId = `row-spark-${rowIndex}`;
+    let rowHTML = `<tr style="position: relative; height: 52px;">
+                      <td class="metric-name">${name}</td>`;
+    
+    viewValues.forEach((v, i) => {
+      let cellClass = "";
+      if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
+      if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
+
+      let diffHTML = "";
+      if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
+        const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
+        if (diff > 0) diffHTML = `<span class="diff-badge diff-up">▲${diff}</span>`;
+        else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
+      }
+
+      rowHTML += `<td class="${cellClass}">
+                    <div style="font-weight:700;">${v}</div>${diffHTML}
+                  </td>`;
+    });
+
+    // 🚀 Canvas 絕對定位：起點在 left: 105px (跳過項目欄)，寬度剛好等於數據區寬度 (300px)
+    rowHTML += `
+        <canvas id="${canvasId}" class="row-spark-canvas" style="left: 105px; width: ${dataAreaWidth}px;"></canvas>
+      </tr>`;
+
+    if (rowIndex < 7) {
+      tables.bodyComp.html += rowHTML;
+    } else if (rowIndex >= 7 && rowIndex < 12) {
+      tables.muscle.html += rowHTML;
+    } else {
+      tables.fat.html += rowHTML;
     }
 
-    // 這裡加上 z-index: 2 確保數字和進步標籤在線條上方，不會被遮擋、點擊得到
-    rowHTML += `<td class="${cellClass}" style="position: relative; z-index: 2;">
-                  <div>${v}</div>${diffHTML}
-                </td>`;
-  });
+    setTimeout(() => {
+      // 🚀 多傳一個參數：viewValues.length (實際顯示的天數，例如 6)
+      drawRowSparkline(canvasId, viewValues, viewValues.length);
+    }, 60);
+  }); // 這是 rows.forEach 的結尾
 
-  // 🚀 關鍵：把 Canvas 覆蓋整行 tr 
-  // 透過 left: 105px 讓折線圖自動跳過「項目名稱」那一欄，精準對齊數字區！
-  rowHTML += `
-      <canvas id="${canvasId}" style="
-        position: absolute; 
-        left: 105px; 
-        top: 0; 
-        width: calc(100% - 105px); 
-        height: 100%; 
-        z-index: 1; 
-        pointer-events: none;
-      "></canvas>
-    </tr>`;
-
-  // 依據 index 拆分到三層主標題中
-  if (rowIndex < 7) {
-    tables.bodyComp.html += rowHTML;
-  } else if (rowIndex >= 7 && rowIndex < 12) {
-    tables.muscle.html += rowHTML;
-  } else {
-    tables.fat.html += rowHTML;
-  }
-
-  setTimeout(() => {
-    // 這裡改傳送 viewValues，因為你的圖二原廠報告，線的節點是剛好對齊「那四個日期點」的！
-    drawRowSparkline(canvasId, viewValues);
-  }, 50);
-});
-
-    tables.bodyComp.data.innerHTML = tables.bodyComp.html;
-    tables.muscle.data.innerHTML = tables.muscle.html;
-    tables.fat.data.innerHTML = tables.fat.html;
-  }
-
+  tables.bodyComp.data.innerHTML = tables.bodyComp.html;
+  tables.muscle.data.innerHTML = tables.muscle.html;
+  tables.fat.data.innerHTML = tables.fat.html;
+}
   // 繪製包覆在列尾的極簡 Sparkline
-function drawRowSparkline(canvasId, dataPoints) {
+function drawRowSparkline(canvasId, dataPoints, colCount) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
+
+  // 🚀 動態計算畫布總寬度：幾欄就乘上 75px
+  const currentWidth = colCount * 75;
+  canvas.style.width = currentWidth + "px";
 
   const chart = new Chart(ctx, {
     type: 'line',
@@ -344,19 +374,29 @@ function drawRowSparkline(canvasId, dataPoints) {
       labels: dataPoints.map((_, idx) => idx),
       datasets: [{
         data: dataPoints,
-        borderColor: '#333333', // 👈 改成深灰色/黑色線條，更有原廠感
-        borderWidth: 1.2,
-        pointRadius: 3,         // 👈 加上小圓點節點
-        pointBackgroundColor: '#333333',
+        borderColor: '#555555',       
+        borderWidth: 1.5,
+        pointRadius: 3.5,             
+        pointBackgroundColor: '#fff', 
+        pointBorderColor: '#333',
+        pointBorderWidth: 1.5,
         fill: false,
-        tension: 0              // 👈 設為 0 變成圖二那種直折線（若喜歡流暢感可調 0.2）
+        tension: 0                    
       }]
     },
     options: {
-      responsive: true,
+      responsive: false,              // 必須關閉，由我們手動控制寬度
       maintainAspectRatio: false,
-      // 這裡的 padding 很重要，左右各留 12.5% 剛好可以讓折線節點落在欄位的正中央！
-      layout: { padding: { top: 12, bottom: 12, left: 35, right: 35 } },
+      // 🚀 核心動態算法：
+      // 無論 4 天還是 6 天，只要左右內邊距維持 37.5px，節點就一定會落在每格的 50% 正中央！
+      layout: { 
+        padding: { 
+          top: 15, 
+          bottom: 10, 
+          left: 37.5, 
+          right: 37.5 
+        } 
+      },
       plugins: {
         legend: { display: false },
         tooltip: { enabled: false },
@@ -364,13 +404,12 @@ function drawRowSparkline(canvasId, dataPoints) {
       },
       scales: {
         x: { display: false },
-        y: { display: false, grace: '15%' } // 留點上下裕度避免圓點卡在表格邊緣
+        y: { display: false, grace: '20%' } 
       }
     }
   });
   activeInBodyCharts.push(chart);
 }
-
   function formatDate(d) {
     if (!d) return "";
     const date = new Date(d);
