@@ -124,18 +124,7 @@
       
     </div>
 
-    <div class="col-12 col-md-7">
-      
-      <div class="card">
-        <h5>📈 力量成長曲線 (最近 10 次數據)</h5>
-        <div class="chart-container">
-          <div id="chartStatus" class="text-muted text-center pt-5" style="font-size:16px; position:absolute; width:100%; z-index:2;">
-            請先選擇運動項目
-          </div>
-          <canvas id="weightChart" style="width: 100%; height: 250px; display:none;"></canvas>
-        </div>
-      </div>
-
+   
       <div class="card">
         <h5>💪 今日訓練成果</h5>
         
@@ -153,6 +142,18 @@
             <input type="number" id="r" class="form-control text-center px-1" placeholder="次" inputmode="numeric">
           </div>
         </div>
+
+    <div class="col-12 col-md-7">
+      
+      <div class="card">
+        <h5>📈 力量成長曲線 (最近 10 次數據)</h5>
+        <div class="chart-container">
+          <div id="chartStatus" class="text-muted text-center pt-5" style="font-size:16px; position:absolute; width:100%; z-index:2;">
+            請先選擇運動項目
+          </div>
+          <canvas id="weightChart" style="width: 100%; height: 250px; display:none;"></canvas>
+        </div>
+      </div>
 
         <button id="saveBtn" class="btn btn-primary w-100" onclick="submitForm()">儲存紀錄至 Excel</button>
       </div>
