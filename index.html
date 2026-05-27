@@ -3,32 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Do愛運動 - 健康表</title>
+  <title>Do健康表</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  
   <style>
-    /* 繼承並優化你原有的 CSS */
     html, body { background-color: #f5fffa; font-family: -apple-system, sans-serif; color: #008080; }
     .container-fluid { padding: 12px; max-width: 1400px; }
     .card { background: #fff; border-radius: 16px; border: 1px solid #d1e7dd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; padding: 16px; }
     h2 { color: #2e7d32; font-weight: 800; text-align: center; margin: 15px 0; }
     h5 { color: #388e3c; border-left: 5px solid #81c784; padding-left: 10px; margin-bottom: 15px; font-weight: bold; }
     
-    /* InBody 專用樣式 */
-    .table-responsive { border-radius: 12px; overflow: hidden; }
-    .inbody-table { font-size: 14px; width: 100%; white-space: nowrap; }
-    .inbody-table th { background: #e8f5e9; color: #2e7d32; position: sticky; left: 0; z-index: 1; }
-    .inbody-table td, .inbody-table th { padding: 10px; border: 1px solid #f0f0f0; text-align: center; }
-    .metric-name { font-weight: bold; background: #f9fdfa !important; text-align: left !important; min-width: 110px; }
+    /* InBody 表格流暢捲動與樣式 */
+    .table-responsive { border-radius: 12px; overflow-x: auto; }
+    .inbody-table { font-size: 14px; width: 100%; white-space: nowrap; vertical-align: middle; }
+    .inbody-table th { background: #e8f5e9; color: #2e7d32; font-weight: bold; }
+    .inbody-table td, .inbody-table th { padding: 10px 14px; border: 1px solid #f0f0f0; text-align: center; }
     
-    /* 點狀趨勢線 Sparkline 容器 */
-    .sparkline-container { width: 60px; height: 30px; display: inline-block; vertical-align: middle; }
+    /* 項目欄固定在最左側 */
+    .metric-name { font-weight: bold; background: #f9fdfa !important; text-align: left !important; min-width: 140px; position: sticky; left: 0; z-index: 2; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
     
-    /* 條件顏色 */
-    .val-good { color: #2e7d32; font-weight: bold; } /* 骨骼肌高 */
-    .val-warn { background-color: #fff9c4 !important; color: #f57f17; font-weight: bold; } /* 水腫提醒 */
-    .diff-up { color: #d32f2f; font-size: 11px; } /* 增加 */
-    .diff-down { color: #1976d2; font-size: 11px; } /* 減少 */
+    /* 數據儲存格：上方數值，下方圖表 */
+    .cell-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 85px; }
+    .cell-value { font-size: 16px; font-weight: 600; color: #1b5e20; }
+    
+    /* 點狀趨勢線 Sparkline 容器（高度微調給數字空間） */
+    .sparkline-container { width: 80px; height: 45px; margin-top: 4px; }
+    
+    /* 條件顏色與變動標籤 */
+    .val-good { color: #2e7d32 !important; font-weight: bold; }
+    .val-warn { background-color: #fff9c4 !important; color: #f57f17 !important; }
+    .diff-badge { font-size: 11px; font-weight: bold; padding: 1px 4px; border-radius: 4px; margin-left: 3px; display: inline-block; }
+    .diff-up { background-color: #ffebee; color: #c62828; }
+    .diff-down { background-color: #e3f2fd; color: #1565c0; }
 
     .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 30px; border: 2px dashed #a5d6a7; }
     .btn-primary { background-color: #43a047; border: none; height: 50px; font-weight: bold; border-radius: 10px; }
@@ -37,35 +45,35 @@
 <body>
 
 <div class="container-fluid">
-  <h2>Do健康紀錄系統</h2>
+  <h2>Do健康紀錄</h2>
 
   <div class="row">
-    <div class="col-12 col-xl-7">
+    <div class="col-12 col-xl-8">
       <div class="card">
         <h5>📊 InBody 儀表板</h5>
         
         <div id="lockScreen" class="inbody-locked text-center">
-          <p class="mb-3">此區塊包含私密身體數據，請輸入密碼</p>
+          <p class="mb-3">請輸入密碼</p>
           <div class="input-group mb-3" style="max-width: 300px; margin: 0 auto;">
             <input type="password" id="unlockPwd" class="form-control" placeholder="請輸入密碼">
-            <button class="btn btn-success" onclick="checkPwd()">解鎖</button>
+            <button class="btn btn-success" onclick="checkPwd()">身體數據分析</button>
           </div>
         </div>
 
         <div id="inbodyContent" style="display:none;">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <span class="badge bg-success">最新紀錄已置左</span>
+            <span class="badge bg-success">時間軸已依「過去 ➔ 現在」由左至右遞增</span>
             <button class="btn btn-sm btn-outline-secondary" onclick="lockInBody()">隱藏數據</button>
           </div>
 
-          <h6>第一層：身體組成分析</h6>
+          <h6 class="fw-bold mt-2 text-dark">第一層：身體組成分析</h6>
           <div class="table-responsive mb-4">
-            <table class="table inbody-table" id="tableBodyComp">
+            <table class="table inbody-table">
               <tbody id="dataBodyComp"></tbody>
             </table>
           </div>
 
-          <h6>第二層：肌肉與脂肪分佈 (Kg)</h6>
+          <h6 class="fw-bold text-dark">第二層：肌肉與脂肪分佈 (Kg)</h6>
           <div class="table-responsive">
             <table class="table inbody-table">
               <tbody id="dataSegmental"></tbody>
@@ -75,9 +83,9 @@
       </div>
     </div>
 
-    <div class="col-12 col-xl-5">
+    <div class="col-12 col-xl-4">
       <div class="card">
-        <h5>⚙️ 快速紀錄</h5>
+        <h5>⚙️ 運動紀錄</h5>
         <div class="mb-3">
           <label class="form-label">📅 訓練日期</label>
           <input type="date" id="logDate" class="form-control">
@@ -112,13 +120,10 @@
 </div>
 
 <script>
-  // 請更換為你的 GAS URL
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTdrao1uUJS_PqrQ4-1Fxz4_foSfsqC4meWjL9RqHnGLxc8IwAC4WzKBpk8_s9ZWACCQ/exec";
 
-  // 1. 密碼驗證與資料抓取
   function checkPwd() {
-    const pwd = document.getElementById('unlockPwd').value;
-    if (pwd === "1234") { // 建議這裡可以改成由 GAS 驗證更安全
+    if (document.getElementById('unlockPwd').value === "3914") {
       fetchInBodyData();
     } else {
       alert("密碼錯誤！");
@@ -143,10 +148,17 @@
     }
   }
 
-  // 2. 渲染 InBody 表格
   function renderInBody(raw) {
-    // 假設 raw[0] 是標題列 [項目, 日期1, 日期2...]
-    const dates = raw[0].slice(1);
+    // 💡 核心反轉邏輯：
+    // 工作表第一列（raw[0]）格式為：[ "項目", "最新日期(新)", "上次日期", "上上次日期(舊)" ]
+    // 為符合網頁端由左至右遞增（舊 ➔ 新），我們將日期與後續數據全部進行 .reverse() 翻轉
+    
+    const originalDates = raw[0].slice(1); 
+    // 只取最近的 10 筆紀錄
+    const sliceCount = Math.min(originalDates.length, 10);
+    
+    // 截取前 10 筆並反轉，使其在網頁上變成【由舊到新】排列（最右側是最新的）
+    const viewDates = originalDates.slice(0, sliceCount).reverse();
     const rows = raw.slice(1);
 
     const bodyCompArea = document.getElementById('dataBodyComp');
@@ -154,9 +166,9 @@
     bodyCompArea.innerHTML = "";
     segmentalArea.innerHTML = "";
 
-    // 建立日期標題列
+    // 建立日期標題
     let dateHeader = `<tr><th class="metric-name">項目 \ 日期</th>`;
-    dates.forEach(d => dateHeader += `<th>${formatDate(d)}</th>`);
+    viewDates.forEach(d => dateHeader += `<th>${formatDate(d)}</th>`);
     dateHeader += `</tr>`;
     
     bodyCompArea.innerHTML += dateHeader;
@@ -164,45 +176,67 @@
 
     rows.forEach((rowData, index) => {
       const name = rowData[0];
-      const values = rowData.slice(1);
+      // 同步截取前 10 筆數據並反轉
+      const originalValues = rowData.slice(1).slice(0, sliceCount);
+      const viewValues = [...originalValues].reverse(); 
+      
       const sparklineId = `spark-${index}`;
-
-      // 建立趨勢圖小畫布
-      const sparkHTML = `<div class="sparkline-container"><canvas id="${sparklineId}"></canvas></div>`;
+      let rowHTML = `<tr><td class="metric-name">${name}</td>`;
       
-      let rowHTML = `<tr><td class="metric-name">${name} ${sparkHTML}</td>`;
-      
-      values.forEach((v, i) => {
+      viewValues.forEach((v, i) => {
         let displayVal = v;
         let cellClass = "";
         
-        // 條件化格式邏輯
+        // 條件化格式
         if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
-        if (name.includes("骨骼肌") && i === 0) cellClass = "val-good";
+        // 因為 viewValues 已經反轉，最後一筆 (最右側) 才是最新紀錄
+        if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
 
-        // 計算進步幅度 (跟上一次比)
+        // 計算增減幅度 (跟它的「前一次歷史」比)
+        // 在 viewValues 中，前一次歷史是 i - 1
         let diffHTML = "";
-        if (i < values.length - 1) {
-          const diff = (parseFloat(v) - parseFloat(values[i+1])).toFixed(1);
-          if (diff > 0) diffHTML = `<br><span class="diff-up">▲${diff}</span>`;
-          else if (diff < 0) diffHTML = `<br><span class="diff-down">▼${Math.abs(diff)}</span>`;
+        if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
+          const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
+          if (diff > 0) diffHTML = `<span class="diff-badge diff-up">▲${diff}</span>`;
+          else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
         }
 
-        rowHTML += `<td class="${cellClass}">${displayVal}${diffHTML}</td>`;
+        // 結構：上方顯示 數值+箭頭，下方放入獨立的 Sparkline 畫布容器
+        rowHTML += `
+          <td class="${cellClass}">
+            <div class="cell-container">
+              <div class="cell-value">${displayVal}${diffHTML}</div>
+              <div class="sparkline-container">
+                <canvas id="${sparklineId}-${i}"></canvas>
+              </div>
+            </div>
+          </td>`;
       });
       rowHTML += `</tr>`;
 
-      // 分類放入第一層或第二層
       if (index < 7) bodyCompArea.innerHTML += rowHTML;
       else segmentalArea.innerHTML += rowHTML;
 
-      // 繪製微型趨勢圖 (非同步避免卡頓)
-      setTimeout(() => drawSparkline(sparklineId, [...values].reverse()), 100);
+      // 非同步生成點線圖，傳入到目前日期為止的累積歷史數據，供折線圖繪製
+      setTimeout(() => {
+        viewValues.forEach((v, i) => {
+          // 折線圖只繪製從第 0 筆到當前第 i 筆的增減趨勢
+          const historySubSet = viewValues.slice(0, i + 1);
+          drawSparkline(`${sparklineId}-${i}`, historySubSet);
+        });
+      }, 100);
     });
   }
 
+  // 繪製帶有點標籤數字的極簡趨勢線
   function drawSparkline(canvasId, data) {
-    const ctx = document.getElementById(canvasId).getContext('2d');
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    // 如果只有一筆數據，畫點即可
+    const isSinglePoint = data.length === 1;
+
     new Chart(ctx, {
       type: 'line',
       data: {
@@ -210,18 +244,39 @@
         datasets: [{
           data: data,
           borderColor: '#43a047',
-          borderWidth: 2,
-          pointRadius: 0,
+          borderWidth: 1.5,
+          pointRadius: isSinglePoint ? 3 : 2, 
+          pointBackgroundColor: '#2e7d32',
           fill: false,
-          tension: 0.3
+          tension: 0.2
         }]
       },
+      plugins: [ChartDataLabels], // 啟用數字標籤外掛
       options: {
-        events: [], // 禁用互動提升效能
-        responsive: false,
+        responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { x: { display: false }, y: { display: false } }
+        layout: {
+          padding: { top: 12, bottom: 4, left: 8, right: 8 } // 保留天花板空間給數字標籤
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false },
+          datalabels: {
+            display: true,
+            align: 'top',
+            offset: -2,
+            color: '#2e7d32',
+            font: { size: 9, weight: 'bold' },
+            formatter: function(value, context) {
+              // 密技：只顯示「最新這一個端點」的數字，前面歷史點不顯示，畫面才乾淨
+              return context.dataIndex === context.dataset.data.length - 1 ? value : '';
+            }
+          }
+        },
+        scales: {
+          x: { display: false },
+          y: { display: false, grace: '20%' } // 增加垂直彈性防數字被切掉
+        }
       }
     });
   }
@@ -232,7 +287,7 @@
     return isNaN(date) ? d : `${date.getMonth()+1}/${date.getDate()}`;
   }
 
-  // ... (其餘你原本的訓練紀錄 JS 代碼保持不變) ...
+  // ...（此處後方繼續貼上你原本健康表裡 updateCategorySelect, submitForm 等剩餘的 JS 程式碼）...
 </script>
 </body>
 </html>
