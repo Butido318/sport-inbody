@@ -16,135 +16,225 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   
   <style>
-    html, body { width: 100%; margin: 0; padding: 0; overflow-x: hidden; background-color: #1e2522; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #ffffff; font-size: 16px; } 
+    /* ==========================================
+       1. 網頁全域基礎設定（曜石暗綠黑）
+       ========================================== */
+    html, body { 
+      width: 100%; 
+      margin: 0; 
+      padding: 0; 
+      overflow-x: hidden; 
+      background-color: #121614 !important; /* 曜石底色 */
+    }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      color: #ffffff; 
+      font-size: 16px; 
+    } 
     .container-fluid { padding: 12px; max-width: 1400px; }
+
+    /* ==========================================
+       2. 頂部大標題（Do愛運動健康紀錄 - 升級質感純白）
+       ========================================== */
+    h1, .main-title {
+      color: #ffffff !important; 
+      font-weight: 800;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    /* ==========================================
+       3. 區塊卡片與標題（升級暗黑岩石襯托 鈦銀/香檳金）
+       ========================================== */
+    .card { 
+      background: #1e2421 !important; /* 高級深軍綠灰卡片 */
+      border-radius: 16px; 
+      border: 1px solid #2d3733 !important; /* 微光暗邊框 */
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important; 
+      margin-bottom: 15px; 
+      padding: 16px; 
+      color: #ffffff !important;
+    }
+    h2 { 
+      color: #e5c158 !important; /* 優雅的香檳金 */
+      font-weight: 800; 
+      text-align: center; 
+      margin-bottom: 15px; 
+      font-size: 24px; 
+    }
+    h5 { 
+      color: #d1dcd6 !important; /* 鈦金銀 */
+      border-left: 5px solid #e5c158 !important; /* 左側裝飾條：奢華香檳金 */
+      padding-left: 10px; 
+      margin-bottom: 15px; 
+      font-weight: bold; 
+      font-size: 18px; 
+    }
+    h6 { 
+      color: #e5c158 !important; /* 香檳金字 */
+      font-weight: 800; 
+      margin-top: 15px; 
+      margin-bottom: 8px; 
+      font-size: 15px; 
+      background: #252e2a !important; /* 深色內凹底塊 */
+      padding: 6px 10px; 
+      border-radius: 6px; 
+      border-left: 3px solid #d1dcd6; /* 側邊搭鈦金銀細線 */
+    }
+
+    /* ==========================================
+       4. 表格基本外殼與數據儲存格（全體底部邊框）
+       ========================================== */
+    .table-responsive {
+      position: relative;
+      border-radius: 12px;
+      overflow-x: auto;
+      background: #2c3531; 
+      border: 1px solid #3a4842; 
+    }
+    .col-data, .inbody-table td:not(.metric-name) {
+      width: 75px;
+      min-width: 75px;
+      max-width: 75px;
+      height: 56px;
+      position: relative; 
+      text-align: center;
+      vertical-align: middle;
+      padding: 0 !important;
+      color: #ffffff; 
+    }
+    .cell-content {
+      position: relative;
+      z-index: 2; 
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      pointer-events: none; 
+    }
+    .inbody-table th, .inbody-table td {
+      border-bottom: 1px solid #3a4842 !important; 
+    }
     
-    .card { background: #ffffff; border-radius: 16px; border: 1px solid #d1e7dd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; padding: 16px; }
-    h2 { color: #2e7d32; font-weight: 800; text-align: center; margin-bottom: 15px; font-size: 24px; }
-    h5 { color: #388e3c; border-left: 5px solid #81c784; padding-left: 10px; margin-bottom: 15px; font-weight: bold; font-size: 18px; }
-    h6 { color: #1b5e20; font-weight: 800; margin-top: 15px; margin-bottom: 8px; font-size: 15px; background: #e8f5e9; padding: 6px 10px; border-radius: 6px; }
+    /* ==========================================
+       5. 左側項目欄位與表頭凍結
+       ========================================== */
+    .metric-name {
+      font-weight: bold;
+      background: #28322e !important; 
+      color: #b2c0bc !important;      
+      text-align: left !important;
+      width: 105px;
+      min-width: 105px;
+      padding-left: 12px !important;
+      position: -webkit-sticky;
+      position: sticky;
+      left: 0;
+      z-index: 4; 
+      border-right: 2px solid #3a4842 !important; 
+    }
+    .inbody-table th.metric-name {
+      background: #232b28 !important; 
+      color: #ffffff !important;
+      position: -webkit-sticky;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+    }
 
-    /* InBody 專用滾動外殼 */
-   /* 讓表格外殼可以橫向捲動，但維持相對定位基準 */
-/* 表格基本外殼 */
-.table-responsive {
-  position: relative;
-  border-radius: 12px;
-  overflow-x: auto;
-  background: #2c3531; /* 稍微提亮的卡片深綠灰 */
-  border: 1px solid #3a4842; /* 暗色邊框 */
-}
-
-/* 🚀 每個數字格：設定為相對定位基準，寬 75px，高 56px */
-.col-data, .inbody-table td:not(.metric-name) {
-  width: 75px;
-  min-width: 75px;
-  max-width: 75px;
-  height: 56px;
-  position: relative; /* 讓裡面的小畫布以這格為基準定位 */
-  text-align: center;
-  vertical-align: middle;
-  padding: 0 !important;
-  color: #ffffff; /* 數據文字改成純白 */
-}
-
-/* 確保文字和標籤疊在線條最上方，且置中 */
-.cell-content {
-  position: relative;
-  z-index: 2; /* 高於畫布 */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  pointer-events: none; /* 不干擾滑鼠操作 */
-}
+    /* ==========================================
+       6. 微型畫布與變動標籤設定
+       ========================================== */
+    .cell-spark-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100% !important;
+      height: 100% !important;
+      z-index: 1; 
+      pointer-events: none;
+    }
+    .row-spark-canvas {
+      display: block;
+      height: 100%;
+      pointer-events: none;
+    }
+    .val-warn div { color: #ffbc42 !important; } 
+    .val-good div { color: #2ecc71 !important; } 
     
-3. 一般數據儲存格與表頭格（全體底部邊框）
-   ========================================== */
-.inbody-table th, .inbody-table td {
-  border-bottom: 1px solid #3a4842 !important; /* 調整內部分隔線為暗灰色 */
-}
-    
-/* 凍結左側項目欄位 */
-.metric-name {
-  font-weight: bold;
-  background: #28322e !important; /* 凍結欄位的專屬深色 */
-  color: #b2c0bc !important;      /* 項目名稱用優雅的淡灰綠字 */
-  text-align: left !important;
-  width: 105px;
-  min-width: 105px;
-  padding-left: 12px !important;
-  position: -webkit-sticky;
-  position: sticky;
-  left: 0;
-  z-index: 4; 
-  border-right: 2px solid #3a4842 !important; /* 右側邊框加深 */
-}
- /* 表頭的「項目」欄位同步更新 */
-.inbody-table th.metric-name {
-  background: #232b28 !important; /* 表頭稍微再深一點點 */
-  color: #ffffff !important;
-  z-index: 5;
-}
+    .diff-badge {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .diff-up {
+      background-color: rgba(255, 107, 107, 0.18) !important;
+      color: #ff7676 !important;
+    }
+    .diff-down {
+      background-color: rgba(77, 173, 255, 0.18) !important;
+      color: #5cc0ff !important;
+    }
 
-/* 🚀 每個格子裡面的專屬微型畫布 */
-.cell-spark-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 1; /* 墊在文字下方當背景 */
-  pointer-events: none;
-}
-
-.row-spark-canvas {
-  display: block;
-  height: 100%;
-  pointer-events: none;
-}
-   /* 特殊數值警告與優良顏色調整 */
-.val-warn div { color: #ffbc42 !important; } /* 警告改用亮橘黃字 */
-.val-good div { color: #2ecc71 !important; } /* 優良用亮綠字 */
+    /* ==========================================
+       7. 完整保留並修正：密碼鎖與表單欄位（融入深色金銀風）
+       ========================================== */
+    /* InBody 專用密碼鎖定外殼 */
+    .inbody-locked { 
+      background: #19201d !important; 
+      border-radius: 12px; 
+      padding: 20px; 
+      border: 2px dashed #e5c158 !important; /* 改為奢華虛線金框 */
+      font-size: 16px; 
+    }
     
-.diff-badge {
-  font-size: 11px;
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-weight: bold;
-}
-.diff-up {
-  background-color: rgba(255, 107, 107, 0.18) !important;
-  color: #ff7676 !important;
-}
-.diff-down {
-  background-color: rgba(77, 173, 255, 0.18) !important;
-  color: #5cc0ff !important;
-}
-
-    .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 20px; border: 2px dashed #a5d6a7; font-size: 16px; }
-    .form-label { color: #2e7d32; font-weight: 700; margin-bottom: 6px; font-size: 15px; }
+    /* 表單欄位文字標籤 */
+    .form-label { 
+      color: #d1dcd6 !important; /* 調整為質感鈦銀白字 */
+      font-weight: 700; 
+      margin-bottom: 6px; 
+      font-size: 15px; 
+    }
     
+    /* 下拉選單與普通輸入框（告別突兀白底綠字） */
     .form-select, .form-control { 
-      background-color: #f9fdfa !important; 
-      border: 2px solid #c8e6c9 !important; 
-      color: #1b5e20 !important; 
+      background-color: #252e2a !important; 
+      border: 2px solid #43524b !important; 
+      color: #ffffff !important; 
       height: 50px; 
       font-size: 16px; 
       border-radius: 10px;
       padding: 6px 10px;
     }
-    .form-select:focus, .form-control:focus { border-color: #43a047 !important; box-shadow: 0 0 0 0.25rem rgba(67, 160, 71, 0.2); }
+    /* 輸入框點擊聚焦 */
+    .form-select:focus, .form-control:focus { 
+      border-color: #e5c158 !important; 
+      box-shadow: 0 0 0 0.25rem rgba(229, 193, 88, 0.2) !important; 
+      background-color: #2b3631 !important;
+    }
     
-    .btn-primary { background-color: #43a047; border: none; height: 55px; font-size: 18px; font-weight: bold; border-radius: 11px; transition: 0.3s; }
-    .btn-primary:active { background-color: #2e7d32; transform: translateY(2px); }
+    /* 儲存/功能按鈕：升級為金屬感金屬漸層 */
+    .btn-primary { 
+      background: linear-gradient(135deg, #ccaf52, #ad923b) !important; 
+      border: none !important; 
+      height: 55px; 
+      font-size: 18px; 
+      font-weight: bold; 
+      border-radius: 11px; 
+      transition: 0.3s; 
+      color: #121614 !important; /* 內文深色對比極佳 */
+      box-shadow: 0 4px 12px rgba(229, 193, 88, 0.2) !important;
+    }
+    .btn-primary:active { 
+      background: linear-gradient(135deg, #e5c158, #ccaf52) !important;
+      transform: translateY(2px); 
+    }
     
-    /* 右側力量圖表 */
+    /* 右側力量大圖表容器（修正原本會亮瞎眼的白/淺綠底色） */
     .chart-container { 
-      background-color: #e8f5e9; 
-      border: 1px solid #c8e6c9; 
+      background-color: #19201d !important; /* 深軍綠黑內凹底 */
+      border: 1px solid #2d3733 !important; 
       border-radius: 12px; 
       padding: 35px 5px 5px 5px; 
       position: relative; 
@@ -152,13 +242,15 @@
       min-height: 280px;
     }
 
-    /* 🎬 媒體顯示區域 */
+    /* ==========================================
+       8. 🎬 媒體顯示區域（保留原有全套核心縮放結構，微調底色）
+       ========================================== */
     .media-wrapper {
       width: 100%;
       height: 180px;
-      background-color: #fff;
+      background-color: #252e2a !important; /* 修正：改成深色底才不會穿幫 */
       border-radius: 12px;
-      border: 2px solid #e8f5e9;
+      border: 2px solid #2d3733 !important;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -170,6 +262,9 @@
       object-fit: contain;
     }
 
+    /* ==========================================
+       9. 📱 行動裝置 RWD 最佳化處理（完美保留不跑版）
+       ========================================== */
     @media (max-width: 575.98px) {
       .row g-1 .col-4, .row g-1 .col-6 { padding-left: 3px !important; padding-right: 3px !important; }
       .form-control.px-1 { padding-left: 4px !important; padding-right: 4px !important; }
@@ -689,29 +784,37 @@ function formatDate(dateStr) {
   }
 
 function submitForm() {
+  // 1. 先取得下拉選單目前的選取值
+  const catSel  = document.getElementById('category').value;
+  const itemSel = document.getElementById('item').value;
+  const dateVal = document.getElementById('date').value;
+  
+  // 🚀 關鍵核心：如果是 Other，就抓自訂輸入框的值；如果不是，就抓原本選單的值
+  const finalCategory = (catSel === 'Other') ? (document.getElementById('newCategory') ? document.getElementById('newCategory').value.trim() : '') : catSel;
+  const finalItem     = (itemSel === 'Other') ? (document.getElementById('newItem') ? document.getElementById('newItem').value.trim() : '') : itemSel;
+
+  // 2. 嚴格防呆驗證
+  if (!dateVal) return alert('請選擇日期！');
+  if (!finalCategory || finalCategory === '-- 部位 --') return alert('請選擇或輸入訓練部位！');
+  if (!finalItem || finalItem === '選擇部位') return alert('請選擇或輸入運動項目！');
+
+  // 3. 正確打包最終要送去試算表的資料
   const form = {
-    date: document.getElementById('date').value,
-    category: document.getElementById('category').value,
-    newCategory: document.getElementById('newCategory') ? document.getElementById('newCategory').value : '',
-    item: document.getElementById('item').value,
-    newItem: document.getElementById('newItem') ? document.getElementById('newItem').value : '',
+    date: dateVal,
+    category: finalCategory, // 這邊已經完美切換成你的自訂文字了！
+    item: finalItem,         // 這邊已經完美切換成你的自訂文字了！
     weight: document.getElementById('weight').value,
     sets: document.getElementById('sets').value,
     reps: document.getElementById('reps').value
   };
 
-  if (!form.date) return alert('請選擇日期！');
-  
-  // 防呆：如果是選擇自訂，必須填寫新名稱
-  if (form.category === 'Other' && !form.newCategory.trim()) return alert('請輸入新部位名稱！');
-  if (form.item === 'Other' && !form.newItem.trim()) return alert('請輸入新運動項目名稱！');
-
-  // 顯示讀取中
+  // 4. 按鈕變成酷炫的暗黑金屬儲存狀態
   const btn = document.querySelector('button[onclick="submitForm()"]');
   const oriText = btn.innerHTML;
-  btn.innerHTML = '儲存中...';
+  btn.innerHTML = '核心數據寫入中...';
   btn.disabled = true;
 
+  // 5. 送出給 Google Apps Script 後端
   google.script.run
     .withSuccessHandler(function(res) {
       btn.innerHTML = oriText;
@@ -721,13 +824,12 @@ function submitForm() {
       if (data.status === 'success') {
         alert(data.message);
         
-        // 🚀 核心復活關鍵：成功寫入後，立刻重新初始化選單與歷史紀錄！
-        // 這樣剛剛新輸入的自訂部位/項目，就會立刻被放進下拉選單裡了
+        // 🚀 成功後，立刻叫前端表單重刷選單，自訂項目就會馬上出現在下拉選單與明細中
         if (typeof initWorkoutForm === 'function') {
           initWorkoutForm(); 
         }
         
-        // 順手清空自訂輸入欄位與數值
+        // 順手清空所有輸入框，方便下一次輸入
         if (document.getElementById('newCategory')) document.getElementById('newCategory').value = '';
         if (document.getElementById('newItem')) document.getElementById('newItem').value = '';
         document.getElementById('weight').value = '';
@@ -742,7 +844,7 @@ function submitForm() {
       btn.disabled = false;
       alert('連線失敗：' + err);
     })
-    .saveLog(form); // 呼叫後端我們改好的最新流水帳 saveLog
+    .saveLog(form); 
 }
 </script>
 </body>
