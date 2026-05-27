@@ -121,7 +121,7 @@
 
 <script>
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTdrao1uUJS_PqrQ4-1Fxz4_foSfsqC4meWjL9RqHnGLxc8IwAC4WzKBpk8_s9ZWACCQ/exec";
-
+  let activeCharts = []; // 紀錄已繪製的圖表，重整時釋放記憶體
   function checkPwd() {
     if (document.getElementById('unlockPwd').value === "3914") {
       fetchInBodyData();
@@ -149,9 +149,9 @@
   }
 
   function renderInBody(raw) {
-    // 💡 核心反轉邏輯：
-    // 工作表第一列（raw[0]）格式為：[ "項目", "最新日期(新)", "上次日期", "上上次日期(舊)" ]
-    // 為符合網頁端由左至右遞增（舊 ➔ 新），我們將日期與後續數據全部進行 .reverse() 翻轉
+    // 釋放舊圖表
+    activeCharts.forEach(c => c.destroy());
+    activeCharts = [];
     
     const originalDates = raw[0].slice(1); 
     // 只取最近的 10 筆紀錄
@@ -160,40 +160,39 @@
     // 截取前 10 筆並反轉，使其在網頁上變成【由舊到新】排列（最右側是最新的）
     const viewDates = originalDates.slice(0, sliceCount).reverse();
     const rows = raw.slice(1);
+// 取得各層 DOM 容器
+    const headBodyComp = document.getElementById('headBodyComp');
+    const dataBodyComp = document.getElementById('dataBodyComp');
+    const chartsBodyComp = document.getElementById('chartsBodyComp');
 
-    const bodyCompArea = document.getElementById('dataBodyComp');
-    const segmentalArea = document.getElementById('dataSegmental');
-    bodyCompArea.innerHTML = "";
-    segmentalArea.innerHTML = "";
+    const headSegmental = document.getElementById('headSegmental');
+    const dataSegmental = document.getElementById('dataSegmental');
+    const chartsSegmental = document.getElementById('chartsSegmental');
 
-    // 建立日期標題
-    let dateHeader = `<tr><th class="metric-name">項目 \ 日期</th>`;
-    viewDates.forEach(d => dateHeader += `<th>${formatDate(d)}</th>`);
-    dateHeader += `</tr>`;
+    // 清空舊內容
+    headBodyComp.innerHTML = ""; dataBodyComp.innerHTML = ""; chartsBodyComp.innerHTML = "";
+    headSegmental.innerHTML = ""; dataSegmental.innerHTML = ""; chartsSegmental.innerHTML = "";
+
+    // 建立共同的表頭（欄位寬度固定比例對齊）
+    let headerHTML = `<tr><th class="col-name">項目</th>`;
+    viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
+    headerHTML += `</tr>`;
     
-    bodyCompArea.innerHTML += dateHeader;
-    segmentalArea.innerHTML += dateHeader;
+    headBodyComp.innerHTML = headerHTML;
+    headSegmental.innerHTML = headerHTML;
 
-    rows.forEach((rowData, index) => {
+    // 分流資料列並生成纯純數字表格
+    rows.forEach((rowData, rowIndex) => {
       const name = rowData[0];
-      // 同步截取前 10 筆數據並反轉
-      const originalValues = rowData.slice(1).slice(0, sliceCount);
-      const viewValues = [...originalValues].reverse(); 
+      const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();
       
-      const sparklineId = `spark-${index}`;
-      let rowHTML = `<tr><td class="metric-name">${name}</td>`;
-      
+      let rowHTML = `<tr><td class="col-name">${name}</td>`;
       viewValues.forEach((v, i) => {
-        let displayVal = v;
         let cellClass = "";
-        
-        // 條件化格式
         if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
-        // 因為 viewValues 已經反轉，最後一筆 (最右側) 才是最新紀錄
         if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
 
-        // 計算增減幅度 (跟它的「前一次歷史」比)
-        // 在 viewValues 中，前一次歷史是 i - 1
+        // 計算並保留你需要的增減 箭頭功能
         let diffHTML = "";
         if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
           const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
@@ -201,84 +200,92 @@
           else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
         }
 
-        // 結構：上方顯示 數值+箭頭，下方放入獨立的 Sparkline 畫布容器
-        rowHTML += `
-          <td class="${cellClass}">
-            <div class="cell-container">
-              <div class="cell-value">${displayVal}${diffHTML}</div>
-              <div class="sparkline-container">
-                <canvas id="${sparklineId}-${i}"></canvas>
-              </div>
-            </div>
-          </td>`;
+        rowHTML += `<td class="${cellClass}"><span class="val-text">${v}</span>${diffHTML}</td>`;
       });
       rowHTML += `</tr>`;
 
-      if (index < 7) bodyCompArea.innerHTML += rowHTML;
-      else segmentalArea.innerHTML += rowHTML;
+      // 塞入對應的表格中
+      if (rowIndex < 7) dataBodyComp.innerHTML += rowHTML;
+      else dataSegmental.innerHTML += rowHTML;
+    });
 
-      // 非同步生成點線圖，傳入到目前日期為止的累積歷史數據，供折線圖繪製
+    // 💡 關鍵重頭戲：在表格下方，塞入獨立的「跨區連續折線圖」
+    rows.forEach((rowData, rowIndex) => {
+      const name = rowData[0];
+      const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();
+      const chartId = `macroChart-${rowIndex}`;
+
+      // 建立一個跟上方表格欄位完美等寬的橫向外殼
+      const chartRowHTML = `
+        <div class="chart-block-row">
+          <div class="chart-block-title">${name} 趨勢</div>
+          <div class="chart-block-canvas">
+            <canvas id="${chartId}" style="width: 100%; height: 55px;"></canvas>
+          </div>
+        </div>
+      `;
+
+      if (rowIndex < 7) chartsBodyComp.innerHTML += chartRowHTML;
+      else chartsSegmental.innerHTML += chartRowHTML;
+
+      // 渲染跨區折線圖
       setTimeout(() => {
-        viewValues.forEach((v, i) => {
-          // 折線圖只繪製從第 0 筆到當前第 i 筆的增減趨勢
-          const historySubSet = viewValues.slice(0, i + 1);
-          drawSparkline(`${sparklineId}-${i}`, historySubSet);
-        });
-      }, 100);
+        const numericData = viewValues.map(v => parseFloat(v) || 0);
+        drawMacroChart(chartId, numericData);
+      }, 50);
     });
   }
 
-  // 繪製帶有點標籤數字的極簡趨勢線
-  function drawSparkline(canvasId, data) {
+  // 繪製與 InBody 報告一模一樣的跨區連續折線圖
+  function drawMacroChart(canvasId, dataPoints) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    
-    // 如果只有一筆數據，畫點即可
-    const isSinglePoint = data.length === 1;
 
-    new Chart(ctx, {
+    const newChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: data,
+        labels: dataPoints, // 用數據本身當 X 軸標籤，主要是為了對齊節點
         datasets: [{
-          data: data,
-          borderColor: '#43a047',
-          borderWidth: 1.5,
-          pointRadius: isSinglePoint ? 3 : 2, 
-          pointBackgroundColor: '#2e7d32',
+          data: dataPoints,
+          borderColor: '#2e7d32',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: '#1b5e20',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 1,
           fill: false,
-          tension: 0.2
+          tension: 0.15
         }]
       },
-      plugins: [ChartDataLabels], // 啟用數字標籤外掛
+      plugins: [ChartDataLabels],
       options: {
         responsive: true,
         maintainAspectRatio: false,
         layout: {
-          padding: { top: 12, bottom: 4, left: 8, right: 8 } // 保留天花板空間給數字標籤
+          // 🏆 關鍵：左右留白的百分比要跟上方表格的項目名稱寬度(140px)和數據欄位完美重合
+          padding: { left: 35, right: 35, top: 15, bottom: 15 } 
         },
         plugins: {
           legend: { display: false },
-          tooltip: { enabled: false },
+          tooltip: { enabled: true },
           datalabels: {
             display: true,
             align: 'top',
-            offset: -2,
-            color: '#2e7d32',
-            font: { size: 9, weight: 'bold' },
-            formatter: function(value, context) {
-              // 密技：只顯示「最新這一個端點」的數字，前面歷史點不顯示，畫面才乾淨
-              return context.dataIndex === context.dataset.data.length - 1 ? value : '';
-            }
+            offset: 2,
+            color: '#1b5e20',
+            font: { size: 10, weight: 'bold' },
+            formatter: function(value) { return value; } // 每一點都標註數字，跟官方一模一樣
           }
         },
         scales: {
+          // 隱藏格線與座標軸，只純粹留下點與線
           x: { display: false },
-          y: { display: false, grace: '20%' } // 增加垂直彈性防數字被切掉
+          y: { display: false, grace: '40%' } // 給予上方足夠空間不讓數字被切掉
         }
       }
     });
+    activeCharts.push(newChart);
   }
 
   function formatDate(d) {
@@ -288,6 +295,204 @@
   }
 
   // ...（此處後方繼續貼上你原本健康表裡 updateCategorySelect, submitForm 等剩餘的 JS 程式碼）...
+  function updateCategorySelect() {
+    const catSelect = document.getElementById('catSelect');
+    if (Object.keys(fullMenuData).length === 0) {
+      catSelect.innerHTML = '<option value="">無設定資料</option>';
+    } else {
+      catSelect.innerHTML = '<option value="">-- 部位 --</option>';
+      for (let cat in fullMenuData) { catSelect.options.add(new Option(cat, cat)); }
+    }
+    catSelect.options.add(new Option("+ 新增部位", "Other"));
+  }
+  
+  function onCategoryChange() {
+    const cat = document.getElementById('catSelect').value;
+    const itemSelect = document.getElementById('itemSelect');
+    document.getElementById('newCatInput').style.display = (cat === 'Other') ? 'block' : 'none';
+    itemSelect.innerHTML = '<option value="">-- 動作 --</option>';
+    if (cat && cat !== 'Other' && fullMenuData[cat]) {
+      fullMenuData[cat].forEach(obj => itemSelect.options.add(new Option(obj.name, obj.name)));
+    }
+    itemSelect.options.add(new Option("+ 新增動作", "Other"));
+    onItemChange();
+  }
+
+  // 💡 動態媒體渲染核心：自動判別網址格式是圖片還是影片！
+  function updateMediaDisplay(url) {
+    const container = document.getElementById('mediaContainer');
+    if (!url || url.trim() === "") {
+      container.innerHTML = `<img src="${DEFAULT_IMG}">`;
+      return;
+    }
+
+    const cleanUrl = url.trim();
+
+    // 1. 判斷是否為 YouTube 網址
+    if (cleanUrl.includes("youtube.com") || cleanUrl.includes("youtu.be")) {
+      let videoId = "";
+      if (cleanUrl.includes("v=")) {
+        videoId = cleanUrl.split("v=")[1].split("&")[0];
+      } else if (cleanUrl.includes("youtu.be/")) {
+        videoId = cleanUrl.split("youtu.be/")[1].split("?")[0];
+      } else if (cleanUrl.includes("embed/")) {
+        videoId = cleanUrl.split("embed/")[1].split("?")[0];
+      }
+      
+      if(videoId) {
+        container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+        return;
+      }
+    }
+
+    // 2. 判斷是否為一般直接的原始影片檔 (.mp4, .webm)
+    const isVideoFile = cleanUrl.match(/\.(mp4|webm|mov|ogg)($|\?)/i) || cleanUrl.includes("video");
+    if (isVideoFile) {
+      container.innerHTML = `<video src="${cleanUrl}" controls loop muted playsinline></video>`;
+      return;
+    }
+
+    // 3. 預設：當成一般圖片讀取
+    container.innerHTML = `<img src="${cleanUrl}" onerror="this.src='${DEFAULT_IMG}';">`;
+  }
+
+  function onItemChange() {
+    const cat = document.getElementById('catSelect').value;
+    const item = document.getElementById('itemSelect').value;
+    const statusDiv = document.getElementById('chartStatus');
+    const canvas = document.getElementById('weightChart');
+
+    document.getElementById('newItemInput').style.display = (item === 'Other') ? 'block' : 'none';
+
+    let mediaUrl = "";
+    if (cat && item && fullMenuData[cat]) {
+      const found = fullMenuData[cat].find(obj => obj.name === item);
+      if(found && found.img) mediaUrl = found.img; 
+    }
+    
+    // 呼叫媒體播放引擎
+    updateMediaDisplay(mediaUrl);
+
+    if (item && item !== 'Other') {
+      statusDiv.style.display = 'block';
+      statusDiv.innerText = "正在讀取歷史曲線...";
+      canvas.style.display = 'none';
+      
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ "action": "getHistory", "item": item })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data || data.length === 0) {
+          statusDiv.innerText = "這是全新項目，尚無歷史數據";
+          return;
+        }
+        statusDiv.style.display = 'none';
+        canvas.style.display = 'block';
+        renderChart(data);
+      })
+      .catch(err => { statusDiv.innerText = "歷史紀錄載入失敗"; });
+    } else {
+      statusDiv.style.display = 'block';
+      statusDiv.innerText = "請先選擇運動項目";
+      canvas.style.display = 'none';
+    }
+  }
+
+  function renderChart(historyData) {
+    if (typeof Chart === 'undefined') return;
+    const sortedData = [...historyData].reverse(); 
+    const labels = sortedData.map(log => {
+      if (log.date && log.date.includes('/')) {
+        const p = log.date.split('/');
+        return p.length >= 3 ? `${p[1]}/${p[2]}` : log.date;
+      }
+      return log.date || "";
+    });
+    
+    const chartPoints = sortedData.map(log => {
+      const content = log.displayContent ? log.displayContent.toString().trim() : "";
+      let weight = 0, setRepStr = "";
+      if (content.includes('*')) {
+        const parts = content.split('*');
+        weight = parseFloat(parts[0]) || 0;
+        const rest = parts[1] || "";
+        if (rest.includes('(') && rest.includes(')')) {
+          const subParts = rest.split('(');
+          setRepStr = `${subParts[0] || "0"}組/${(subParts[1] || "").replace(')', '')}次`;
+        } else { setRepStr = rest ? `${rest}組` : ""; }
+      } else { weight = parseFloat(content) || 0; }
+      return { weight: weight, labelStr: setRepStr };
+    });
+
+    if (myChart) { myChart.destroy(); }
+    const ctx = document.getElementById('weightChart').getContext('2d');
+    myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: chartPoints.map(p => p.weight),
+          borderColor: '#2e7d32', backgroundColor: '#81c784', borderWidth: 3, pointRadius: 6, fill: false, tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 35, bottom: 5, left: 10, right: 10 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            display: true, align: 'top', offset: 4, color: '#1b5e20', font: { size: 11, weight: 'bold' }, 
+            formatter: function(value, context) {
+              const pt = chartPoints[context.dataIndex];
+              return (pt && pt.labelStr) ? `${value}kg\n(${pt.labelStr})` : `${value}kg`;
+            },
+            textAlign: 'center' 
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 12, weight: 'bold' }, color: '#2d4030' } },
+          y: { ticks: { font: { size: 12, weight: 'bold' }, color: '#2d4030' }, grace: '35%' }
+        }
+      },
+      plugins: (typeof ChartDataLabels !== 'undefined') ? [ChartDataLabels] : []
+    });
+  }
+
+  function checkPwd() {
+    if (document.getElementById('unlockPwd').value === "1234") {
+      document.getElementById('lockScreen').style.display = 'none';
+      document.getElementById('inbodyContent').style.display = 'block';
+    } else { alert("密碼錯誤"); }
+  }
+  function lockInBody() {
+    document.getElementById('lockScreen').style.display = 'block';
+    document.getElementById('inbodyContent').style.display = 'none';
+  }
+
+  function submitForm() {
+    const btn = document.getElementById('saveBtn');
+    const payload = {
+      action: "saveLog",
+      category: document.getElementById('catSelect').value,
+      newCategory: document.getElementById('newCatInput').value,
+      item: document.getElementById('itemSelect').value,
+      newItem: document.getElementById('newItemInput').value,
+      date: document.getElementById('logDate').value,
+      weight: document.getElementById('w').value,
+      sets: document.getElementById('s').value,
+      reps: document.getElementById('r').value
+    };
+
+    if(!payload.category || !payload.item || !payload.date) return alert("請完整選擇部位、動作與日期");
+    btn.disabled = true; btn.innerText = "正在儲存...";
+
+    fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+    .then(res => res.json())
+    .then(result => { alert(result.message || "儲存成功！"); location.reload(); })
+    .catch(err => { alert("儲存失敗：" + err.message); btn.disabled = false; btn.innerText = "儲存紀錄至 Excel"; });
+  }
 </script>
 </body>
 </html>
