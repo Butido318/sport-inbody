@@ -90,11 +90,11 @@
       <div class="card">
         <h5>📊 InBody 儀表板</h5>
         <div id="lockScreen" class="inbody-locked text-center">
-          <input type="password" id="unlockPwd" class="form-control mb-3" placeholder="輸入密碼查看數據">
+          <input type="password" id="unlockPwd" class="form-control mb-3" placeholder="輸入密碼">
           <button class="btn btn-outline-success w-100" style="font-size:16px;" onclick="checkPwd()">展開數據</button>
         </div>
         <div id="inbodyContent" style="display:none;">
-          <div class="text-center p-3 text-success" style="font-size:16px;">（數據繪製區域）</div>
+          <div class="text-center p-3 text-success" style="font-size:16px;">（數據區域）</div>
           <button class="btn btn-sm btn-link w-100 text-success" style="font-size:16px;" onclick="lockInBody()">隱藏數據</button>
         </div>
       </div>
@@ -155,7 +155,7 @@
 <div class="col-12 col-md-7">
       
       <div class="card">
-        <h5>📈 力量成長曲線 (最近 10 次數據)</h5>
+        <h5>📈 力量曲線 (近10次數據)</h5>
         <div class="chart-container">
           <div id="chartStatus" class="text-muted text-center pt-5" style="font-size:16px; position:absolute; width:100%; z-index:2;">
             請先選擇運動項目
@@ -164,7 +164,7 @@
         </div>
       </div>
         
-        <button id="saveBtn" class="btn btn-primary w-100" onclick="submitForm()">儲存紀錄至 Excel</button>
+        <button id="saveBtn" class="btn btn-primary w-100" onclick="submitForm()">儲存至Excel</button>
       </div>
       
     </div>
