@@ -3,298 +3,192 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Do健康表</title>
+  <title>Do愛運動</title>
+  <meta name="apple-mobile-web-app-title" content="Do愛運動"> 
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+  
+  <base target="_top">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   
   <style>
-    html, body { background-color: #f5fffa; font-family: -apple-system, sans-serif; color: #008080; }
+    html, body { width: 100%; margin: 0; padding: 0; overflow-x: hidden; background-color: #f0f7f4; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #2d4030; font-size: 16px; } 
     .container-fluid { padding: 12px; max-width: 1400px; }
-    .card { background: #fff; border-radius: 16px; border: 1px solid #d1e7dd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; padding: 16px; }
-    h2 { color: #2e7d32; font-weight: 800; text-align: center; margin: 15px 0; }
-    h5 { color: #388e3c; border-left: 5px solid #81c784; padding-left: 10px; margin-bottom: 15px; font-weight: bold; }
     
-    /* InBody 表格流暢捲動與樣式 */
-    .table-responsive { border-radius: 12px; overflow-x: auto; }
-    .inbody-table { font-size: 14px; width: 100%; white-space: nowrap; vertical-align: middle; }
-    .inbody-table th { background: #e8f5e9; color: #2e7d32; font-weight: bold; }
-    .inbody-table td, .inbody-table th { padding: 10px 14px; border: 1px solid #f0f0f0; text-align: center; }
+    .card { background: #ffffff; border-radius: 16px; border: 1px solid #d1e7dd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; padding: 16px; }
+    h2 { color: #2e7d32; font-weight: 800; text-align: center; margin-bottom: 15px; font-size: 24px; }
+    h5 { color: #388e3c; border-left: 5px solid #81c784; padding-left: 10px; margin-bottom: 15px; font-weight: bold; font-size: 18px; }
     
-    /* 項目欄固定在最左側 */
-    .metric-name { font-weight: bold; background: #f9fdfa !important; text-align: left !important; min-width: 140px; position: sticky; left: 0; z-index: 2; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+    .form-label { color: #2e7d32; font-weight: 700; margin-bottom: 6px; font-size: 15px; }
     
-    /* 數據儲存格：上方數值，下方圖表 */
-    .cell-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 85px; }
-    .cell-value { font-size: 16px; font-weight: 600; color: #1b5e20; }
+    .form-select, .form-control { 
+      background-color: #f9fdfa !important; 
+      border: 2px solid #c8e6c9 !important; 
+      color: #1b5e20 !important; 
+      height: 50px; 
+      font-size: 16px; 
+      border-radius: 10px;
+      padding: 6px 10px;
+    }
+    .form-select:focus, .form-control:focus { border-color: #43a047 !important; box-shadow: 0 0 0 0.25rem rgba(67, 160, 71, 0.2); }
     
-    /* 點狀趨勢線 Sparkline 容器（高度微調給數字空間） */
-    .sparkline-container { width: 80px; height: 45px; margin-top: 4px; }
+    /* 🚀 儲存按鈕 */
+    .btn-primary { background-color: #43a047; border: none; height: 55px; font-size: 18px; font-weight: bold; border-radius: 11px; transition: 0.3s; }
+    .btn-primary:active { background-color: #2e7d32; transform: translateY(2px); }
+    .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 20px; border: 2px dashed #a5d6a7; font-size: 16px; }
     
-    /* 條件顏色與變動標籤 */
-    .val-good { color: #2e7d32 !important; font-weight: bold; }
-    .val-warn { background-color: #fff9c4 !important; color: #f57f17 !important; }
-    .diff-badge { font-size: 11px; font-weight: bold; padding: 1px 4px; border-radius: 4px; margin-left: 3px; display: inline-block; }
-    .diff-up { background-color: #ffebee; color: #c62828; }
-    .diff-down { background-color: #e3f2fd; color: #1565c0; }
+    /* 📈 圖表外殼 */
+    .chart-container { 
+      background-color: #e8f5e9; 
+      border: 1px solid #c8e6c9; 
+      border-radius: 12px; 
+      padding: 35px 5px 5px 5px; 
+      position: relative; 
+      width: 100%;
+      min-height: 280px;
+    }
 
-    .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 30px; border: 2px dashed #a5d6a7; }
-    .btn-primary { background-color: #43a047; border: none; height: 50px; font-weight: bold; border-radius: 10px; }
+    /* 🎬 媒體顯示區域：固定比例避免破壞排版 */
+    .media-wrapper {
+      width: 100%;
+      height: 180px;
+      background-color: #fff;
+      border-radius: 12px;
+      border: 2px solid #e8f5e9;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .media-wrapper img, .media-wrapper video, .media-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* 📱 手機版微調 */
+    @media (max-width: 575.98px) {
+      .row.g-1 .col-4, .row.g-1 .col-6 { padding-left: 3px !important; padding-right: 3px !important; }
+      .form-control.px-1 { padding-left: 4px !important; padding-right: 4px !important; }
+    }
   </style>
 </head>
 <body>
 
 <div class="container-fluid">
-  <h2>Do健康紀錄</h2>
+  <h2>🌿 Do愛運動健康紀錄</h2>
 
   <div class="row">
-    <div class="col-12 col-xl-8">
+    
+    <div class="col-12 col-md-5">
+      
       <div class="card">
         <h5>📊 InBody 儀表板</h5>
-        
         <div id="lockScreen" class="inbody-locked text-center">
-          <p class="mb-3">請輸入密碼</p>
-          <div class="input-group mb-3" style="max-width: 300px; margin: 0 auto;">
-            <input type="password" id="unlockPwd" class="form-control" placeholder="請輸入密碼">
-            <button class="btn btn-success" onclick="checkPwd()">身體數據分析</button>
-          </div>
+          <input type="password" id="unlockPwd" class="form-control mb-3" placeholder="輸入密碼查看數據">
+          <button class="btn btn-outline-success w-100" style="font-size:16px;" onclick="checkPwd()">展開數據</button>
         </div>
-
         <div id="inbodyContent" style="display:none;">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <span class="badge bg-success">時間軸已依「過去 ➔ 現在」由左至右遞增</span>
-            <button class="btn btn-sm btn-outline-secondary" onclick="lockInBody()">隱藏數據</button>
-          </div>
-
-          <h6 class="fw-bold mt-2 text-dark">第一層：身體組成分析</h6>
-          <div class="table-responsive mb-4">
-            <table class="table inbody-table">
-              <tbody id="dataBodyComp"></tbody>
-            </table>
-          </div>
-
-          <h6 class="fw-bold text-dark">第二層：肌肉與脂肪分佈 (Kg)</h6>
-          <div class="table-responsive">
-            <table class="table inbody-table">
-              <tbody id="dataSegmental"></tbody>
-            </table>
-          </div>
+          <div class="text-center p-3 text-success" style="font-size:16px;">（數據繪製區域）</div>
+          <button class="btn btn-sm btn-link w-100 text-success" style="font-size:16px;" onclick="lockInBody()">隱藏數據</button>
         </div>
       </div>
-    </div>
 
-    <div class="col-12 col-xl-4">
       <div class="card">
-        <h5>⚙️ 運動紀錄</h5>
+        <h5>⚙️ 項目選擇</h5>
+        
         <div class="mb-3">
           <label class="form-label">📅 訓練日期</label>
           <input type="date" id="logDate" class="form-control">
         </div>
-        <div class="row g-2 mb-3">
+
+        <div class="row g-1 mb-2">
           <div class="col-6">
+            <label class="form-label">部位分類</label>
             <select id="catSelect" class="form-select" onchange="onCategoryChange()">
-              <option value="">讀取中...</option>
+              <option value="">載入中...</option>
             </select>
           </div>
           <div class="col-6">
+            <label class="form-label">運動項目</label>
             <select id="itemSelect" class="form-select" onchange="onItemChange()">
               <option value="">選擇部位</option>
             </select>
           </div>
         </div>
+
+        <input type="text" id="newCatInput" class="form-control mb-2" style="font-size:16px; display:none;" placeholder="請輸入新部位">
+        <input type="text" id="newItemInput" class="form-control mb-2" style="font-size:16px; display:none;" placeholder="請輸入新動作">
         
-        <div class="row g-2 mb-3">
-          <div class="col-4"><input type="number" id="w" class="form-control text-center" placeholder="Kg" inputmode="decimal"></div>
-          <div class="col-4"><input type="number" id="s" class="form-control text-center" placeholder="組" inputmode="numeric"></div>
-          <div class="col-4"><input type="number" id="r" class="form-control text-center" placeholder="次" inputmode="numeric"></div>
+        <div class="mt-3">
+          <div class="media-wrapper" id="mediaContainer">
+            <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500" id="itemImg">
+          </div>
         </div>
-        <button id="saveBtn" class="btn btn-primary w-100" onclick="submitForm()">儲存紀錄</button>
+      </div>
+      
+    </div>
+
+    <div class="col-12 col-md-7">
+      
+      <div class="card">
+        <h5>📈 力量成長曲線 (最近 10 次數據)</h5>
+        <div class="chart-container">
+          <div id="chartStatus" class="text-muted text-center pt-5" style="font-size:16px; position:absolute; width:100%; z-index:2;">
+            請先選擇運動項目
+          </div>
+          <canvas id="weightChart" style="width: 100%; height: 250px; display:none;"></canvas>
+        </div>
       </div>
 
       <div class="card">
-        <h5>📈 力量趨勢</h5>
-        <div style="height: 250px;"><canvas id="weightChart"></canvas></div>
+        <h5>💪 今日訓練成果</h5>
+        
+        <div class="row g-1 mb-4">
+          <div class="col-4">
+            <label class="form-label text-center d-block">重量</label>
+            <input type="number" id="w" class="form-control text-center px-1" placeholder="kg" inputmode="decimal">
+          </div>
+          <div class="col-4">
+            <label class="form-label text-center d-block">組數</label>
+            <input type="number" id="s" class="form-control text-center px-1" placeholder="組" inputmode="numeric">
+          </div>
+          <div class="col-4">
+            <label class="form-label text-center d-block">次數</label>
+            <input type="number" id="r" class="form-control text-center px-1" placeholder="次" inputmode="numeric">
+          </div>
+        </div>
+
+        <button id="saveBtn" class="btn btn-primary w-100" onclick="submitForm()">儲存紀錄至 Excel</button>
       </div>
+      
     </div>
+
   </div>
 </div>
 
 <script>
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTdrao1uUJS_PqrQ4-1Fxz4_foSfsqC4meWjL9RqHnGLxc8IwAC4WzKBpk8_s9ZWACCQ/exec";
-  let activeCharts = []; // 紀錄已繪製的圖表，重整時釋放記憶體
-  function checkPwd() {
-    if (document.getElementById('unlockPwd').value === "3914") {
-      fetchInBodyData();
-    } else {
-      alert("密碼錯誤！");
-    }
-  }
+  const DEFAULT_IMG = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500";
 
-  function lockInBody() {
-    document.getElementById('lockScreen').style.display = 'block';
-    document.getElementById('inbodyContent').style.display = 'none';
-    document.getElementById('unlockPwd').value = "";
-  }
+  let fullMenuData = {};
+  let myChart = null; 
+ 
+  window.onload = function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('logDate').value = today;
 
-  async function fetchInBodyData() {
-    try {
-      const res = await fetch(`${GAS_WEB_APP_URL}?action=getInBody`);
-      const data = await res.json();
-      renderInBody(data);
-      document.getElementById('lockScreen').style.display = 'none';
-      document.getElementById('inbodyContent').style.display = 'block';
-    } catch (e) {
-      alert("無法讀取 InBody 資料庫");
-    }
-  }
+    fetch(`${GAS_WEB_APP_URL}?_nocache=${Date.now()}`, { method: "GET" })
+      .then(response => response.json())
+      .then(data => {fullMenuData = data; updateCategorySelect(); })
+      .catch(err => { alert("連線到 Google 失敗：" + err.message); });
+  };
 
-  function renderInBody(raw) {
-    // 釋放舊圖表
-    activeCharts.forEach(c => c.destroy());
-    activeCharts = [];
-    
-    const originalDates = raw[0].slice(1); 
-    // 只取最近的 10 筆紀錄
-    const sliceCount = Math.min(originalDates.length, 10);
-    
-    // 截取前 10 筆並反轉，使其在網頁上變成【由舊到新】排列（最右側是最新的）
-    const viewDates = originalDates.slice(0, sliceCount).reverse();
-    const rows = raw.slice(1);
-// 取得各層 DOM 容器
-    const headBodyComp = document.getElementById('headBodyComp');
-    const dataBodyComp = document.getElementById('dataBodyComp');
-    const chartsBodyComp = document.getElementById('chartsBodyComp');
-
-    const headSegmental = document.getElementById('headSegmental');
-    const dataSegmental = document.getElementById('dataSegmental');
-    const chartsSegmental = document.getElementById('chartsSegmental');
-
-    // 清空舊內容
-    headBodyComp.innerHTML = ""; dataBodyComp.innerHTML = ""; chartsBodyComp.innerHTML = "";
-    headSegmental.innerHTML = ""; dataSegmental.innerHTML = ""; chartsSegmental.innerHTML = "";
-
-    // 建立共同的表頭（欄位寬度固定比例對齊）
-    let headerHTML = `<tr><th class="col-name">項目</th>`;
-    viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
-    headerHTML += `</tr>`;
-    
-    headBodyComp.innerHTML = headerHTML;
-    headSegmental.innerHTML = headerHTML;
-
-    // 分流資料列並生成纯純數字表格
-    rows.forEach((rowData, rowIndex) => {
-      const name = rowData[0];
-      const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();
-      
-      let rowHTML = `<tr><td class="col-name">${name}</td>`;
-      viewValues.forEach((v, i) => {
-        let cellClass = "";
-        if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
-        if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
-
-        // 計算並保留你需要的增減 箭頭功能
-        let diffHTML = "";
-        if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
-          const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
-          if (diff > 0) diffHTML = `<span class="diff-badge diff-up">▲${diff}</span>`;
-          else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
-        }
-
-        rowHTML += `<td class="${cellClass}"><span class="val-text">${v}</span>${diffHTML}</td>`;
-      });
-      rowHTML += `</tr>`;
-
-      // 塞入對應的表格中
-      if (rowIndex < 7) dataBodyComp.innerHTML += rowHTML;
-      else dataSegmental.innerHTML += rowHTML;
-    });
-
-    // 💡 關鍵重頭戲：在表格下方，塞入獨立的「跨區連續折線圖」
-    rows.forEach((rowData, rowIndex) => {
-      const name = rowData[0];
-      const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();
-      const chartId = `macroChart-${rowIndex}`;
-
-      // 建立一個跟上方表格欄位完美等寬的橫向外殼
-      const chartRowHTML = `
-        <div class="chart-block-row">
-          <div class="chart-block-title">${name} 趨勢</div>
-          <div class="chart-block-canvas">
-            <canvas id="${chartId}" style="width: 100%; height: 55px;"></canvas>
-          </div>
-        </div>
-      `;
-
-      if (rowIndex < 7) chartsBodyComp.innerHTML += chartRowHTML;
-      else chartsSegmental.innerHTML += chartRowHTML;
-
-      // 渲染跨區折線圖
-      setTimeout(() => {
-        const numericData = viewValues.map(v => parseFloat(v) || 0);
-        drawMacroChart(chartId, numericData);
-      }, 50);
-    });
-  }
-
-  // 繪製與 InBody 報告一模一樣的跨區連續折線圖
-  function drawMacroChart(canvasId, dataPoints) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-
-    const newChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: dataPoints, // 用數據本身當 X 軸標籤，主要是為了對齊節點
-        datasets: [{
-          data: dataPoints,
-          borderColor: '#2e7d32',
-          borderWidth: 2,
-          pointRadius: 4,
-          pointBackgroundColor: '#1b5e20',
-          pointBorderColor: '#ffffff',
-          pointBorderWidth: 1,
-          fill: false,
-          tension: 0.15
-        }]
-      },
-      plugins: [ChartDataLabels],
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: {
-          // 🏆 關鍵：左右留白的百分比要跟上方表格的項目名稱寬度(140px)和數據欄位完美重合
-          padding: { left: 35, right: 35, top: 15, bottom: 15 } 
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: { enabled: true },
-          datalabels: {
-            display: true,
-            align: 'top',
-            offset: 2,
-            color: '#1b5e20',
-            font: { size: 10, weight: 'bold' },
-            formatter: function(value) { return value; } // 每一點都標註數字，跟官方一模一樣
-          }
-        },
-        scales: {
-          // 隱藏格線與座標軸，只純粹留下點與線
-          x: { display: false },
-          y: { display: false, grace: '40%' } // 給予上方足夠空間不讓數字被切掉
-        }
-      }
-    });
-    activeCharts.push(newChart);
-  }
-
-  function formatDate(d) {
-    if (!d) return "";
-    const date = new Date(d);
-    return isNaN(date) ? d : `${date.getMonth()+1}/${date.getDate()}`;
-  }
-
-  // ...（此處後方繼續貼上你原本健康表裡 updateCategorySelect, submitForm 等剩餘的 JS 程式碼）...
   function updateCategorySelect() {
     const catSelect = document.getElementById('catSelect');
     if (Object.keys(fullMenuData).length === 0) {
@@ -494,5 +388,6 @@
     .catch(err => { alert("儲存失敗：" + err.message); btn.disabled = false; btn.innerText = "儲存紀錄至 Excel"; });
   }
 </script>
+
 </body>
 </html>
