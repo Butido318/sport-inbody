@@ -303,20 +303,110 @@
     } catch (e) { alert("無法讀取 InBody 資料庫"); }
   }
 
-renderInBody
-  // 繪製包覆在列尾的極簡 Sparkline
+/* ══════════════════════════════════════════════════════════════
+   1. 渲染 InBody 表格主引擎 (全新微型格子畫布版)
+   ══════════════════════════════════════════════════════════════ */
+function renderInBody(raw) {
+  if (!raw || raw.length < 2) return;
+
+  // 安全清除舊圖表，避免 Chart.js 實例重複衝突
+  if (typeof activeInBodyCharts !== 'undefined' && activeInBodyCharts.length > 0) {
+    activeInBodyCharts.forEach(c => { if(c && typeof c.destroy === 'function') c.destroy(); });
+    activeInBodyCharts = [];
+  } else {
+    window.activeInBodyCharts = [];
+  }
+
+  const originalDates = raw[0].slice(1); 
+  // 🚀 自動支援任意天數！有多少天數據就直接往右延伸
+  const sliceCount = originalDates.length; 
+  const viewDates = originalDates.slice(0, sliceCount).reverse(); // 舊到新排序
+  const rows = raw.slice(1);
+
+  const tables = {
+    bodyComp: { head: document.getElementById('headBodyComp'), data: document.getElementById('dataBodyComp'), html: "" },
+    muscle: { head: document.getElementById('headMuscle'), data: document.getElementById('dataMuscle'), html: "" },
+    fat: { head: document.getElementById('headFat'), data: document.getElementById('dataFat'), html: "" }
+  };
+
+  // 生成表頭 (確保包含凍結項目所需的 metric-name class)
+  let headerHTML = `<tr><th class="metric-name">項目</th>`;
+  viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
+  headerHTML += `</tr>`; 
+  
+  if (tables.bodyComp.head) tables.bodyComp.head.innerHTML = headerHTML;
+  if (tables.muscle.head) tables.muscle.head.innerHTML = headerHTML;
+  if (tables.fat.head) tables.fat.head.innerHTML = headerHTML;
+
+  rows.forEach((rowData, rowIndex) => {
+    const name = rowData[0];
+    const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();        
+
+    let rowHTML = `<tr><td class="metric-name">${name}</td>`;
+    
+    viewValues.forEach((v, i) => {
+      let cellClass = "";
+      if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
+      if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
+
+      let diffHTML = "";
+      if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
+        const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
+        if (diff > 0) diffHTML = `<span class="diff-badge diff-up">▲${diff}</span>`;
+        else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
+      }
+
+      // 🚀 關鍵核心：在每一個 td 儲存格裡埋入自己專屬的 Canvas (ID格式: canvas-r行-c列)
+      const cellCanvasId = `canvas-r${rowIndex}-c${i}`;
+
+      rowHTML += `
+        <td class="${cellClass}">
+          <div class="cell-content">
+            <div style="font-weight:700; font-size:15px; margin-bottom:2px;">${v}</div>
+            ${diffHTML}
+          </div>
+          <canvas id="${cellCanvasId}" class="cell-spark-canvas"></canvas>
+        </td>`;
+    });
+
+    rowHTML += `</tr>`;
+
+    // 依據 InBody 項目行數拆分到三層大標題中
+    if (rowIndex < 7) {
+      tables.bodyComp.html += rowHTML;
+    } else if (rowIndex >= 7 && rowIndex < 12) {
+      tables.muscle.html += rowHTML;
+    } else {
+      tables.fat.html += rowHTML;
+    }
+
+    // 🚀 安全非同步繪圖：把整行的歷史數值塞給格子去裁切，延遲 120 毫秒確保 HTML 已完全渲染到瀏覽器上
+    setTimeout(() => {
+      drawGridSparkline(rowIndex, viewValues);
+    }, 120);
+  });
+
+  if (tables.bodyComp.data) tables.bodyComp.data.innerHTML = tables.bodyComp.html;
+  if (tables.muscle.data) tables.muscle.data.innerHTML = tables.muscle.html;
+  if (tables.fat.data) tables.fat.data.innerHTML = tables.fat.html;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   2. 格子獨立微型畫布繪製邏輯 (多天數自動對齊、淺灰質感線)
+   ══════════════════════════════════════════════════════════════ */
 function drawGridSparkline(rowIndex, rowDataPoints) {
-  // 找出這一行數據的最高與最低點，讓這一行的所有格子共用同一個 Y 軸比例，線才連得起來！
   const validValues = rowDataPoints.map(v => parseFloat(v)).filter(v => !isNaN(v));
+  if (validValues.length === 0) return;
+  
   const maxVal = Math.max(...validValues);
   const minVal = Math.min(...validValues);
   const valRange = maxVal - minVal;
 
-  // 給予 Y 軸上下 25% 的緩衝空間，讓點點落在格子中間，不會卡到邊框
+  // 計算 Y 軸緩衝：保留上下 25% 的安全邊距，數字跟折線節點才不會打架
   const yMin = valRange === 0 ? minVal - 1 : minVal - (valRange * 0.25);
   const yMax = valRange === 0 ? maxVal + 1 : maxVal + (valRange * 0.25);
 
-  // 巡迴這一行的每一個格子，幫它們畫上專屬的那一段線
+  // 巡迴這行中的每一個儲存格 Canvas 進行繪製
   rowDataPoints.forEach((_, colIndex) => {
     const canvasId = `canvas-r${rowIndex}-c${colIndex}`;
     const canvas = document.getElementById(canvasId);
@@ -329,26 +419,23 @@ function drawGridSparkline(rowIndex, rowDataPoints) {
         labels: rowDataPoints.map((_, idx) => idx),
         datasets: [{
           data: rowDataPoints,
-          borderColor: '#cccccc',       // 🚀 質感的淺灰色線條
+          borderColor: '#cccccc',       // 質感淺灰色線
           borderWidth: 1.5,
-          pointRadius: 4,               // 節點大小
+          pointRadius: 4,               // 圓圈大小
           pointBackgroundColor: '#ffffff', 
           pointBorderColor: '#aaaaaa',  
           pointBorderWidth: 1.5,
           fill: false,
-          tension: 0                    // 直折線
+          tension: 0                    // 直折線 (比照 InBody 原廠風格)
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         layout: {
-          // 🚀 完美魔法：
-          // 當我們把 X 軸截斷時，如果是最左/最右格，內留白要調成 50% 寬（37.5px），
-          // 折線的端點小圓點就會完美死釘在格子的正中央！
           padding: {
             top: 10,
-            bottom: 12,
+            bottom: 14, // 留給升降 badge(▲▼) 空間
             left: colIndex === 0 ? 37.5 : 0,
             right: colIndex === rowDataPoints.length - 1 ? 37.5 : 0
           }
@@ -359,7 +446,7 @@ function drawGridSparkline(rowIndex, rowDataPoints) {
           datalabels: { display: false }
         },
         scales: {
-          // 🚀 核心黑科技：利用 min/max 裁剪 X 軸，讓這格畫布只顯示它自己到下一格之間的線段
+          // 黑科技動態裁剪：只保留目前這格到隔壁格子之間的線段線條
           x: {
             type: 'linear',
             display: false,
@@ -374,14 +461,20 @@ function drawGridSparkline(rowIndex, rowDataPoints) {
         }
       }
     });
-    activeInBodyCharts.push(chart);
+    
+    if (window.activeInBodyCharts) {
+      window.activeInBodyCharts.push(chart);
+    }
   });
 }
-  function formatDate(d) {
-    if (!d) return "";
-    const date = new Date(d);
-    return isNaN(date) ? d : `${date.getMonth()+1}/${date.getDate()}`;
+  function formatDate(dateStr) {
+  if (!dateStr) return "";
+  const parts = dateStr.split('/');
+  if (parts.length >= 3) {
+    return `${parts[1]}/${parts[2]}`; // 回傳 4/22, 5/13 格式
   }
+  return dateStr;
+}
 
   // 力量歷史數據載入核心
  function onItemChange() {
