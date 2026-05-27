@@ -16,222 +16,213 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   
   <style>
-    /* ==========================================
-       1. 網頁全域基礎設定（曜石暗綠黑）
-       ========================================== */
-    html, body { 
-      width: 100%; 
-      margin: 0; 
-      padding: 0; 
-      overflow-x: hidden; 
-      background-color: #121614 !important; /* 曜石底色 */
-    }
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-      color: #ffffff; 
-      font-size: 16px; 
-    } 
-    .container-fluid { padding: 12px; max-width: 1400px; }
+/* ==========================================
+   1. 網頁全域基礎設定（曜石暗綠黑）
+   ========================================== */
+html, body { 
+  width: 100%; 
+  margin: 0; 
+  padding: 0; 
+  overflow-x: hidden; 
+  background-color: #121614 !important; /* 曜石底色 */
+}
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+  color: #ffffff; 
+  font-size: 16px; 
+} 
+.container-fluid { padding: 12px; max-width: 1400px; }
 
-    /* ==========================================
-       2. 頂部大標題（Do愛運動健康紀錄 - 升級質感純白）
-       ========================================== */
-    h1, .main-title {
-      color: #ffffff !important; 
-      font-weight: 800;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    }
+/* ==========================================
+   2. 頂部大標題（Do愛運動健康紀錄 - 升級質感純白）
+   ========================================== */
+h1, .main-title {
+  color: #ffffff !important; /* 主標題改成大氣的純白 */
+  font-weight: 800;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
 
-    /* ==========================================
-       3. 區塊卡片與標題（升級暗黑岩石襯托 鈦銀/香檳金）
-       ========================================== */
-    .card { 
-      background: #1e2421 !important; /* 高級深軍綠灰卡片 */
-      border-radius: 16px; 
-      border: 1px solid #2d3733 !important; /* 微光暗邊框 */
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important; 
-      margin-bottom: 15px; 
-      padding: 16px; 
-      color: #ffffff !important;
-    }
-    h2 { 
-      color: #e5c158 !important; /* 優雅的香檳金 */
-      font-weight: 800; 
-      text-align: center; 
-      margin-bottom: 15px; 
-      font-size: 24px; 
-    }
-    h5 { 
-      color: #d1dcd6 !important; /* 鈦金銀 */
-      border-left: 5px solid #e5c158 !important; /* 左側裝飾條：奢華香檳金 */
-      padding-left: 10px; 
-      margin-bottom: 15px; 
-      font-weight: bold; 
-      font-size: 18px; 
-    }
-    h6 { 
-      color: #e5c158 !important; /* 香檳金字 */
-      font-weight: 800; 
-      margin-top: 15px; 
-      margin-bottom: 8px; 
-      font-size: 15px; 
-      background: #252e2a !important; /* 深色內凹底塊 */
-      padding: 6px 10px; 
-      border-radius: 6px; 
-      border-left: 3px solid #d1dcd6; /* 側邊搭鈦金銀細線 */
-    }
+/* ==========================================
+   3. 區塊卡片與自訂標題（深灰岩石襯托 鈦銀/霓虹藍 質感）
+   ========================================== */
+.card { 
+  background: #1e2421 !important; /* 高級深軍綠灰卡片 */
+  border-radius: 16px; 
+  border: 1px solid #2d3733 !important; /* 微光暗邊框 */
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important; 
+  margin-bottom: 15px; 
+  padding: 16px; 
+  color: #ffffff !important;
+}
 
-    /* ==========================================
-       4. 表格基本外殼與數據儲存格（全體底部邊框）
-       ========================================== */
-    .table-responsive {
-      position: relative;
-      border-radius: 12px;
-      overflow-x: auto;
-      background: #2c3531; 
-      border: 1px solid #3a4842; 
-    }
-    .col-data, .inbody-table td:not(.metric-name) {
-      width: 75px;
-      min-width: 75px;
-      max-width: 75px;
-      height: 56px;
-      position: relative; 
-      text-align: center;
-      vertical-align: middle;
-      padding: 0 !important;
-      color: #ffffff; 
-    }
-    .cell-content {
-      position: relative;
-      z-index: 2; 
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-      pointer-events: none; 
-    }
-    .inbody-table th, .inbody-table td {
-      border-bottom: 1px solid #3a4842 !important; 
-    }
-    
-    /* ==========================================
-       5. 左側項目欄位與表頭凍結
-       ========================================== */
-    .metric-name {
-      font-weight: bold;
-      background: #28322e !important; 
-      color: #b2c0bc !important;      
-      text-align: left !important;
-      width: 105px;
-      min-width: 105px;
-      padding-left: 12px !important;
-      position: -webkit-sticky;
-      position: sticky;
-      left: 0;
-      z-index: 4; 
-      border-right: 2px solid #3a4842 !important; 
-    }
-    .inbody-table th.metric-name {
-      background: #232b28 !important; 
-      color: #ffffff !important;
-      position: -webkit-sticky;
-      position: sticky;
-      left: 0;
-      z-index: 5;
-    }
+/* 各卡片的大標題（如：InBody儀表板、健身紀錄） */
+h2 { 
+  color: #49c991 !important; /* 原本的香檳金改為亮眼運動綠 */
+  font-weight: 800; 
+  text-align: center; 
+  margin-bottom: 15px; 
+  font-size: 24px; 
+}
 
-    /* ==========================================
-       6. 微型畫布與變動標籤設定
-       ========================================== */
-    .cell-spark-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100% !important;
-      height: 100% !important;
-      z-index: 1; 
-      pointer-events: none;
-    }
-    .row-spark-canvas {
-      display: block;
-      height: 100%;
-      pointer-events: none;
-    }
-    .val-warn div { color: #ffbc42 !important; } 
-    .val-good div { color: #2ecc71 !important; } 
-    
-    .diff-badge {
-      font-size: 11px;
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-weight: bold;
-    }
-    .diff-up {
-      background-color: rgba(255, 107, 107, 0.18) !important;
-      color: #ff7676 !important;
-    }
-    .diff-down {
-      background-color: rgba(77, 173, 255, 0.18) !important;
-      color: #5cc0ff !important;
-    }
+/* 區域小標題（如：第一層：身體組成分析） */
+h5 { 
+  color: #d1dcd6 !important; /* 鈦金銀 */
+  border-left: 5px solid #49c991 !important; /* 左側裝飾條：活力綠襯托 */
+  padding-left: 10px; 
+  margin-bottom: 15px; 
+  font-weight: bold; 
+  font-size: 18px; 
+}
 
-    /* ==========================================
-       7. 完整保留並修正：密碼鎖與表單欄位（融入深色金銀風）
-       ========================================== */
-    /* InBody 專用密碼鎖定外殼 */
-    .inbody-locked { 
-      background: #19201d !important; 
-      border-radius: 12px; 
-      padding: 20px; 
-      border: 2px dashed #e5c158 !important; /* 改為奢華虛線金框 */
-      font-size: 16px; 
-    }
+/* 項目提示塊或欄位名稱 */
+h6 { 
+  color: #ffffff !important; 
+  font-weight: 800; 
+  margin-top: 15px; 
+  margin-bottom: 8px; 
+  font-size: 15px; 
+  background: #151917 !important; /* 深度內凹暗塊 */
+  padding: 6px 10px; 
+  border-radius: 6px; 
+}
+
+/* ==========================================
+   4. 表格基本外殼與數據儲存格（全體底部邊框）
+   ========================================== */
+.table-responsive {
+  position: relative;
+  border-radius: 12px;
+  overflow-x: auto;
+  background: #2c3531; 
+  border: 1px solid #3a4842; 
+}
+.inbody-table th, .inbody-table td {
+  border-bottom: 1px solid #3a4842 !important; /* 細緻的暗灰色內部線 */
+}
+.col-data, .inbody-table td:not(.metric-name) {
+  width: 75px;
+  min-width: 75px;
+  max-width: 75px;
+  height: 56px;
+  position: relative; 
+  text-align: center;
+  vertical-align: middle;
+  padding: 0 !important;
+  color: #ffffff; 
+}
+
+/* 確保文字和標籤置中 */
+.cell-content {
+  position: relative;
+  z-index: 2; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  pointer-events: none; 
+}
+
+/* ==========================================
+   5. 左側項目欄位與表頭凍結
+   ========================================== */
+.metric-name {
+  font-weight: bold;
+  background: #28322e !important; 
+  color: #b2c0bc !important;      
+  text-align: left !important;
+  width: 105px;
+  min-width: 105px;
+  padding-left: 12px !important;
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0;
+  z-index: 4; 
+  border-right: 2px solid #3a4842 !important; 
+}
+.inbody-table th.metric-name {
+  background: #232b28 !important; 
+  color: #ffffff !important;
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+}
+
+/* ==========================================
+   6. 微型畫布與特殊數據樣式設定
+   ========================================== */
+.cell-spark-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1; 
+  pointer-events: none;
+}
+.row-spark-canvas {
+  display: block;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* 特殊數值警告與優良顏色調整 */
+.val-warn div { color: #ffbc42 !important; } /* 警告：亮橘黃字 */
+.val-good div { color: #2ecc71 !important; } /* 優良：亮綠字 */
+
+/* ==========================================
+   7. 數據變動霓虹活潑 Badge（🚀 配色優化核心）
+   ========================================== */
+.diff-badge {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+.diff-up {
+  background-color: rgba(255, 107, 107, 0.18) !important;
+  color: #ff7676 !important; /* 鮮豔霓虹紅 */
+}
+.diff-down {
+  background-color: rgba(77, 173, 255, 0.18) !important;
+  color: #5cc0ff !important; /* 清爽霓虹藍 */
+}
+
+/* ==========================================
+   8. 輸入框、下拉選單深色岩石質感（告別突兀白框）
+   ========================================== */
+.form-control, select, input[type="password"], input[type="date"], input[type="number"], input[type="text"] {
+  background-color: #252e2a !important; /* 內凹暗綠岩石底 */
+  border: 1px solid #43524b !important;   /* 鈦銀質感的微亮外框 */
+  color: #ffffff !important;            
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+/* 當點擊輸入框時，邊框綻放活力綠微光 */
+.form-control:focus, select:focus {
+  border-color: #49c991 !important;
+  box-shadow: 0 0 0 0.2rem rgba(73, 201, 145, 0.25) !important;
+}
     
-    /* 表單欄位文字標籤 */
-    .form-label { 
-      color: #d1dcd6 !important; /* 調整為質感鈦銀白字 */
-      font-weight: 700; 
-      margin-bottom: 6px; 
-      font-size: 15px; 
-    }
-    
-    /* 下拉選單與普通輸入框（告別突兀白底綠字） */
-    .form-select, .form-control { 
-      background-color: #252e2a !important; 
-      border: 2px solid #43524b !important; 
-      color: #ffffff !important; 
-      height: 50px; 
-      font-size: 16px; 
-      border-radius: 10px;
-      padding: 6px 10px;
-    }
-    /* 輸入框點擊聚焦 */
-    .form-select:focus, .form-control:focus { 
-      border-color: #e5c158 !important; 
-      box-shadow: 0 0 0 0.25rem rgba(229, 193, 88, 0.2) !important; 
-      background-color: #2b3631 !important;
-    }
-    
-    /* 儲存/功能按鈕：升級為金屬感金屬漸層 */
-    .btn-primary { 
-      background: linear-gradient(135deg, #ccaf52, #ad923b) !important; 
+/* 🚀 儲存按鈕：升級為活潑跳出的運動霓虹綠漸層，搭配白字 */
+    .btn-primary, .btn-success, button[onclick*="submitForm"] { 
+      background: linear-gradient(135deg, #42b983, #34a873) !important;
       border: none !important; 
       height: 55px; 
       font-size: 18px; 
       font-weight: bold; 
       border-radius: 11px; 
       transition: 0.3s; 
-      color: #121614 !important; /* 內文深色對比極佳 */
-      box-shadow: 0 4px 12px rgba(229, 193, 88, 0.2) !important;
+      color: #ffffff !important; /* 改為白字，在霓虹綠上非常清晰活潑 */
+      box-shadow: 0 4px 12px rgba(66, 185, 131, 0.2) !important;
     }
-    .btn-primary:active { 
-      background: linear-gradient(135deg, #e5c158, #ccaf52) !important;
+    .btn-primary:active, button[onclick*="submitForm"]:active { 
+      background: linear-gradient(135deg, #5cd699, #42b983) !important;
       transform: translateY(2px); 
     }
     
-    /* 右側力量大圖表容器（修正原本會亮瞎眼的白/淺綠底色） */
+    /* 🚀 右側力量大圖表容器（安全保留：維持高質感暗色底，不亮瞎眼） */
     .chart-container { 
       background-color: #19201d !important; /* 深軍綠黑內凹底 */
       border: 1px solid #2d3733 !important; 
@@ -241,7 +232,6 @@
       width: 100%;
       min-height: 280px;
     }
-
     /* ==========================================
        8. 🎬 媒體顯示區域（保留原有全套核心縮放結構，微調底色）
        ========================================== */
@@ -536,14 +526,14 @@ const chart = new Chart(ctx, {
         labels: rowDataPoints.map((_, idx) => idx),
         datasets: [{
           data: rowDataPoints,
-          borderColor: '#d1dcd6',           // 🚀 改成顯眼的「淺銀綠灰色」線條
+          borderColor: '#4dbdff',       // 🚀 改用醒目的「活力電光藍」線條
           borderWidth: 1.5,
-          pointRadius: 4,
-          pointBackgroundColor: '#2c3531',  // 🚀 點點圓心填滿成跟儲存格一樣的深色
-          pointBorderColor: '#ffffff',      // 🚀 點點外圈用「純白」，像星光一樣亮眼
+          pointRadius: 4,               // 圓圈大小
+          pointBackgroundColor: '#ffffff', // 🚀 圓心白色
+          pointBorderColor: '#00a3ff',  // 🚀 圓圈外框也用亮藍色發光
           pointBorderWidth: 1.5,
           fill: false,
-          tension: 0 
+          tension: 0                    // 直折線 (比照 InBody 原廠風格)
         }]
       },
       options: {
