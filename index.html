@@ -666,28 +666,62 @@ function formatDate(dateStr) {
     container.innerHTML = `<img src="${cleanUrl}" onerror="this.src='${DEFAULT_IMG}';">`;
   }
 
-  function submitForm() {
-    const btn = document.getElementById('saveBtn');
-    const payload = {
-      action: "saveLog",
-      category: document.getElementById('catSelect').value,
-      newCategory: document.getElementById('newCatInput').value,
-      item: document.getElementById('itemSelect').value,
-      newItem: document.getElementById('newItemInput').value,
-      date: document.getElementById('logDate').value,
-      weight: document.getElementById('w').value,
-      sets: document.getElementById('s').value,
-      reps: document.getElementById('r').value
-    };
+function submitForm() {
+  const form = {
+    date: document.getElementById('date').value,
+    category: document.getElementById('category').value,
+    newCategory: document.getElementById('newCategory') ? document.getElementById('newCategory').value : '',
+    item: document.getElementById('item').value,
+    newItem: document.getElementById('newItem') ? document.getElementById('newItem').value : '',
+    weight: document.getElementById('weight').value,
+    sets: document.getElementById('sets').value,
+    reps: document.getElementById('reps').value
+  };
 
-    if(!payload.category || !payload.item || !payload.date) return alert("請完整選擇部位、動作與日期");
-    btn.disabled = true; btn.innerText = "正在儲存...";
+  if (!form.date) return alert('請選擇日期！');
+  
+  // 防呆：如果是選擇自訂，必須填寫新名稱
+  if (form.category === 'Other' && !form.newCategory.trim()) return alert('請輸入新部位名稱！');
+  if (form.item === 'Other' && !form.newItem.trim()) return alert('請輸入新運動項目名稱！');
 
-    fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-    .then(res => res.json())
-    .then(result => { alert(result.message || "儲存成功！"); location.reload(); })
-    .catch(err => { alert("儲存失敗：" + err.message); btn.disabled = false; btn.innerText = "儲存紀錄至 Excel"; });
-  }
+  // 顯示讀取中
+  const btn = document.querySelector('button[onclick="submitForm()"]');
+  const oriText = btn.innerHTML;
+  btn.innerHTML = '儲存中...';
+  btn.disabled = true;
+
+  google.script.run
+    .withSuccessHandler(function(res) {
+      btn.innerHTML = oriText;
+      btn.disabled = false;
+      
+      const data = JSON.parse(res);
+      if (data.status === 'success') {
+        alert(data.message);
+        
+        // 🚀 核心復活關鍵：成功寫入後，立刻重新初始化選單與歷史紀錄！
+        // 這樣剛剛新輸入的自訂部位/項目，就會立刻被放進下拉選單裡了
+        if (typeof initWorkoutForm === 'function') {
+          initWorkoutForm(); 
+        }
+        
+        // 順手清空自訂輸入欄位與數值
+        if (document.getElementById('newCategory')) document.getElementById('newCategory').value = '';
+        if (document.getElementById('newItem')) document.getElementById('newItem').value = '';
+        document.getElementById('weight').value = '';
+        document.getElementById('sets').value = '';
+        document.getElementById('reps').value = '';
+      } else {
+        alert('失敗：' + data.message);
+      }
+    })
+    .withFailureHandler(function(err) {
+      btn.innerHTML = oriText;
+      btn.disabled = false;
+      alert('連線失敗：' + err);
+    })
+    .saveLog(form); // 呼叫後端我們改好的最新流水帳 saveLog
+}
 </script>
 </body>
 </html>
