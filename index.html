@@ -392,26 +392,24 @@
       statusDiv.innerText = "正在讀取歷史曲線...";
       canvas.style.display = 'none';
       
-      fetch(GAS_WEB_APP_URL, {
-        method: "POST",
-        body: JSON.stringify({ "action": "getHistory", "item": item })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (!data || data.length === 0) {
-          statusDiv.innerText = "這是全新項目，尚無歷史數據";
-          return;
-        }
-        statusDiv.style.display = 'none';
-        canvas.style.display = 'block';
-        renderChart(data);
-      })
-      .catch(err => { statusDiv.innerText = "歷史紀錄載入失敗"; });
-    } else {
-      statusDiv.style.display = 'block';
-      statusDiv.innerText = "請先選擇運動項目";
-      canvas.style.display = 'none';
+      // 改為 GET 請求路由
+  fetch(`${GAS_WEB_APP_URL}?action=getHistory&item=${encodeURIComponent(item)}`)
+  .then(res => res.json())
+  .then(data => {
+    if (!data || data.length === 0) {
+      statusDiv.innerText = "這是全新項目，尚無歷史數據";
+      return;
     }
+    statusDiv.style.display = 'none';
+    canvas.style.display = 'block';
+    renderChart(data);
+  })
+  .catch(err => { statusDiv.innerText = "歷史紀錄載入失敗"; });
+} else {
+  statusDiv.style.display = 'block';
+  statusDiv.innerText = "請先選擇運動項目";
+  canvas.style.display = 'none';
+}
   }
 
   function renderChart(historyData) {
