@@ -370,7 +370,7 @@
   }
 
   // 力量歷史數據載入核心
-  function onItemChange() {
+ function onItemChange() {
     const cat = document.getElementById('catSelect').value;
     const item = document.getElementById('itemSelect').value;
     const statusDiv = document.getElementById('chartStatus');
@@ -384,6 +384,7 @@
       if(found && found.img) mediaUrl = found.img; 
     }
     
+    // 呼叫媒體播放引擎
     updateMediaDisplay(mediaUrl);
 
     if (item && item !== 'Other') {
@@ -391,8 +392,9 @@
       statusDiv.innerText = "正在讀取歷史曲線...";
       canvas.style.display = 'none';
       
-      fetch(`${GAS_WEB_APP_URL}?action=getHistory&item=${encodeURIComponent(item)}`, {
-        method: "GET"
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ "action": "getHistory", "item": item })
       })
       .then(res => res.json())
       .then(data => {
