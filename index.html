@@ -264,62 +264,68 @@
       fat: { head: document.getElementById('headFat'), data: document.getElementById('dataFat'), html: "" }
     };
 
-    // 生成統一的表頭（最後一欄是趨勢圖）
-    let headerHTML = `<tr><th class="metric-name">項目</th>`;
-    viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
-    headerHTML += `<th class="col-spark">歷史趨勢</th></tr>`;
-    
-    tables.bodyComp.head.innerHTML = headerHTML;
-    tables.muscle.head.innerHTML = headerHTML;
-    tables.fat.head.innerHTML = headerHTML;
+    // 1. 修改表頭：拿掉最後一欄，歷史趨勢直接變背景
+let headerHTML = `<tr><th class="metric-name">項目</th>`;
+viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
+headerHTML += `</tr>`; // 👈 這裡拿掉 <th class="col-spark">
 
-    rows.forEach((rowData, rowIndex) => {
-      const name = rowData[0];
-      const allValues = rowData.slice(1).map(v => parseFloat(v) || 0).reverse(); // 全歷史（舊到新），供畫布使用
-      const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();       // 當前顯示的數值
+// 2. 修改行資料（請在 rows.forEach 迴圈內替換）
+rows.forEach((rowData, rowIndex) => {
+  const name = rowData[0];
+  const allValues = rowData.slice(1).map(v => parseFloat(v) || 0).reverse(); 
+  const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();        
 
-      let rowHTML = `<tr><td class="metric-name">${name}</td>`;
-      
-      viewValues.forEach((v, i) => {
-        let cellClass = "";
-        if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
-        if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
+  // 給 tr 加上 position: relative，並埋入一個絕對定位的 canvas
+  const canvasId = `row-spark-${rowIndex}`;
+  let rowHTML = `<tr style="position: relative;">
+                    <td class="metric-name">${name}</td>`;
+  
+  viewValues.forEach((v, i) => {
+    let cellClass = "";
+    if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
+    if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
 
-        // 計算前後次數值增減
-        let diffHTML = "";
-        if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
-          const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
-          if (diff > 0) diffHTML = `<span class="diff-badge diff-up">▲${diff}</span>`;
-          else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
-        }
+    let diffHTML = "";
+    if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
+      const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
+      if (diff > 0) diffHTML = `<span class="diff-badge diff-up">▲${diff}</span>`;
+      else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
+    }
 
-        rowHTML += `<td class="${cellClass}"><div>${v}</div>${diffHTML}</td>`;
-      });
+    // 這裡加上 z-index: 2 確保數字和進步標籤在線條上方，不會被遮擋、點擊得到
+    rowHTML += `<td class="${cellClass}" style="position: relative; z-index: 2;">
+                  <div>${v}</div>${diffHTML}
+                </td>`;
+  });
 
-      // 🚀 將點線圖包覆在同區域（整列的最右側單元格）
-      const canvasId = `row-spark-${rowIndex}`;
-      rowHTML += `
-        <td class="col-spark">
-          <div class="row-sparkline-container">
-            <canvas id="${canvasId}"></canvas>
-          </div>
-        </td>
-      </tr>`;
+  // 🚀 關鍵：把 Canvas 覆蓋整行 tr 
+  // 透過 left: 105px 讓折線圖自動跳過「項目名稱」那一欄，精準對齊數字區！
+  rowHTML += `
+      <canvas id="${canvasId}" style="
+        position: absolute; 
+        left: 105px; 
+        top: 0; 
+        width: calc(100% - 105px); 
+        height: 100%; 
+        z-index: 1; 
+        pointer-events: none;
+      "></canvas>
+    </tr>`;
 
-      // 依據 index 拆分到三層主標題中 (假設原本 0~6 是身體分析，7~11 是肌肉，12+ 是脂肪)
-      if (rowIndex < 7) {
-        tables.bodyComp.html += rowHTML;
-      } else if (rowIndex >= 7 && rowIndex < 12) {
-        tables.muscle.html += rowHTML;
-      } else {
-        tables.fat.html += rowHTML;
-      }
+  // 依據 index 拆分到三層主標題中
+  if (rowIndex < 7) {
+    tables.bodyComp.html += rowHTML;
+  } else if (rowIndex >= 7 && rowIndex < 12) {
+    tables.muscle.html += rowHTML;
+  } else {
+    tables.fat.html += rowHTML;
+  }
 
-      // 異步渲染整列的歷史折線
-      setTimeout(() => {
-        drawRowSparkline(canvasId, allValues);
-      }, 50);
-    });
+  setTimeout(() => {
+    // 這裡改傳送 viewValues，因為你的圖二原廠報告，線的節點是剛好對齊「那四個日期點」的！
+    drawRowSparkline(canvasId, viewValues);
+  }, 50);
+});
 
     tables.bodyComp.data.innerHTML = tables.bodyComp.html;
     tables.muscle.data.innerHTML = tables.muscle.html;
@@ -327,41 +333,43 @@
   }
 
   // 繪製包覆在列尾的極簡 Sparkline
-  function drawRowSparkline(canvasId, dataPoints) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+function drawRowSparkline(canvasId, dataPoints) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
 
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: dataPoints.map((_, idx) => idx),
-        datasets: [{
-          data: dataPoints,
-          borderColor: '#388e3c',
-          borderWidth: 1.5,
-          pointRadius: 0, // 隱藏中間點點，讓線條更乾淨流暢
-          fill: false,
-          tension: 0.3
-        }]
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dataPoints.map((_, idx) => idx),
+      datasets: [{
+        data: dataPoints,
+        borderColor: '#333333', // 👈 改成深灰色/黑色線條，更有原廠感
+        borderWidth: 1.2,
+        pointRadius: 3,         // 👈 加上小圓點節點
+        pointBackgroundColor: '#333333',
+        fill: false,
+        tension: 0              // 👈 設為 0 變成圖二那種直折線（若喜歡流暢感可調 0.2）
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      // 這裡的 padding 很重要，左右各留 12.5% 剛好可以讓折線節點落在欄位的正中央！
+      layout: { padding: { top: 12, bottom: 12, left: 35, right: 35 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+        datalabels: { display: false }
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: { padding: { top: 4, bottom: 4, left: 4, right: 4 } },
-        plugins: {
-          legend: { display: false },
-          tooltip: { enabled: false },
-          datalabels: { display: false } // 欄位內已有最新數字，圖表內純走趨勢、不重複標註數字
-        },
-        scales: {
-          x: { display: false },
-          y: { display: false, grace: '10%' }
-        }
+      scales: {
+        x: { display: false },
+        y: { display: false, grace: '15%' } // 留點上下裕度避免圓點卡在表格邊緣
       }
-    });
-    activeInBodyCharts.push(chart);
-  }
+    }
+  });
+  activeInBodyCharts.push(chart);
+}
 
   function formatDate(d) {
     if (!d) return "";
