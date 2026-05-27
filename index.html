@@ -35,6 +35,18 @@
   border: 1px solid #e0e0e0;
 }
 
+  /* 數據欄位：設定固定寬度、文字居中 */
+.col-data, .inbody-table td:not(.metric-name) {
+  width: 75px;
+  min-width: 75px;
+  max-width: 75px;
+  text-align: center; /* 🚀 數據左右置中 */
+  vertical-align: middle;
+  position: relative;
+  z-index: 2;         /* 確保數字在線條上方 */
+  background: transparent !important; /* 必須透明，後方的線才看得到 */
+}
+    
 /* 🚀 重頭戲：凍結左側項目欄位 */
 .metric-name {
   font-weight: bold;
@@ -42,35 +54,35 @@
   text-align: left !important;
   width: 105px;
   min-width: 105px;
-  padding-left: 8px !important;
+  padding-left: 12px !important;
   
   /* 關鍵：滑動時固定在左側 */
   position: -webkit-sticky;
   position: sticky;
   left: 0;
-  z-index: 3; /* 層級提高，確保滑動時蓋在數據上方 */
+  z-index: 4; /* 層級提高，確保滑動時蓋在數據上方 */
   border-right: 2px solid #d1e7dd !important; /* 加上一條明顯的分隔線 */
 }
 
 /* 表頭的「項目」也要一起凍結，不然滑動時會穿幫 */
 .inbody-table th.metric-name {
   background: #f1f8e9 !important;
-  z-index: 4; /* 表頭的左上角階層最高 */
+  z-index: 5; /* 表頭的左上角階層最高 */
 }
 
-/* 數據欄位提高層級，確保字體在線條上方，且點擊得到 */
-.col-data, .inbody-table td:not(.metric-name) {
-  position: relative;
-  z-index: 2;
-  background: transparent !important; /* 必須透明，線條才看得到 */
-}
-
-/* 🚀 馴服蜘蛛網的關鍵：一筆一筆乖乖對齊的 Canvas 樣式 */
-.row-spark-canvas {
+/* 🚀 這是馴服線條的魔法：包覆在數據列外圍的透明畫布容器 */
+.canvas-container {
   position: absolute;
   top: 0;
+  left: 105px; /* 剛好跳過項目欄 */
   height: 100%;
-  z-index: 1;
+  z-index: 1;  /* 疊在數字的下方當背景 */
+  pointer-events: none;
+}
+
+.row-spark-canvas {
+  display: block;
+  height: 100%;
   pointer-events: none;
 }
     /* 條件顏色與標籤 */
@@ -281,14 +293,15 @@
     } catch (e) { alert("無法讀取 InBody 資料庫"); }
   }
 
-  // 📊 InBody 三層渲染引擎
 function renderInBody(raw) {
+  // 清除舊圖表防止記憶體殘留
   activeInBodyCharts.forEach(c => c.destroy());
   activeInBodyCharts = [];
 
   const originalDates = raw[0].slice(1); 
-  const sliceCount = Math.min(originalDates.length, 4);
-  const viewDates = originalDates.slice(0, sliceCount).reverse(); // 舊到新
+  // 🚀 自動動態偵測天數！有多少天就秀多少天（你也可以把 originalDates.length 改成你想顯示的最大上限，例如 10）
+  const sliceCount = originalDates.length; 
+  const viewDates = originalDates.slice(0, sliceCount).reverse(); // 排序：舊到新
   const rows = raw.slice(1);
 
   const tables = {
@@ -297,7 +310,7 @@ function renderInBody(raw) {
     fat: { head: document.getElementById('headFat'), data: document.getElementById('dataFat'), html: "" }
   };
 
-  // 表頭加上 metric-name class 確保同步凍結
+// 生成表頭
   let headerHTML = `<tr><th class="metric-name">項目</th>`;
   viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
   headerHTML += `</tr>`; 
@@ -306,19 +319,20 @@ function renderInBody(raw) {
   tables.muscle.head.innerHTML = headerHTML;
   tables.fat.head.innerHTML = headerHTML;
 
-  // 動態計算：4個欄位 * 每欄75px = 300px 數據總寬度
+// 動態計算數據區域總寬度：幾天 * 75px
   const dataAreaWidth = sliceCount * 75; 
 
   rows.forEach((rowData, rowIndex) => {
     const name = rowData[0];
-    const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();        
+    const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();    
 
-    // tr 必須設定為 relative，Canvas 才會以它為基準對齊
-    const canvasId = `row-spark-${rowIndex}`;
-    let rowHTML = `<tr style="position: relative; height: 52px;">
+   const canvasId = `row-spark-${rowIndex}`;
+    
+    // tr 設為 relative，裡面的容器才能精準貼合整行高度
+    let rowHTML = `<tr style="position: relative; height: 56px;">
                       <td class="metric-name">${name}</td>`;
     
-    viewValues.forEach((v, i) => {
+   viewValues.forEach((v, i) => {
       let cellClass = "";
       if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
       if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
@@ -330,16 +344,21 @@ function renderInBody(raw) {
         else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
       }
 
+      // 內容置中排版
       rowHTML += `<td class="${cellClass}">
-                    <div style="font-weight:700;">${v}</div>${diffHTML}
+                    <div style="font-weight:700; font-size:15px; margin-bottom:2px;">${v}</div>
+                    ${diffHTML}
                   </td>`;
     });
 
-    // 🚀 Canvas 絕對定位：起點在 left: 105px (跳過項目欄)，寬度剛好等於數據區寬度 (300px)
+    // 🚀 關鍵修正：用一個獨立的 div 容器包裹 Canvas，寬度與數據區完全同步，互不干擾
     rowHTML += `
-        <canvas id="${canvasId}" class="row-spark-canvas" style="left: 105px; width: ${dataAreaWidth}px;"></canvas>
+        <div class="canvas-container" style="width: ${dataAreaWidth}px;">
+          <canvas id="${canvasId}" class="row-spark-canvas" width="${dataAreaWidth}"></canvas>
+        </div>
       </tr>`;
 
+    // 依據 index 拆分到三層
     if (rowIndex < 7) {
       tables.bodyComp.html += rowHTML;
     } else if (rowIndex >= 7 && rowIndex < 12) {
@@ -348,11 +367,11 @@ function renderInBody(raw) {
       tables.fat.html += rowHTML;
     }
 
+    // 延遲繪圖確保 DOM 容器已經完全展開
     setTimeout(() => {
-      // 🚀 多傳一個參數：viewValues.length (實際顯示的天數，例如 6)
-      drawRowSparkline(canvasId, viewValues, viewValues.length);
-    }, 60);
-  }); // 這是 rows.forEach 的結尾
+      drawRowSparkline(canvasId, viewValues, sliceCount);
+    }, 100);
+  });
 
   tables.bodyComp.data.innerHTML = tables.bodyComp.html;
   tables.muscle.data.innerHTML = tables.muscle.html;
@@ -364,9 +383,9 @@ function drawRowSparkline(canvasId, dataPoints, colCount) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  // 🚀 動態計算畫布總寬度：幾欄就乘上 75px
+  // 確保 canvas 畫布本身的解析度像素與容器完全一致
   const currentWidth = colCount * 75;
-  canvas.style.width = currentWidth + "px";
+  canvas.width = currentWidth;
 
   const chart = new Chart(ctx, {
     type: 'line',
@@ -374,25 +393,26 @@ function drawRowSparkline(canvasId, dataPoints, colCount) {
       labels: dataPoints.map((_, idx) => idx),
       datasets: [{
         data: dataPoints,
-        borderColor: '#555555',       
+        borderColor: '#bbbbbb',       // 🚀 改成你想要的「淺灰色」線條
         borderWidth: 1.5,
-        pointRadius: 3.5,             
-        pointBackgroundColor: '#fff', 
-        pointBorderColor: '#333',
+        pointRadius: 4,               // 稍微放大節點，更容易看清
+        pointBackgroundColor: '#ffffff', 
+        pointBorderColor: '#999999',  // 節點邊框也用中灰色，維持內斂質感
         pointBorderWidth: 1.5,
         fill: false,
-        tension: 0                    
+        tension: 0                    // 直折線
       }]
     },
     options: {
-      responsive: false,              // 必須關閉，由我們手動控制寬度
+      responsive: false,              // 關閉響應式，由外部容器大小決定
       maintainAspectRatio: false,
-      // 🚀 核心動態算法：
-      // 無論 4 天還是 6 天，只要左右內邊距維持 37.5px，節點就一定會落在每格的 50% 正中央！
+      // 🚀 終極對齊演算法：
+      // 每欄 75px，半欄就是 37.5px。只要左右內邊距永遠固定 37.5px，
+      // 無論你是 4 天、6 天還是 10 天，折線點都會精準無誤地穿過每一欄正中央的數字！
       layout: { 
         padding: { 
-          top: 15, 
-          bottom: 10, 
+          top: 16, 
+          bottom: 22, // 底部留多一點空間給進步標籤(▲▼)，避免線條壓到字
           left: 37.5, 
           right: 37.5 
         } 
@@ -404,7 +424,10 @@ function drawRowSparkline(canvasId, dataPoints, colCount) {
       },
       scales: {
         x: { display: false },
-        y: { display: false, grace: '20%' } 
+        y: { 
+          display: false, 
+          grace: '25%' // 上下留出 25% 的安全裕度，防止數值最高/最低時點點貼到表格邊框
+        } 
       }
     }
   });
