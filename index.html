@@ -23,7 +23,26 @@
     .card { background: #ffffff; border-radius: 16px; border: 1px solid #d1e7dd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; padding: 16px; }
     h2 { color: #2e7d32; font-weight: 800; text-align: center; margin-bottom: 15px; font-size: 24px; }
     h5 { color: #388e3c; border-left: 5px solid #81c784; padding-left: 10px; margin-bottom: 15px; font-weight: bold; font-size: 18px; }
+
+   /* InBody 專用樣式 */
+    .table-responsive { border-radius: 12px; overflow: hidden; }
+    .inbody-table { font-size: 14px; width: 100%; white-space: nowrap; }
+    .inbody-table th { background: #e8f5e9; color: #2e7d32; position: sticky; left: 0; z-index: 1; }
+    .inbody-table td, .inbody-table th { padding: 10px; border: 1px solid #f0f0f0; text-align: center; }
+    .metric-name { font-weight: bold; background: #f9fdfa !important; text-align: left !important; min-width: 110px; }
     
+    /* 點狀趨勢線 Sparkline 容器 */
+    .sparkline-container { width: 60px; height: 30px; display: inline-block; vertical-align: middle; }
+    
+    /* 條件顏色 */
+    .val-good { color: #2e7d32; font-weight: bold; } /* 骨骼肌高 */
+    .val-warn { background-color: #fff9c4 !important; color: #f57f17; font-weight: bold; } /* 水腫提醒 */
+    .diff-up { color: #d32f2f; font-size: 11px; } /* 增加 */
+    .diff-down { color: #1976d2; font-size: 11px; } /* 減少 */
+
+    .inbody-locked { background: #e8f5e9; border-radius: 12px; padding: 30px; border: 2px dashed #a5d6a7; }
+    .btn-primary { background-color: #43a047; border: none; height: 50px; font-weight: bold; border-radius: 10px; }
+        
     .form-label { color: #2e7d32; font-weight: 700; margin-bottom: 6px; font-size: 15px; }
     
     .form-select, .form-control { 
@@ -87,20 +106,40 @@
     
     <div class="col-12 col-md-5">
       
+    <div class="row">
+    <div class="col-12 col-xl-7">
       <div class="card">
         <h5>📊 InBody 儀表板</h5>
         <div id="lockScreen" class="inbody-locked text-center">
           <input type="password" id="unlockPwd" class="form-control mb-3" placeholder="輸入密碼查看數據">
           <button class="btn btn-outline-success w-100" style="font-size:16px;" onclick="checkPwd()">展開數據</button>
         </div>
-        <div id="inbodyContent" style="display:none;">
-          <div class="text-center p-3 text-success" style="font-size:16px;">（數據繪製區域）</div>
-          <button class="btn btn-sm btn-link w-100 text-success" style="font-size:16px;" onclick="lockInBody()">隱藏數據</button>
+<div id="inbodyContent" style="display:none;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge bg-success">最新紀錄已置左</span>
+            <button class="btn btn-sm btn-outline-secondary" onclick="lockInBody()">隱藏數據</button>
+          </div>
+
+          <h6>第一層：身體組成分析</h6>
+          <div class="table-responsive mb-4">
+            <table class="table inbody-table" id="tableBodyComp">
+              <tbody id="dataBodyComp"></tbody>
+            </table>
+          </div>
+
+          <h6>第二層：肌肉與脂肪分佈 (Kg)</h6>
+          <div class="table-responsive">
+            <table class="table inbody-table">
+              <tbody id="dataSegmental"></tbody>
+            </table>
+          </div>
         </div>
       </div>
+    </div>
 
+    <div class="col-12 col-xl-5">
       <div class="card">
-        <h5>⚙️ 項目選擇</h5>
+        <h5>⚙️ 健身紀錄</h5>
         
         <div class="mb-3">
           <label class="form-label">📅 訓練日期</label>
@@ -174,6 +213,124 @@
 
 <script>
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTdrao1uUJS_PqrQ4-1Fxz4_foSfsqC4meWjL9RqHnGLxc8IwAC4WzKBpk8_s9ZWACCQ/exec";
+  
+  // 1. 密碼驗證與資料抓取
+  function checkPwd() {
+    const pwd = document.getElementById('unlockPwd').value;
+    if (pwd === "1234") { // 建議這裡可以改成由 GAS 驗證更安全
+      fetchInBodyData();
+    } else {
+      alert("密碼錯誤！");
+    }
+  }
+
+  function lockInBody() {
+    document.getElementById('lockScreen').style.display = 'block';
+    document.getElementById('inbodyContent').style.display = 'none';
+    document.getElementById('unlockPwd').value = "";
+  }
+
+  async function fetchInBodyData() {
+    try {
+      const res = await fetch(`${GAS_WEB_APP_URL}?action=getInBody`);
+      const data = await res.json();
+      renderInBody(data);
+      document.getElementById('lockScreen').style.display = 'none';
+      document.getElementById('inbodyContent').style.display = 'block';
+    } catch (e) {
+      alert("無法讀取 InBody 資料庫");
+    }
+  }
+
+  // 2. 渲染 InBody 表格
+  function renderInBody(raw) {
+    // 假設 raw[0] 是標題列 [項目, 日期1, 日期2...]
+    const dates = raw[0].slice(1);
+    const rows = raw.slice(1);
+
+    const bodyCompArea = document.getElementById('dataBodyComp');
+    const segmentalArea = document.getElementById('dataSegmental');
+    bodyCompArea.innerHTML = "";
+    segmentalArea.innerHTML = "";
+
+    // 建立日期標題列
+    let dateHeader = `<tr><th class="metric-name">項目 \ 日期</th>`;
+    dates.forEach(d => dateHeader += `<th>${formatDate(d)}</th>`);
+    dateHeader += `</tr>`;
+    
+    bodyCompArea.innerHTML += dateHeader;
+    segmentalArea.innerHTML += dateHeader;
+
+    rows.forEach((rowData, index) => {
+      const name = rowData[0];
+      const values = rowData.slice(1);
+      const sparklineId = `spark-${index}`;
+
+      // 建立趨勢圖小畫布
+      const sparkHTML = `<div class="sparkline-container"><canvas id="${sparklineId}"></canvas></div>`;
+      
+      let rowHTML = `<tr><td class="metric-name">${name} ${sparkHTML}</td>`;
+      
+      values.forEach((v, i) => {
+        let displayVal = v;
+        let cellClass = "";
+        
+        // 條件化格式邏輯
+        if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
+        if (name.includes("骨骼肌") && i === 0) cellClass = "val-good";
+
+        // 計算進步幅度 (跟上一次比)
+        let diffHTML = "";
+        if (i < values.length - 1) {
+          const diff = (parseFloat(v) - parseFloat(values[i+1])).toFixed(1);
+          if (diff > 0) diffHTML = `<br><span class="diff-up">▲${diff}</span>`;
+          else if (diff < 0) diffHTML = `<br><span class="diff-down">▼${Math.abs(diff)}</span>`;
+        }
+
+        rowHTML += `<td class="${cellClass}">${displayVal}${diffHTML}</td>`;
+      });
+      rowHTML += `</tr>`;
+
+      // 分類放入第一層或第二層
+      if (index < 7) bodyCompArea.innerHTML += rowHTML;
+      else segmentalArea.innerHTML += rowHTML;
+
+      // 繪製微型趨勢圖 (非同步避免卡頓)
+      setTimeout(() => drawSparkline(sparklineId, [...values].reverse()), 100);
+    });
+  }
+
+  function drawSparkline(canvasId, data) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data,
+        datasets: [{
+          data: data,
+          borderColor: '#43a047',
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false,
+          tension: 0.3
+        }]
+      },
+      options: {
+        events: [], // 禁用互動提升效能
+        responsive: false,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { display: false }, y: { display: false } }
+      }
+    });
+  }
+
+  function formatDate(d) {
+    if (!d) return "";
+    const date = new Date(d);
+    return isNaN(date) ? d : `${date.getMonth()+1}/${date.getDate()}`;
+  }
+  
   const DEFAULT_IMG = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500";
 
   let fullMenuData = {};
