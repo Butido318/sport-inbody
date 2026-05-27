@@ -826,14 +826,15 @@ function submitForm() {
   const setsEl   = document.getElementById('s');
   const repsEl   = document.getElementById('r');
 
-  const form = {
-    date: dateVal,
-    category: finalCategory, 
-    item: finalItem,         
-    weight: weightEl ? weightEl.value : '0',
-    sets: setsEl ? setsEl.value : '0',
-    reps: repsEl ? repsEl.value : '0'
-  };
+ const form = {
+  // ⚠️ 請確保網頁裡的日期輸入框有 id="date" 或者是用正確的 class 抓取
+  date: document.getElementById('date').value, 
+  category: document.getElementById('category').value,
+  item: document.getElementById('item').value,
+  weight: document.getElementById('weight').value,
+  sets: document.getElementById('sets').value,
+  reps: document.getElementById('reps').value
+};
 
   // 按鈕動態鎖定
   const btn = document.getElementById('saveBtn');
@@ -844,32 +845,29 @@ function submitForm() {
     btn.disabled = true;
   }
 
-  // 呼叫後端 Google Apps Script 
-  google.script.run
-    .withSuccessHandler(function(res) {
-      if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
-      const data = JSON.parse(res);
-      if (data.status === 'success') {
-        alert(data.message);
-        
-        // 成功後安全清空數值輸入框
-        if (newCatEl) newCatEl.value = '';
-        if (newItemEl) newItemEl.value = '';
-        if (weightEl) weightEl.value = '';
-        if (setsEl) setsEl.value = '';
-        if (repsEl) repsEl.value = '';
-        
-        // 自動重新觸發一次項目刷新，更新歷史曲線
-        onItemChange();
-      } else {
-        alert('儲存失敗：' + data.message);
-      }
-    })
-    .withFailureHandler(function(err) {
-      if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
-      alert('連線失敗：' + err);
-    })
-    .saveLog(form); 
+ // 🚀 呼叫後端 Google Apps Script（極簡咬合版）
+google.script.run
+  .withSuccessHandler(function(res) {
+    if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
+    
+    // 💡 核心修正：後端已回傳原生 JavaScript 物件，絕對不要再寫 JSON.parse(res)！
+    if (res && res.status === 'success') {
+      alert(res.message);
+      
+      // 成功後安全清空數值輸入框（使用更簡短的防錯寫法）
+      [newCatEl, newItemEl, weightEl, setsEl, repsEl].forEach(el => el && (el.value = ''));
+      
+      // 自動重新觸發一次項目刷新，更新歷史曲線
+      typeof onItemChange === 'function' && onItemChange();
+    } else {
+      alert('儲存失敗：' + (res ? res.message : '未知錯誤'));
+    }
+  })
+  .withFailureHandler(function(err) {
+    if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
+    alert('連線失敗：' + (err.message || err));
+  })
+  .saveLog(form); 
 }
 </script>
 </body>
