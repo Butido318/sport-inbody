@@ -467,13 +467,35 @@ function drawGridSparkline(rowIndex, rowDataPoints) {
     }
   });
 }
-  function formatDate(dateStr) {
+function formatDate(dateStr) {
   if (!dateStr) return "";
-  const parts = dateStr.split('/');
-  if (parts.length >= 3) {
-    return `${parts[1]}/${parts[2]}`; // 回傳 4/22, 5/13 格式
+  
+  // 1. 如果是標準物件，先轉成字串
+  let str = dateStr.toString().trim();
+  
+  // 2. 如果包含 'T' (例如 2026-04-21T16:00:00.000Z)，先切出前面的日期部分
+  if (str.includes('T')) {
+    str = str.split('T')[0];
   }
-  return dateStr;
+  
+  // 3. 把所有的橫線 '-' 統一替換成斜線 '/'
+  str = str.replace(/-/g, '/');
+  
+  // 4. 解析 月 與 日
+  const parts = str.split('/');
+  if (parts.length >= 3) {
+    // 如果是 yyyy/MM/dd 結構 (例如 2026/04/21)
+    const month = parseInt(parts[1], 10);
+    const day = parseInt(parts[2], 10);
+    return `${month}/${day}`;
+  } else if (parts.length === 2) {
+    // 如果本來就已經是 MM/dd 結構
+    const month = parseInt(parts[0], 10);
+    const day = parseInt(parts[1], 10);
+    return `${month}/${day}`;
+  }
+  
+  return str; // 萬一都沒對上，才交還原字串
 }
 
   // 力量歷史數據載入核心
