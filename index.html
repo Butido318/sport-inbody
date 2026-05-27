@@ -23,26 +23,26 @@
     .card { background: #ffffff; border-radius: 16px; border: 1px solid #d1e7dd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; padding: 16px; }
     h2 { color: #2e7d32; font-weight: 800; text-align: center; margin-bottom: 15px; font-size: 24px; }
     h5 { color: #388e3c; border-left: 5px solid #81c784; padding-left: 10px; margin-bottom: 15px; font-weight: bold; font-size: 18px; }
+    h6 { color: #1b5e20; font-weight: 800; margin-top: 15px; margin-bottom: 8px; font-size: 15px; background: #e8f5e9; padding: 6px 10px; border-radius: 6px; }
 
     /* InBody 專用滾動外殼 */
     .table-responsive { border-radius: 12px; overflow-x: auto; background: #fff; border: 1px solid #e0e0e0; }
     .inbody-table { font-size: 14px; width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 0; }
     .inbody-table th, .inbody-table td { padding: 8px 4px; border: 1px solid #eaeaea; text-align: center; vertical-align: middle; }
-    .inbody-table th { background: #e8f5e9; color: #2e7d32; font-weight: bold; height: 40px; }
+    .inbody-table th { background: #f1f8e9; color: #2e7d32; font-weight: bold; height: 38px; }
     
-    /* 欄位寬度固定，防止手機端擠壓錯位 */
-    .metric-name { font-weight: bold; background: #f9fdfa !important; text-align: left !important; width: 110px; min-width: 110px; padding-left: 8px !important; }
-    .col-data { width: 85px; min-width: 85px; }
+    /* 欄位寬度固定，維持整齊度 */
+    .metric-name { font-weight: bold; background: #f9fdfa !important; text-align: left !important; width: 105px; min-width: 105px; padding-left: 8px !important; }
+    .col-data { width: 75px; min-width: 75px; font-weight: 600; }
+    .col-spark { width: 100px; min-width: 100px; background: #fafafa; }
     
-    /* 🚀 儲存格內嵌線圖排版容器 */
-    .cell-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 100%; }
-    .cell-value { font-size: 14px; font-weight: 700; color: #1b5e20; white-space: nowrap; }
-    .sparkline-container { width: 100%; height: 28px; position: relative; }
+    /* 🚀 點線圖包覆在該項目同區域（整列最右側） */
+    .row-sparkline-container { width: 100%; height: 32px; position: relative; }
     
     /* 條件顏色與標籤 */
-    .val-good { color: #2e7d32 !important; } 
+    .val-good { color: #2e7d32 !important; font-weight: bold; } 
     .val-warn { background-color: #fff9c4 !important; color: #f57f17 !important; } 
-    .diff-badge { font-size: 10px; font-weight: bold; padding: 1px 3px; border-radius: 4px; margin-left: 2px; display: inline-block; }
+    .diff-badge { font-size: 9px; font-weight: bold; padding: 1px 2px; border-radius: 4px; display: block; line-height: 1; margin-top: 2px; }
     .diff-up { background-color: #ffebee; color: #d32f2f; } 
     .diff-down { background-color: #e3f2fd; color: #1976d2; } 
 
@@ -92,9 +92,8 @@
       object-fit: contain;
     }
 
-    /* 手機版微調 */
     @media (max-width: 575.98px) {
-      .row.g-1 .col-4, .row.g-1 .col-6 { padding-left: 3px !important; padding-right: 3px !important; }
+      .row g-1 .col-4, .row g-1 .col-6 { padding-left: 3px !important; padding-right: 3px !important; }
       .form-control.px-1 { padding-left: 4px !important; padding-right: 4px !important; }
     }
   </style>
@@ -117,24 +116,32 @@
             </div>
             
             <div id="inbodyContent" style="display:none;">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="badge bg-success">最新紀錄已置右 (依時間歷程遞增)</span>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-success">歷史趨勢整合於項目右側</span>
                 <button class="btn btn-sm btn-outline-secondary" onclick="lockInBody()">隱藏數據</button>
               </div>
 
               <h6>第一層：身體組成分析</h6>
-              <div class="table-responsive mb-4">
+              <div class="table-responsive mb-3">
                 <table class="table inbody-table">
                   <thead id="headBodyComp"></thead>
                   <tbody id="dataBodyComp"></tbody>
                 </table>
               </div>
 
-              <h6>第二層：肌肉與脂肪分佈 (Kg)</h6>
+              <h6>第二層：肌肉分佈 (Kg)</h6>
+              <div class="table-responsive mb-3">
+                <table class="table inbody-table">
+                  <thead id="headMuscle"></thead>
+                  <tbody id="dataMuscle"></tbody>
+                </table>
+              </div>
+
+              <h6>第三層：脂肪分佈 (Kg)</h6>
               <div class="table-responsive">
                 <table class="table inbody-table">
-                  <thead id="headSegmental"></thead>
-                  <tbody id="dataSegmental"></tbody>
+                  <thead id="headFat"></thead>
+                  <tbody id="dataFat"></tbody>
                 </table>
               </div>
             </div>
@@ -240,35 +247,37 @@
     } catch (e) { alert("無法讀取 InBody 資料庫"); }
   }
 
-  // 📊 InBody 渲染引擎：內嵌至欄位單元格中
+  // 📊 InBody 三層渲染引擎
   function renderInBody(raw) {
     activeInBodyCharts.forEach(c => c.destroy());
     activeInBodyCharts = [];
 
     const originalDates = raw[0].slice(1); 
-    const sliceCount = Math.min(originalDates.length, 10);
+    // 限制最多顯示最近 4 次數據，留最後一欄給「趨勢線圖」包覆
+    const sliceCount = Math.min(originalDates.length, 4);
     const viewDates = originalDates.slice(0, sliceCount).reverse(); // 舊到新
     const rows = raw.slice(1);
 
-    const headBodyComp = document.getElementById('headBodyComp');
-    const dataBodyComp = document.getElementById('dataBodyComp');
-    const headSegmental = document.getElementById('headSegmental');
-    const dataSegmental = document.getElementById('dataSegmental');
+    const tables = {
+      bodyComp: { head: document.getElementById('headBodyComp'), data: document.getElementById('dataBodyComp'), html: "" },
+      muscle: { head: document.getElementById('headMuscle'), data: document.getElementById('dataMuscle'), html: "" },
+      fat: { head: document.getElementById('headFat'), data: document.getElementById('dataFat'), html: "" }
+    };
 
-    headBodyComp.innerHTML = ""; dataBodyComp.innerHTML = "";
-    headSegmental.innerHTML = ""; dataSegmental.innerHTML = "";
-
+    // 生成統一的表頭（最後一欄是趨勢圖）
     let headerHTML = `<tr><th class="metric-name">項目</th>`;
     viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
-    headerHTML += `</tr>`;
+    headerHTML += `<th class="col-spark">歷史趨勢</th></tr>`;
     
-    headBodyComp.innerHTML = headerHTML;
-    headSegmental.innerHTML = headerHTML;
+    tables.bodyComp.head.innerHTML = headerHTML;
+    tables.muscle.head.innerHTML = headerHTML;
+    tables.fat.head.innerHTML = headerHTML;
 
     rows.forEach((rowData, rowIndex) => {
       const name = rowData[0];
-      const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();
-      
+      const allValues = rowData.slice(1).map(v => parseFloat(v) || 0).reverse(); // 全歷史（舊到新），供畫布使用
+      const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();       // 當前顯示的數值
+
       let rowHTML = `<tr><td class="metric-name">${name}</td>`;
       
       viewValues.forEach((v, i) => {
@@ -276,7 +285,7 @@
         if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
         if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
 
-        // 計算歷史前後增減差值
+        // 計算前後次數值增減
         let diffHTML = "";
         if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
           const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
@@ -284,79 +293,70 @@
           else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
         }
 
-        const canvasId = `sparkline-${rowIndex}-${i}`;
-
-        // 核心改動：將數據值與縮小版的微型點線畫布，直接直向堆疊在當前單元格內
-        rowHTML += `
-          <td class="${cellClass}">
-            <div class="cell-container">
-              <div class="cell-value">${v}${diffHTML}</div>
-              <div class="sparkline-container">
-                <canvas id="${canvasId}"></canvas>
-              </div>
-            </div>
-          </td>`;
+        rowHTML += `<td class="${cellClass}"><div>${v}</div>${diffHTML}</td>`;
       });
-      rowHTML += `</tr>`;
 
-      if (rowIndex < 7) dataBodyComp.innerHTML += rowHTML;
-      else dataSegmental.innerHTML += rowHTML;
+      // 🚀 將點線圖包覆在同區域（整列的最右側單元格）
+      const canvasId = `row-spark-${rowIndex}`;
+      rowHTML += `
+        <td class="col-spark">
+          <div class="row-sparkline-container">
+            <canvas id="${canvasId}"></canvas>
+          </div>
+        </td>
+      </tr>`;
 
-      // 異步生成微型欄位趨勢點線
+      // 依據 index 拆分到三層主標題中 (假設原本 0~6 是身體分析，7~11 是肌肉，12+ 是脂肪)
+      if (rowIndex < 7) {
+        tables.bodyComp.html += rowHTML;
+      } else if (rowIndex >= 7 && rowIndex < 12) {
+        tables.muscle.html += rowHTML;
+      } else {
+        tables.fat.html += rowHTML;
+      }
+
+      // 異步渲染整列的歷史折線
       setTimeout(() => {
-        viewValues.forEach((v, i) => {
-          // 繪製從第 0 個點到目前這個時間點的「歷史累積軌跡」
-          const subHistory = viewValues.slice(0, i + 1).map(val => parseFloat(val) || 0);
-          drawSparkline(`sparkline-${rowIndex}-${i}`, subHistory);
-        });
-      }, 60);
+        drawRowSparkline(canvasId, allValues);
+      }, 50);
     });
+
+    tables.bodyComp.data.innerHTML = tables.bodyComp.html;
+    tables.muscle.data.innerHTML = tables.muscle.html;
+    tables.fat.data.innerHTML = tables.fat.html;
   }
 
-  // 繪製極簡內嵌 Sparkline
-  function drawSparkline(canvasId, dataPoints) {
+  // 繪製包覆在列尾的極簡 Sparkline
+  function drawRowSparkline(canvasId, dataPoints) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const isLastPoint = dataPoints.length === 1;
 
     const chart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: dataPoints,
+        labels: dataPoints.map((_, idx) => idx),
         datasets: [{
           data: dataPoints,
-          borderColor: '#43a047',
-          borderWidth: 1.2,
-          pointRadius: isLastPoint ? 2 : 1.5,
-          pointBackgroundColor: '#2e7d32',
+          borderColor: '#388e3c',
+          borderWidth: 1.5,
+          pointRadius: 0, // 隱藏中間點點，讓線條更乾淨流暢
           fill: false,
-          tension: 0.2
+          tension: 0.3
         }]
       },
-      plugins: [ChartDataLabels],
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: { padding: { top: 10, bottom: 2, left: 3, right: 3 } },
+        layout: { padding: { top: 4, bottom: 4, left: 4, right: 4 } },
         plugins: {
           legend: { display: false },
           tooltip: { enabled: false },
-          datalabels: {
-            display: true,
-            align: 'top',
-            offset: -1,
-            color: '#2e7d32',
-            font: { size: 8, weight: 'bold' },
-            formatter: function(value, context) {
-              // 密技：只在當前最新歷史的最後一個端點上標註數據數字，前面歷史端點隱藏以維持乾淨
-              return context.dataIndex === context.dataset.data.length - 1 ? value : '';
-            }
-          }
+          datalabels: { display: false } // 欄位內已有最新數字，圖表內純走趨勢、不重複標註數字
         },
         scales: {
           x: { display: false },
-          y: { display: false, grace: '30%' }
+          y: { display: false, grace: '10%' }
         }
       }
     });
@@ -369,7 +369,7 @@
     return isNaN(date) ? d : `${date.getMonth()+1}/${date.getDate()}`;
   }
 
-  // 力量歷史數據載入核心修正（改用傳統 GET URL 傳參，避免 POST 被混淆阻擋）
+  // 力量歷史數據載入核心
   function onItemChange() {
     const cat = document.getElementById('catSelect').value;
     const item = document.getElementById('itemSelect').value;
@@ -391,7 +391,6 @@
       statusDiv.innerText = "正在讀取歷史曲線...";
       canvas.style.display = 'none';
       
-      // 🎯 修正關鍵：改回標準 GET 帶 Query String 的參數去請求 getHistory，解決後端拿不到資料的問題
       fetch(`${GAS_WEB_APP_URL}?action=getHistory&item=${encodeURIComponent(item)}`, {
         method: "GET"
       })
@@ -415,7 +414,6 @@
 
   function renderChart(historyData) {
     if (typeof Chart === 'undefined') return;
-    // 💡 力量圖表本身後端抓出來就是由新到舊，這裡點對點 .reverse() 剛好完美轉換為左舊右新
     const sortedData = [...historyData].reverse(); 
     const labels = sortedData.map(log => {
       if (log.date && log.date.includes('/')) {
