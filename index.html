@@ -356,7 +356,7 @@
 
 <div class="container-fluid">
   <div class="page-header">
-    <h2>Do愛運動健康紀錄</h2>
+    <h2>Do健康紀錄</h2>
     <div class="subtitle">Health &amp; Strength Tracker</div>
   </div>
 
@@ -368,13 +368,13 @@
           <div class="card">
             <h5>InBody 儀表板</h5>
             <div id="lockScreen" class="inbody-locked text-center">
-              <input type="password" id="unlockPwd" class="form-control mb-3" placeholder="輸入密碼查看數據">
+              <input type="password" id="unlockPwd" class="form-control mb-3" placeholder="輸入密碼">
               <button class="btn btn-outline-success w-100" onclick="checkPwd()">展開數據</button>
             </div>
             
             <div id="inbodyContent" style="display:none;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="badge bg-success">歷史趨勢整合於項目右側</span>
+              
                 <button class="btn btn-sm btn-outline-secondary" onclick="lockInBody()">隱藏數據</button>
               </div>
 
@@ -407,7 +407,7 @@
 
         <div class="col-12">
           <div class="card">
-            <h5>健身紀錄</h5>
+            <h5>運動紀錄</h5>
             <div class="mb-3">
               <label class="form-label">訓練日期</label>
               <input type="date" id="logDate" class="form-control">
@@ -468,7 +468,7 @@
             <input type="number" id="r" class="form-control text-center px-1" placeholder="次" inputmode="numeric">
           </div>
         </div>
-        <button id="saveBtn" class="btn btn-primary w-100" onclick="submitForm()">儲存紀錄至 Excel</button>
+        <button id="saveBtn" class="btn btn-primary w-100" onclick="submitForm()">儲存紀錄</button>
       </div>
     </div>
 
