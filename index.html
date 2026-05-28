@@ -19,28 +19,28 @@
        色彩系統 — 唯一色彩來源
        ════════════════════════════════════════ */
     :root {
-      --bg-base:        #0e0e0e;
-      --bg-card:        #161616;
-      --bg-card2:       #1e1e1e;
-      --bg-input:       #1a1a1a;
-      --border:         #282828;
-      --border-gold:    #7a6432;
-      --border-silver:  #484e54;
+      --bg-base:        #1c2420;
+      --bg-card:        #222c28;
+      --bg-card2:       #2a3530;
+      --bg-input:       #263028;
+      --border:         #344038;
+      --border-gold:    #8a7040;
+      --border-silver:  #4a5a54;
       --gold:           #c9a84c;
       --gold-light:     #e8c97a;
-      --gold-dim:       #7a6030;
-      --gold-glow:      rgba(201,168,76,0.10);
-      --silver:         #9aa4ae;
-      --silver-light:   #c8d2da;
-      --silver-dim:     #4a5560;
-      --text-1:         #ede8df;
-      --text-2:         #7a7670;
-      --text-muted:     #7a7670;
-      --danger-bg:      rgba(192,57,43,0.15);
+      --gold-dim:       #8a6e30;
+      --gold-glow:      rgba(201,168,76,0.12);
+      --silver:         #a0b0a8;
+      --silver-light:   #ccd8d0;
+      --silver-dim:     #506058;
+      --text-1:         #edeae2;
+      --text-2:         #8a9e94;
+      --text-muted:     #607868;
+      --danger-bg:      rgba(192,57,43,0.18);
       --danger-text:    #e07060;
-      --success-bg:     rgba(50,120,80,0.15);
+      --success-bg:     rgba(50,120,80,0.18);
       --success-text:   #70c090;
-      --warn-bg:        rgba(200,140,40,0.15);
+      --warn-bg:        rgba(200,140,40,0.18);
       --warn-text:      #d4a040;
     }
 
@@ -55,7 +55,7 @@
     body {
       font-family: 'Noto Sans TC', -apple-system, sans-serif;
       color: var(--text-1);
-      font-size: 15px;
+      font-size: 17px;
     }
     .container-fluid { padding: 16px; max-width: 1400px; }
 
@@ -98,10 +98,9 @@
 
     /* 區塊標題 */
     h5 {
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
       color: var(--gold);
       border-left: 3px solid var(--gold);
       padding-left: 10px;
@@ -111,14 +110,13 @@
 
     /* 子標題 */
     h6 {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      color: var(--silver);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--silver-light);
       margin-top: 18px;
       margin-bottom: 8px;
-      padding: 5px 8px;
+      padding: 6px 10px;
       background: var(--bg-card2);
       border-radius: 4px;
       border-left: 2px solid var(--silver-dim);
@@ -142,13 +140,12 @@
     .inbody-table thead th {
       background: var(--bg-card2) !important;
       color: var(--gold);
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      font-weight: 500;
-      text-transform: uppercase;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      font-weight: 600;
       border-bottom: 0.5px solid var(--border-gold) !important;
       border-color: var(--border) !important;
-      padding: 7px 0;
+      padding: 8px 0;
       text-align: center;
     }
     .inbody-table tbody td {
@@ -175,12 +172,12 @@
       pointer-events: none;
     }
     .metric-name {
-      font-weight: 500;
+      font-weight: 600;
       background: var(--bg-card2) !important;
       color: var(--silver-light) !important;
       text-align: left !important;
-      font-size: 13px;
-      width: 105px; min-width: 105px;
+      font-size: 15px;
+      width: 115px; min-width: 115px;
       padding-left: 12px !important;
       position: -webkit-sticky; position: sticky;
       left: 0; z-index: 4;
@@ -197,11 +194,15 @@
       pointer-events: none;
     }
 
+    /* placeholder 提示文字 */
+    ::placeholder { color: var(--text-2); opacity: 1; }
+    ::-webkit-input-placeholder { color: var(--text-2); opacity: 1; }
+
     /* 條件顏色 */
     .val-good { color: var(--gold-light) !important; font-weight: 700; }
     .val-warn { background-color: var(--warn-bg) !important; color: var(--warn-text) !important; }
     .diff-badge {
-      font-size: 9px; font-weight: 700;
+      font-size: 11px; font-weight: 700;
       padding: 1px 3px; border-radius: 3px;
       display: block; line-height: 1.2; margin-top: 2px;
     }
@@ -223,18 +224,17 @@
        ════════════════════════════════════════ */
     .form-label {
       color: var(--silver);
-      font-weight: 500;
-      font-size: 11px;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.04em;
       margin-bottom: 6px;
     }
     .form-select, .form-control {
       background-color: var(--bg-input) !important;
       border: 0.5px solid var(--border) !important;
       color: var(--text-1) !important;
-      height: 46px;
-      font-size: 14px;
+      height: 50px;
+      font-size: 16px;
       border-radius: 8px;
       padding: 6px 12px;
       transition: border-color 0.2s;
@@ -259,8 +259,8 @@
       background: linear-gradient(135deg, var(--gold-dim) 0%, var(--gold) 50%, var(--gold-light) 100%);
       border: none;
       color: #0e0e0e;
-      height: 50px;
-      font-size: 15px;
+      height: 55px;
+      font-size: 17px;
       font-weight: 700;
       border-radius: 8px;
       letter-spacing: 0.06em;
@@ -275,8 +275,9 @@
       border: 0.5px solid var(--border-gold) !important;
       color: var(--gold) !important;
       border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 16px;
+      font-weight: 600;
+      height: 50px;
       transition: background 0.2s;
     }
     .btn-outline-success:hover { background: var(--gold-glow) !important; color: var(--gold-light) !important; }
@@ -374,7 +375,7 @@
             
             <div id="inbodyContent" style="display:none;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-              
+             
                 <button class="btn btn-sm btn-outline-secondary" onclick="lockInBody()">隱藏數據</button>
               </div>
 
@@ -407,7 +408,7 @@
 
         <div class="col-12">
           <div class="card">
-            <h5>運動紀錄</h5>
+            <h5>健身紀錄</h5>
             <div class="mb-3">
               <label class="form-label">訓練日期</label>
               <input type="date" id="logDate" class="form-control">
@@ -468,7 +469,7 @@
             <input type="number" id="r" class="form-control text-center px-1" placeholder="次" inputmode="numeric">
           </div>
         </div>
-        <button id="saveBtn" class="btn btn-primary w-100" onclick="submitForm()">儲存紀錄</button>
+        <button id="saveBtn" class="btn btn-primary w-100" onclick="submitForm()">儲存紀錄至 Excel</button>
       </div>
     </div>
 
@@ -555,7 +556,7 @@
         rowHTML += `
           <td class="${cellClass}">
             <div class="cell-content">
-              <div style="font-weight:700; font-size:14px; margin-bottom:2px;">${v}</div>
+              <div style="font-weight:700; font-size:16px; margin-bottom:2px;">${v}</div>
               ${diffHTML}
             </div>
             <canvas id="${cellCanvasId}" class="cell-spark-canvas"></canvas>
@@ -684,7 +685,7 @@
         .then(res => res.json())
         .then(data => {
           if (!data || data.length === 0) {
-            statusDiv.innerText = "這是全新項目，尚無歷史數據";
+            statusDiv.innerText = "全新項目，尚無歷史數據";
             return;
           }
           statusDiv.style.display = 'none';
@@ -760,7 +761,7 @@
           datalabels: {
             display: true, align: 'top', offset: 4,
             color: '#e8c97a',
-            font: { size: 11, weight: 'bold' }, 
+            font: { size: 12, weight: 'bold' }, 
             formatter: function(value, context) {
               const pt = chartPoints[context.dataIndex];
               return (pt && pt.labelStr) ? `${value}kg\n(${pt.labelStr})` : `${value}kg`;
@@ -771,11 +772,11 @@
         scales: {
           x: {
             grid: { color: 'rgba(255,255,255,0.04)' },
-            ticks: { font: { size: 11, weight: '500' }, color: '#7a7670' }
+            ticks: { font: { size: 13, weight: '500' }, color: '#8a9e94' }
           },
           y: {
             grid: { color: 'rgba(255,255,255,0.04)' },
-            ticks: { font: { size: 11, weight: '500' }, color: '#7a7670' },
+            ticks: { font: { size: 13, weight: '500' }, color: '#8a9e94' },
             grace: '35%'
           }
         }
