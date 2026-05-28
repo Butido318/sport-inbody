@@ -8,294 +8,357 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
-  
   <base target="_top">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-  
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
   <style>
-/* ==========================================
-   1. 網頁全域基礎設定（曜石暗綠黑）
-   ========================================== */
-html, body { 
-  width: 100%; 
-  margin: 0; 
-  padding: 0; 
-  overflow-x: hidden; 
-  background-color: #121614 !important; /* 曜石底色 */
-}
-body { 
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-  color: #ffffff; 
-  font-size: 16px; 
-} 
-.container-fluid { padding: 12px; max-width: 1400px; }
+    /* ════════════════════════════════════════
+       色彩系統 — 唯一色彩來源
+       ════════════════════════════════════════ */
+    :root {
+      --bg-base:        #0e0e0e;
+      --bg-card:        #161616;
+      --bg-card2:       #1e1e1e;
+      --bg-input:       #1a1a1a;
+      --border:         #282828;
+      --border-gold:    #7a6432;
+      --border-silver:  #484e54;
+      --gold:           #c9a84c;
+      --gold-light:     #e8c97a;
+      --gold-dim:       #7a6030;
+      --gold-glow:      rgba(201,168,76,0.10);
+      --silver:         #9aa4ae;
+      --silver-light:   #c8d2da;
+      --silver-dim:     #4a5560;
+      --text-1:         #ede8df;
+      --text-2:         #7a7670;
+      --text-muted:     #484440;
+      --danger-bg:      rgba(192,57,43,0.15);
+      --danger-text:    #e07060;
+      --success-bg:     rgba(50,120,80,0.15);
+      --success-text:   #70c090;
+      --warn-bg:        rgba(200,140,40,0.15);
+      --warn-text:      #d4a040;
+    }
 
-/* ==========================================
-   2. 頂部大標題（升級質感純白）
-   ========================================== */
-h1, .main-title {
-  color: #ffffff !important; 
-  font-weight: 800;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-}
+    /* ════════════════════════════════════════
+       基礎
+       ════════════════════════════════════════ */
+    html, body {
+      width: 100%; margin: 0; padding: 0;
+      overflow-x: hidden;
+      background-color: var(--bg-base);
+    }
+    body {
+      font-family: 'Noto Sans TC', -apple-system, sans-serif;
+      color: var(--text-1);
+      font-size: 15px;
+    }
+    .container-fluid { padding: 16px; max-width: 1400px; }
 
-/* ==========================================
-   3. 區塊卡片與自訂標題（黑金奢華質感回歸）
-   ========================================== */
-.card { 
-  background: #181d1a !important; /* 暗黑磨砂綠黑底 */
-  border-radius: 16px; 
-  border: 1px solid #28302b !important; /* 微光暗邊框 */
-  box-shadow: 0 12px 32px rgba(0,0,0,0.4) !important; 
-  margin-bottom: 15px; 
-  padding: 18px; 
-  color: #ffffff !important;
-}
+    /* ════════════════════════════════════════
+       頁面標題
+       ════════════════════════════════════════ */
+    .page-header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 0.5px solid var(--border-gold);
+    }
+    .page-header h2 {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gold-light);
+      letter-spacing: 0.08em;
+      margin: 0;
+    }
+    .page-header .subtitle {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
 
-/* 各卡片的大標題（奢華淡金） */
-h2 { 
-  color: #e5c158 !important; 
-  font-weight: 800; 
-  text-align: center; 
-  margin-bottom: 15px; 
-  font-size: 24px; 
-}
+    /* ════════════════════════════════════════
+       卡片
+       ════════════════════════════════════════ */
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 0.5px solid var(--border);
+      box-shadow: none;
+      margin-bottom: 14px;
+      padding: 18px;
+    }
 
-/* 區域小標題（如：第一層：身體組成分析） */
-h5 { 
-  color: #e5c158 !important; /* 奢華淡金 */
-  border-left: 5px solid #ccaf52 !important; /* 左側裝飾條：霧面金 */
-  padding-left: 10px; 
-  margin-bottom: 15px; 
-  font-weight: bold; 
-  font-size: 18px; 
-}
+    /* 區塊標題 */
+    h5 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-left: 3px solid var(--gold);
+      padding-left: 10px;
+      margin-bottom: 16px;
+      border-radius: 0;
+    }
 
-/* 項目提示塊或欄位名稱 */
-h6, label, .form-label { 
-  color: #d1dcd6 !important; 
-  font-weight: bold;
-}
+    /* 子標題 */
+    h6 {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--silver);
+      margin-top: 18px;
+      margin-bottom: 8px;
+      padding: 5px 8px;
+      background: var(--bg-card2);
+      border-radius: 4px;
+      border-left: 2px solid var(--silver-dim);
+    }
 
-/* ==========================================
-   4. 🚀 INBODY 表格外殼：全面消滅白底！進化為半透明霧面底
-   ========================================== */
-.table-responsive {
-  position: relative;
-  border-radius: 12px;
-  overflow-x: auto;
-  background: rgba(30, 38, 34, 0.65) !important; /* 科技感半透明黑綠底 */
-  backdrop-filter: blur(10px); /* 磨砂玻璃效果 */
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(204, 175, 82, 0.15) !important; /* 淡淡的金色邊框微光 */
-}
+    /* ════════════════════════════════════════
+       InBody 表格
+       ════════════════════════════════════════ */
+    .table-responsive {
+      position: relative;
+      border-radius: 8px;
+      overflow-x: auto;
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+    }
 
-/* 強制清除所有 Bootstrap 自帶的白底與雜亂內距 */
-.inbody-table {
-  width: 100%;
-  background: transparent !important;
-  margin-bottom: 0 !important;
-}
-.inbody-table th, .inbody-table td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important; /* 細緻微透光線 */
-  color: #ffffff !important;
-  font-weight: 600;
-  background: transparent !important; /* 確保不穿幫 */
-}
+    .inbody-table {
+      margin: 0;
+      color: var(--text-1);
+    }
+    .inbody-table thead th {
+      background: var(--bg-card2) !important;
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+      text-transform: uppercase;
+      border-bottom: 0.5px solid var(--border-gold) !important;
+      border-color: var(--border) !important;
+      padding: 7px 0;
+      text-align: center;
+    }
+    .inbody-table tbody td {
+      border-color: var(--border) !important;
+      vertical-align: middle;
+    }
+    .inbody-table tbody tr:hover td {
+      background: rgba(201,168,76,0.04);
+    }
 
-/* 數據儲存格：強制限定寬高，確保畫布不跑位 */
-.col-data, .inbody-table td:not(.metric-name) {
-  width: 78px;
-  min-width: 78px;
-  max-width: 78px;
-  height: 58px;
-  position: relative; 
-  text-align: center;
-  vertical-align: middle;
-  padding: 0 !important; /* 清空內距，全權交給 cell-content 置中 */
-}
+    .col-data, .inbody-table td:not(.metric-name) {
+      width: 75px; min-width: 75px; max-width: 75px;
+      height: 54px;
+      position: relative;
+      text-align: center;
+      vertical-align: middle;
+      padding: 0 !important;
+    }
+    .cell-content {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      height: 100%;
+      pointer-events: none;
+    }
+    .metric-name {
+      font-weight: 500;
+      background: var(--bg-card2) !important;
+      color: var(--silver-light) !important;
+      text-align: left !important;
+      font-size: 13px;
+      width: 105px; min-width: 105px;
+      padding-left: 12px !important;
+      position: -webkit-sticky; position: sticky;
+      left: 0; z-index: 4;
+      border-right: 0.5px solid var(--border-gold) !important;
+    }
+    .inbody-table th.metric-name {
+      background: var(--bg-card2) !important;
+      z-index: 5;
+    }
+    .cell-spark-canvas {
+      position: absolute; top: 0; left: 0;
+      width: 100% !important; height: 100% !important;
+      z-index: 1;
+      pointer-events: none;
+    }
 
-/* 🚀 強效文字與標籤置中 */
-.cell-content {
-  position: absolute !important;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 2; 
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important; /* 垂直置中 */
-  align-items: center !important;     /* 水平置中 */
-  height: 100% !important;
-  width: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  pointer-events: none; 
-}
+    /* 條件顏色 */
+    .val-good { color: var(--gold-light) !important; font-weight: 700; }
+    .val-warn { background-color: var(--warn-bg) !important; color: var(--warn-text) !important; }
+    .diff-badge {
+      font-size: 9px; font-weight: 700;
+      padding: 1px 3px; border-radius: 3px;
+      display: block; line-height: 1.2; margin-top: 2px;
+    }
+    .diff-up   { background: var(--danger-bg); color: var(--danger-text); }
+    .diff-down { background: var(--success-bg); color: var(--success-text); }
 
-/* ==========================================
-   5. 左側項目欄位與表頭凍結（黑金對比強化）
-   ========================================== */
-.metric-name {
-  font-weight: bold;
-  background: rgba(20, 26, 23, 0.9) !important; /* 磨砂黑深底 */
-  color: #e5c158 !important; /* 項目名稱換上高質感淡金字 */
-  text-align: left !important;
-  width: 110px;
-  min-width: 110px;
-  padding-left: 14px !important;
-  position: -webkit-sticky;
-  position: sticky;
-  left: 0;
-  z-index: 4; 
-  border-right: 1px solid rgba(204, 175, 82, 0.2) !important; 
-}
-.inbody-table th.metric-name {
-  background: rgba(15, 20, 18, 0.95) !important;
-  color: #ffffff !important;
-}
+    /* InBody 鎖屏 */
+    .inbody-locked {
+      background: var(--bg-card2);
+      border-radius: 8px;
+      padding: 20px;
+      border: 0.5px dashed var(--border-gold);
+      font-size: 14px;
+      color: var(--text-2);
+    }
 
-/* ==========================================
-   6. 微型畫布與特殊數據樣式設定
-   ========================================== */
-.cell-spark-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 1; 
-  pointer-events: none;
-}
+    /* ════════════════════════════════════════
+       表單元素
+       ════════════════════════════════════════ */
+    .form-label {
+      color: var(--silver);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .form-select, .form-control {
+      background-color: var(--bg-input) !important;
+      border: 0.5px solid var(--border) !important;
+      color: var(--text-1) !important;
+      height: 46px;
+      font-size: 14px;
+      border-radius: 8px;
+      padding: 6px 12px;
+      transition: border-color 0.2s;
+    }
+    .form-select:focus, .form-control:focus {
+      border-color: var(--gold-dim) !important;
+      box-shadow: 0 0 0 3px var(--gold-glow) !important;
+      outline: none;
+    }
+    /* date input 顏色修正 */
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); }
 
-/* 特殊數值警告與優良顏色調整 */
-.val-warn div { color: #ffbc42 !important; } /* 警告：亮橘黃字 */
-.val-good div { color: #e5c158 !important; } /* 優良：改為高質感淡金字 */
+    /* Bootstrap select arrow */
+    .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%237a7670' d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") !important;
+    }
 
-/* ==========================================
-   7. 數據變動霓虹活潑 Badge（半透明底色下更顯眼）
-   ========================================== */
-.diff-badge {
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: bold;
-  display: inline-block;
-  margin-top: 2px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-.diff-up {
-  background-color: rgba(255, 74, 74, 0.22) !important;
-  color: #ff5c5c !important; /* 鮮豔霓虹紅 */
-}
-.diff-down {
-  background-color: rgba(0, 163, 255, 0.22) !important;
-  color: #33b5ff !important; /* 清爽霓虹藍 */
-}
+    /* ════════════════════════════════════════
+       主要按鈕
+       ════════════════════════════════════════ */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold-dim) 0%, var(--gold) 50%, var(--gold-light) 100%);
+      border: none;
+      color: #0e0e0e;
+      height: 50px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 8px;
+      letter-spacing: 0.06em;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover  { opacity: 0.9; color: #0e0e0e; }
+    .btn-primary:active { transform: translateY(1px); color: #0e0e0e; }
+    .btn-primary:disabled { opacity: 0.4; }
 
-/* ==========================================
-   8. 輸入框、下拉選單深色岩石質感
-   ========================================== */
-.form-control, select, input {
-  background-color: #202723 !important; /* 內凹暗綠岩石底 */
-  border: 1px solid #36423b !important;   /* 鈦銀質感的微亮外框 */
-  color: #ffffff !important;            
-  border-radius: 8px;
-  padding: 8px 12px;
-}
-.form-control:focus, select:focus {
-  border-color: #ccaf52 !important; /* 聚焦時散發金光 */
-  box-shadow: 0 0 0 0.2rem rgba(204, 175, 82, 0.2) !important;
-}
-.form-control::placeholder, input::placeholder {
-  color: rgba(255, 255, 255, 0.35) !important;
-}
+    .btn-outline-success {
+      background: transparent;
+      border: 0.5px solid var(--border-gold) !important;
+      color: var(--gold) !important;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-outline-success:hover { background: var(--gold-glow) !important; color: var(--gold-light) !important; }
 
-/* ==========================================
-   9. 🚀 招牌奢華金屬漸層金按鈕
-   ========================================== */
-.btn-primary, .btn-success, button[onclick*="submitForm"], button[onclick*="checkPwd"] { 
-  background: linear-gradient(135deg, #ccaf52, #ad923b) !important; 
-  border: none !important; 
-  height: 55px; 
-  font-size: 18px; 
-  font-weight: bold; 
-  border-radius: 11px; 
-  transition: 0.3s; 
-  color: #121614 !important; /* 內文深色對比極佳 */
-  box-shadow: 0 5px 15px rgba(204, 175, 82, 0.25) !important;
-  width: 100%;
-}
-.btn-primary:hover, button[onclick*="submitForm"]:hover, button[onclick*="checkPwd"]:hover {
-  background: linear-gradient(135deg, #e5c158, #ccaf52) !important;
-  box-shadow: 0 6px 20px rgba(204, 175, 82, 0.4) !important;
-}
-.btn-primary:active, button[onclick*="submitForm"]:active, button[onclick*="checkPwd"]:active { 
-  transform: translateY(2px); 
-}
+    .btn-sm.btn-outline-secondary {
+      background: transparent;
+      border: 0.5px solid var(--border-silver) !important;
+      color: var(--silver) !important;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    .btn-sm.btn-outline-secondary:hover { background: rgba(154,164,174,0.1) !important; }
 
-/* 修正客製化特殊小按鈕樣式 */
-.btn-outline-success {
-  background: linear-gradient(135deg, #ccaf52, #ad923b) !important;
-  color: #121614 !important;
-  font-weight: bold !important;
-  border: none !important;
-}
-.btn-outline-secondary {
-  border: 1px solid #ccaf52 !important;
-  color: #e5c158 !important;
-  background: transparent !important;
-}
-.btn-outline-secondary:hover {
-  background: rgba(229, 193, 88, 0.1) !important;
-}
-.badge.bg-success {
-  background-color: rgba(204, 175, 82, 0.15) !important;
-  color: #e5c158 !important;
-  border: 1px solid rgba(204, 175, 82, 0.3) !important;
-}
+    /* ════════════════════════════════════════
+       Badge
+       ════════════════════════════════════════ */
+    .badge.bg-success {
+      background: var(--gold-glow) !important;
+      color: var(--gold) !important;
+      border: 0.5px solid var(--border-gold);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      border-radius: 4px;
+      padding: 4px 8px;
+    }
 
-/* 右側力量大圖表容器 */
-.chart-container { 
-  background-color: #161c19 !important; /* 深軍綠黑內凹底 */
-  border: 1px solid #28302b !important; 
-  border-radius: 12px; 
-  padding: 30px 10px 10px 10px;
-  position: relative; 
-  width: 100%;
-  min-height: 280px;
-}
+    /* ════════════════════════════════════════
+       力量圖表
+       ════════════════════════════════════════ */
+    .chart-container {
+      background-color: var(--bg-card2);
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      padding: 32px 8px 8px 8px;
+      position: relative;
+      width: 100%;
+      min-height: 280px;
+    }
+    #chartStatus {
+      color: var(--text-muted);
+      font-size: 13px;
+      letter-spacing: 0.06em;
+    }
 
-/* 🎬 媒體顯示區域 */
-.media-wrapper {
-  width: 100%;
-  height: 180px;
-  background-color: #252e2a !important; 
-  border-radius: 12px;
-  border: 2px solid #2d3733 !important;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.media-wrapper img, .media-wrapper video, .media-wrapper iframe {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
+    /* ════════════════════════════════════════
+       媒體區域
+       ════════════════════════════════════════ */
+    .media-wrapper {
+      width: 100%;
+      height: 180px;
+      background-color: var(--bg-card2);
+      border-radius: 8px;
+      border: 0.5px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .media-wrapper img, .media-wrapper video, .media-wrapper iframe {
+      width: 100%; height: 100%; object-fit: contain;
+    }
 
-/* 📱 行動裝置 RWD 最佳化處理 */
-@media (max-width: 575.98px) {
-  .row g-1 .col-4, .row g-1 .col-6 { padding-left: 3px !important; padding-right: 3px !important; }
-  .form-control.px-1 { padding-left: 4px !important; padding-right: 4px !important; }
-}
+    /* ════════════════════════════════════════
+       Bootstrap overrides
+       ════════════════════════════════════════ */
+    .table { --bs-table-bg: transparent; --bs-table-border-color: var(--border); }
+    .table > :not(caption) > * > * { background-color: transparent !important; }
+
+    @media (max-width: 575.98px) {
+      .row.g-1 .col-4, .row.g-1 .col-6 { padding-left: 3px !important; padding-right: 3px !important; }
+      .form-control.px-1 { padding-left: 4px !important; padding-right: 4px !important; }
+    }
   </style>
 </head>
 <body>
 
 <div class="container-fluid">
-  <h2>✨ Do愛運動健康紀錄</h2>
+  <div class="page-header">
+    <h2>Do愛運動健康紀錄</h2>
+    <div class="subtitle">Health &amp; Strength Tracker</div>
+  </div>
 
   <div class="row">
     
@@ -303,10 +366,10 @@ h6, label, .form-label {
       <div class="row">
         <div class="col-12">
           <div class="card">
-            <h5>📊 InBody 儀表板</h5>
+            <h5>InBody 儀表板</h5>
             <div id="lockScreen" class="inbody-locked text-center">
               <input type="password" id="unlockPwd" class="form-control mb-3" placeholder="輸入密碼查看數據">
-              <button class="btn btn-outline-success w-100" style="font-size:16px;" onclick="checkPwd()">展開數據</button>
+              <button class="btn btn-outline-success w-100" onclick="checkPwd()">展開數據</button>
             </div>
             
             <div id="inbodyContent" style="display:none;">
@@ -344,9 +407,9 @@ h6, label, .form-label {
 
         <div class="col-12">
           <div class="card">
-            <h5>⚙️ 健身紀錄</h5>
+            <h5>健身紀錄</h5>
             <div class="mb-3">
-              <label class="form-label">📅 訓練日期</label>
+              <label class="form-label">訓練日期</label>
               <input type="date" id="logDate" class="form-control">
             </div>
 
@@ -365,8 +428,8 @@ h6, label, .form-label {
               </div>
             </div>
 
-            <input type="text" id="newCatInput" class="form-control mb-2" style="font-size:16px; display:none;" placeholder="請輸入新部位">
-            <input type="text" id="newItemInput" class="form-control mb-2" style="font-size:16px; display:none;" placeholder="請輸入新動作">
+            <input type="text" id="newCatInput" class="form-control mb-2" style="display:none;" placeholder="請輸入新部位">
+            <input type="text" id="newItemInput" class="form-control mb-2" style="display:none;" placeholder="請輸入新動作">
             
             <div class="mt-3">
               <div class="media-wrapper" id="mediaContainer">
@@ -380,17 +443,17 @@ h6, label, .form-label {
 
     <div class="col-12 col-md-7">
       <div class="card">
-        <h5>📈 力量成長曲線 (最近 10 次數據)</h5>
+        <h5>力量成長曲線 (最近 10 次數據)</h5>
         <div class="chart-container">
-          <div id="chartStatus" class="text-muted text-center pt-5" style="font-size:16px; position:absolute; width:100%; z-index:2;">
+          <div id="chartStatus" class="text-center pt-5" style="position:absolute; width:100%; z-index:2;">
             請先選擇運動項目
           </div>
-          <canvas id="weightChart" style="width: 100%; height: 250px; display:none;"></canvas>
+          <canvas id="weightChart" style="width:100%; height:250px; display:none;"></canvas>
         </div>
       </div>
 
       <div class="card">
-        <h5>💪 今日訓練成果</h5>
+        <h5>今日訓練成果</h5>
         <div class="row g-1 mb-4">
           <div class="col-4">
             <label class="form-label text-center d-block">重量</label>
@@ -413,9 +476,7 @@ h6, label, .form-label {
 </div>
 
 <script>
-  // 🚀 統一集中管理你的後端 API URL 變數
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTdrao1uUJS_PqrQ4-1Fxz4_foSfsqC4meWjL9RqHnGLxc8IwAC4WzKBpk8_s9ZWACCQ/exec";
-  
   let activeInBodyCharts = []; 
   let fullMenuData = {};
   let myChart = null; 
@@ -443,179 +504,163 @@ h6, label, .form-label {
     } catch (e) { alert("無法讀取 InBody 資料庫"); }
   }
 
-/* ══════════════════════════════════════════════════════════════
-   1. 渲染 InBody 表格主引擎
-   ══════════════════════════════════════════════════════════════ */
-function renderInBody(raw) {
-  if (!raw || raw.length < 2) return;
+  function renderInBody(raw) {
+    if (!raw || raw.length < 2) return;
 
-  if (window.activeInBodyCharts && Array.isArray(window.activeInBodyCharts)) {
-    window.activeInBodyCharts.forEach(c => { if(c && typeof c.destroy === 'function') c.destroy(); });
-  }
-  window.activeInBodyCharts = [];
-
-  const originalDates = raw[0].slice(1); 
-  const sliceCount = originalDates.length; 
-  const viewDates = originalDates.slice(0, sliceCount).reverse(); 
-  const rows = raw.slice(1);
-
-  const tables = {
-    bodyComp: { head: document.getElementById('headBodyComp'), data: document.getElementById('dataBodyComp'), html: "" },
-    muscle: { head: document.getElementById('headMuscle'), data: document.getElementById('dataMuscle'), html: "" },
-    fat: { head: document.getElementById('headFat'), data: document.getElementById('dataFat'), html: "" }
-  };
-
-  let headerHTML = `<tr><th class="metric-name">項目</th>`;
-  viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
-  headerHTML += `</tr>`; 
-  
-  if (tables.bodyComp.head) tables.bodyComp.head.innerHTML = headerHTML;
-  if (tables.muscle.head) tables.muscle.head.innerHTML = headerHTML;
-  if (tables.fat.head) tables.fat.head.innerHTML = headerHTML;
-
-  rows.forEach((rowData, rowIndex) => {
-    const name = rowData[0];
-    const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();        
-
-    let rowHTML = `<tr><td class="metric-name">${name}</td>`;
-    
-    viewValues.forEach((v, i) => {
-      let cellClass = "";
-      if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
-      if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
-
-      let diffHTML = "";
-      if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
-        const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
-        if (diff > 0) diffHTML = `<span class="diff-badge diff-up">▲${diff}</span>`;
-        else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
-      }
-
-      const cellCanvasId = `canvas-r${rowIndex}-c${i}`;
-
-      rowHTML += `
-        <td class="${cellClass}">
-          <div class="cell-content">
-            <div style="font-weight:700; font-size:15px; margin-bottom:2px;">${v}</div>
-            ${diffHTML}
-          </div>
-          <canvas id="${cellCanvasId}" class="cell-spark-canvas"></canvas>
-        </td>`;
-    });
-
-    rowHTML += `</tr>`;
-
-    if (rowIndex < 7) {
-      tables.bodyComp.html += rowHTML;
-    } else if (rowIndex >= 7 && rowIndex < 12) {
-      tables.muscle.html += rowHTML;
+    if (typeof activeInBodyCharts !== 'undefined' && activeInBodyCharts.length > 0) {
+      activeInBodyCharts.forEach(c => { if(c && typeof c.destroy === 'function') c.destroy(); });
+      activeInBodyCharts = [];
     } else {
-      tables.fat.html += rowHTML;
+      window.activeInBodyCharts = [];
     }
 
-    setTimeout(() => {
-      drawGridSparkline(rowIndex, viewValues);
-    }, 120);
-  });
+    const originalDates = raw[0].slice(1); 
+    const sliceCount = originalDates.length; 
+    const viewDates = originalDates.slice(0, sliceCount).reverse();
+    const rows = raw.slice(1);
 
-  if (tables.bodyComp.data) tables.bodyComp.data.innerHTML = tables.bodyComp.html;
-  if (tables.muscle.data) tables.muscle.data.innerHTML = tables.muscle.html;
-  if (tables.fat.data) tables.fat.data.innerHTML = tables.fat.html;
-}
+    const tables = {
+      bodyComp: { head: document.getElementById('headBodyComp'), data: document.getElementById('dataBodyComp'), html: "" },
+      muscle: { head: document.getElementById('headMuscle'), data: document.getElementById('dataMuscle'), html: "" },
+      fat: { head: document.getElementById('headFat'), data: document.getElementById('dataFat'), html: "" }
+    };
 
-/* ══════════════════════════════════════════════════════════════
-   2. 格子獨立微型畫布繪製邏輯
-   ══════════════════════════════════════════════════════════════ */
-function drawGridSparkline(rowIndex, rowDataPoints) {
-  const validValues = rowDataPoints.map(v => parseFloat(v)).filter(v => !isNaN(v));
-  if (validValues.length === 0) return;
-  
-  const maxVal = Math.max(...validValues);
-  const minVal = Math.min(...validValues);
-  const valRange = maxVal - minVal;
+    let headerHTML = `<tr><th class="metric-name">項目</th>`;
+    viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
+    headerHTML += `</tr>`; 
+    
+    if (tables.bodyComp.head) tables.bodyComp.head.innerHTML = headerHTML;
+    if (tables.muscle.head) tables.muscle.head.innerHTML = headerHTML;
+    if (tables.fat.head) tables.fat.head.innerHTML = headerHTML;
 
-  const yMin = valRange === 0 ? minVal - 1 : minVal - (valRange * 0.25);
-  const yMax = valRange === 0 ? maxVal + 1 : maxVal + (valRange * 0.25);
+    rows.forEach((rowData, rowIndex) => {
+      const name = rowData[0];
+      const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();        
 
-  rowDataPoints.forEach((_, colIndex) => {
-    const canvasId = `canvas-r${rowIndex}-c${colIndex}`;
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+      let rowHTML = `<tr><td class="metric-name">${name}</td>`;
+      
+      viewValues.forEach((v, i) => {
+        let cellClass = "";
+        if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
+        if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
 
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: rowDataPoints.map((_, idx) => idx),
-        datasets: [{
-          data: rowDataPoints,
-          borderColor: '#4dbdff', 
-          borderWidth: 1.5,
-          pointRadius: 4,
-          pointBackgroundColor: '#ffffff', 
-          pointBorderColor: '#00ccff',     
-          pointBorderWidth: 1.5,
-          fill: false,
-          tension: 0 
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: {
-          padding: {
-            top: 10,
-            bottom: 14, 
-            left: colIndex === 0 ? 37.5 : 0,
-            right: colIndex === rowDataPoints.length - 1 ? 37.5 : 0
-          }
+        let diffHTML = "";
+        if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
+          const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
+          if (diff > 0) diffHTML = `<span class="diff-badge diff-up">▲${diff}</span>`;
+          else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
+        }
+
+        const cellCanvasId = `canvas-r${rowIndex}-c${i}`;
+        rowHTML += `
+          <td class="${cellClass}">
+            <div class="cell-content">
+              <div style="font-weight:700; font-size:14px; margin-bottom:2px;">${v}</div>
+              ${diffHTML}
+            </div>
+            <canvas id="${cellCanvasId}" class="cell-spark-canvas"></canvas>
+          </td>`;
+      });
+
+      rowHTML += `</tr>`;
+
+      if (rowIndex < 7) {
+        tables.bodyComp.html += rowHTML;
+      } else if (rowIndex >= 7 && rowIndex < 12) {
+        tables.muscle.html += rowHTML;
+      } else {
+        tables.fat.html += rowHTML;
+      }
+
+      setTimeout(() => {
+        drawGridSparkline(rowIndex, viewValues);
+      }, 120);
+    });
+
+    if (tables.bodyComp.data) tables.bodyComp.data.innerHTML = tables.bodyComp.html;
+    if (tables.muscle.data) tables.muscle.data.innerHTML = tables.muscle.html;
+    if (tables.fat.data) tables.fat.data.innerHTML = tables.fat.html;
+  }
+
+  function drawGridSparkline(rowIndex, rowDataPoints) {
+    const validValues = rowDataPoints.map(v => parseFloat(v)).filter(v => !isNaN(v));
+    if (validValues.length === 0) return;
+    
+    const maxVal = Math.max(...validValues);
+    const minVal = Math.min(...validValues);
+    const valRange = maxVal - minVal;
+    const yMin = valRange === 0 ? minVal - 1 : minVal - (valRange * 0.25);
+    const yMax = valRange === 0 ? maxVal + 1 : maxVal + (valRange * 0.25);
+
+    rowDataPoints.forEach((_, colIndex) => {
+      const canvasId = `canvas-r${rowIndex}-c${colIndex}`;
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: rowDataPoints.map((_, idx) => idx),
+          datasets: [{
+            data: rowDataPoints,
+            borderColor: '#5a5040',       /* 暗金色線條 */
+            borderWidth: 1.2,
+            pointRadius: 3,
+            pointBackgroundColor: '#1e1e1e', 
+            pointBorderColor: '#7a6432',  
+            pointBorderWidth: 1.2,
+            fill: false,
+            tension: 0
+          }]
         },
-        plugins: {
-          legend: { display: false },
-          tooltip: { enabled: false },
-          datalabels: { display: false }
-        },
-        scales: {
-          x: {
-            type: 'linear',
-            display: false,
-            min: colIndex === 0 ? 0 : colIndex - 0.5,
-            max: colIndex === rowDataPoints.length - 1 ? colIndex : colIndex + 0.5
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: {
+              top: 10, bottom: 14,
+              left: colIndex === 0 ? 37.5 : 0,
+              right: colIndex === rowDataPoints.length - 1 ? 37.5 : 0
+            }
           },
-          y: {
-            display: false,
-            min: yMin,
-            max: yMax
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false },
+            datalabels: { display: false }
+          },
+          scales: {
+            x: {
+              type: 'linear', display: false,
+              min: colIndex === 0 ? 0 : colIndex - 0.5,
+              max: colIndex === rowDataPoints.length - 1 ? colIndex : colIndex + 0.5
+            },
+            y: { display: false, min: yMin, max: yMax }
           }
         }
+      });
+      
+      if (window.activeInBodyCharts) {
+        window.activeInBodyCharts.push(chart);
       }
     });
-    
-    if (window.activeInBodyCharts) {
-      window.activeInBodyCharts.push(chart);
-    }
-  });
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return "";
-  let str = dateStr.toString().trim();
-  if (str.includes('T')) { str = str.split('T')[0]; }
-  str = str.replace(/-/g, '/');
-  const parts = str.split('/');
-  if (parts.length >= 3) {
-    const month = parseInt(parts[1], 10);
-    const day = parseInt(parts[2], 10);
-    return `${month}/${day}`;
-  } else if (parts.length === 2) {
-    const month = parseInt(parts[0], 10);
-    const day = parseInt(parts[1], 10);
-    return `${month}/${day}`;
   }
-  return str;
-}
 
- function onItemChange() {
+  function formatDate(dateStr) {
+    if (!dateStr) return "";
+    let str = dateStr.toString().trim();
+    if (str.includes('T')) str = str.split('T')[0];
+    str = str.replace(/-/g, '/');
+    const parts = str.split('/');
+    if (parts.length >= 3) {
+      return `${parseInt(parts[1], 10)}/${parseInt(parts[2], 10)}`;
+    } else if (parts.length === 2) {
+      return `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}`;
+    }
+    return str;
+  }
+
+  function onItemChange() {
     const cat = document.getElementById('catSelect').value;
     const item = document.getElementById('itemSelect').value;
     const statusDiv = document.getElementById('chartStatus');
@@ -628,7 +673,6 @@ function formatDate(dateStr) {
       const found = fullMenuData[cat].find(obj => obj.name === item);
       if(found && found.img) mediaUrl = found.img; 
     }
-    
     updateMediaDisplay(mediaUrl);
 
     if (item && item !== 'Other') {
@@ -637,17 +681,17 @@ function formatDate(dateStr) {
       canvas.style.display = 'none';
       
       fetch(`${GAS_WEB_APP_URL}?action=getHistory&item=${encodeURIComponent(item)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (!data || data.length === 0) {
-          statusDiv.innerText = "這是全新項目，尚無歷史數據";
-          return;
-        }
-        statusDiv.style.display = 'none';
-        canvas.style.display = 'block';
-        renderChart(data);
-      })
-      .catch(err => { statusDiv.innerText = "歷史紀錄載入失敗"; });
+        .then(res => res.json())
+        .then(data => {
+          if (!data || data.length === 0) {
+            statusDiv.innerText = "這是全新項目，尚無歷史數據";
+            return;
+          }
+          statusDiv.style.display = 'none';
+          canvas.style.display = 'block';
+          renderChart(data);
+        })
+        .catch(err => { statusDiv.innerText = "歷史紀錄載入失敗"; });
     } else {
       statusDiv.style.display = 'block';
       statusDiv.innerText = "請先選擇運動項目";
@@ -689,11 +733,14 @@ function formatDate(dateStr) {
         labels: labels,
         datasets: [{
           data: chartPoints.map(p => p.weight),
-          borderColor: '#ccaf52', 
-          backgroundColor: '#e5c158', 
-          borderWidth: 3, 
-          pointRadius: 6, 
-          fill: false, 
+          borderColor: '#c9a84c',
+          backgroundColor: 'rgba(201,168,76,0.12)',
+          borderWidth: 2,
+          pointRadius: 5,
+          pointBackgroundColor: '#0e0e0e',
+          pointBorderColor: '#c9a84c',
+          pointBorderWidth: 2,
+          fill: true,
           tension: 0.1
         }]
       },
@@ -702,10 +749,17 @@ function formatDate(dateStr) {
         layout: { padding: { top: 35, bottom: 5, left: 10, right: 10 } },
         plugins: {
           legend: { display: false },
-          tooltip: { enabled: true },
+          tooltip: {
+            enabled: true,
+            backgroundColor: '#1e1e1e',
+            borderColor: '#7a6432',
+            borderWidth: 0.5,
+            titleColor: '#c9a84c',
+            bodyColor: '#ede8df',
+          },
           datalabels: {
-            display: true, align: 'top', offset: 4, 
-            color: '#e5c158', 
+            display: true, align: 'top', offset: 4,
+            color: '#e8c97a',
             font: { size: 11, weight: 'bold' }, 
             formatter: function(value, context) {
               const pt = chartPoints[context.dataIndex];
@@ -715,8 +769,15 @@ function formatDate(dateStr) {
           }
         },
         scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 12, weight: 'bold' }, color: '#d1dcd6' } },
-          y: { ticks: { font: { size: 12, weight: 'bold' }, color: '#d1dcd6' }, grace: '35%' }
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { font: { size: 11, weight: '500' }, color: '#7a7670' }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { font: { size: 11, weight: '500' }, color: '#7a7670' },
+            grace: '35%'
+          }
         }
       },
       plugins: (typeof ChartDataLabels !== 'undefined') ? [ChartDataLabels] : []
@@ -738,7 +799,7 @@ function formatDate(dateStr) {
     if (Object.keys(fullMenuData).length === 0) {
       catSelect.innerHTML = '<option value="">無設定資料</option>';
     } else {
-      catSelect.innerHTML = '<option value="">-- 部位 --</option>';
+      catSelect.innerHTML = '<option value="">— 部位 —</option>';
       for (let cat in fullMenuData) { catSelect.options.add(new Option(cat, cat)); }
     }
     catSelect.options.add(new Option("+ 新增部位", "Other"));
@@ -748,7 +809,7 @@ function formatDate(dateStr) {
     const cat = document.getElementById('catSelect').value;
     const itemSelect = document.getElementById('itemSelect');
     document.getElementById('newCatInput').style.display = (cat === 'Other') ? 'block' : 'none';
-    itemSelect.innerHTML = '<option value="">-- 動作 --</option>';
+    itemSelect.innerHTML = '<option value="">— 動作 —</option>';
     if (cat && cat !== 'Other' && fullMenuData[cat]) {
       fullMenuData[cat].forEach(obj => itemSelect.options.add(new Option(obj.name, obj.name)));
     }
@@ -763,22 +824,16 @@ function formatDate(dateStr) {
       return;
     }
     const cleanUrl = url.trim();
-
     if (cleanUrl.includes("youtube.com") || cleanUrl.includes("youtu.be")) {
       let videoId = "";
-      if (cleanUrl.includes("v=")) {
-        videoId = cleanUrl.split("v=")[1].split("&")[0];
-      } else if (cleanUrl.includes("youtu.be/")) {
-        videoId = cleanUrl.split("youtu.be/")[1].split("?")[0];
-      } else if (cleanUrl.includes("embed/")) {
-        videoId = cleanUrl.split("embed/")[1].split("?")[0];
-      }
+      if (cleanUrl.includes("v=")) videoId = cleanUrl.split("v=")[1].split("&")[0];
+      else if (cleanUrl.includes("youtu.be/")) videoId = cleanUrl.split("youtu.be/")[1].split("?")[0];
+      else if (cleanUrl.includes("embed/")) videoId = cleanUrl.split("embed/")[1].split("?")[0];
       if(videoId) {
         container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
         return;
       }
     }
-
     const isVideoFile = cleanUrl.match(/\.(mp4|webm|mov|ogg)($|\?)/i) || cleanUrl.includes("video");
     if (isVideoFile) {
       container.innerHTML = `<video src="${cleanUrl}" controls loop muted playsinline></video>`;
@@ -787,91 +842,26 @@ function formatDate(dateStr) {
     container.innerHTML = `<img src="${cleanUrl}" onerror="this.src='${DEFAULT_IMG}';">`;
   }
 
-/* ══════════════════════════════════════════════════════════════
-   3. 🚀 儲存紀錄表單對接引擎（完全對接精準欄位除蟲版）
-   ══════════════════════════════════════════════════════════════ */
-function submitForm() {
-  // 🚀【變數修正】：精準綁定 HTML 現有元素 ID
-  const dateEl = document.getElementById('logDate');
-  const catEl  = document.getElementById('catSelect');
-  const itemEl = document.getElementById('itemSelect');
-  
-  if (!dateEl) return alert('系統找不到 [logDate] 日期欄位！');
-  if (!catEl) return alert('系統找不到 [catSelect] 部位選單！');
-  if (!itemEl) return alert('系統找不到 [itemSelect] 項目選單！');
-  
-  const dateVal = dateEl.value;
-  const catSel  = catEl.value;
-  const itemSel = itemEl.value;
-  
-  // 智慧自訂項目解析
-  const isNewCat  = catSel === 'Other';
-  const isNewItem = itemSel === 'Other';
-
-  const newCatEl  = document.getElementById('newCatInput');
-  const newItemEl = document.getElementById('newItemInput');
-
-  const finalCategory = isNewCat ? (newCatEl ? newCatEl.value.trim() : '') : catSel;
-  const finalItem     = isNewItem ? (newItemEl ? newItemEl.value.trim() : '') : itemSel;
-
-  // 基礎欄位防呆
-  if (!dateVal) return alert('請選擇日期！');
-  if (!finalCategory || finalCategory.includes('--')) return alert('請選擇或輸入訓練部位！');
-  if (!finalItem || finalItem.includes('--')) return alert('請選擇或輸入運動項目！');
-
-  // 🚀【變數修正】：精準抓取今日訓練成果的實體欄位：w、s、r
-  const weightEl = document.getElementById('w');
-  const setsEl   = document.getElementById('s');
-  const repsEl   = document.getElementById('r');
-
-  // 封裝成要傳給後端的 JSON 欄位物件
-  const form = {
-    date: dateVal, 
-    category: finalCategory,
-    item: finalItem,
-    weight: weightEl ? weightEl.value : "0",
-    sets: setsEl ? setsEl.value : "0",
-    reps: repsEl ? repsEl.value : "0"
-  };
-
-  // 按鈕動態鎖定效果
-  const btn = document.getElementById('saveBtn');
-  let oriText = "儲存紀錄至 Excel";
-  if (btn) {
-    oriText = btn.innerHTML;
-    btn.innerHTML = '核心數據寫入中...';
-    btn.disabled = true;
+  function submitForm() {
+    const btn = document.getElementById('saveBtn');
+    const payload = {
+      action: "saveLog",
+      category: document.getElementById('catSelect').value,
+      newCategory: document.getElementById('newCatInput').value,
+      item: document.getElementById('itemSelect').value,
+      newItem: document.getElementById('newItemInput').value,
+      date: document.getElementById('logDate').value,
+      weight: document.getElementById('w').value,
+      sets: document.getElementById('s').value,
+      reps: document.getElementById('r').value
+    };
+    if(!payload.category || !payload.item || !payload.date) return alert("請完整選擇部位、動作與日期");
+    btn.disabled = true; btn.innerText = "正在儲存...";
+    fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+      .then(res => res.json())
+      .then(result => { alert(result.message || "儲存成功！"); location.reload(); })
+      .catch(err => { alert("儲存失敗：" + err.message); btn.disabled = false; btn.innerText = "儲存紀錄至 Excel"; });
   }
-
-  // 執行 Fetch 跨網域非同步寫入
-  fetch(GAS_WEB_APP_URL, {
-    method: "POST",
-    mode: "no-cors", // 跨網域安全寫入不爆錯設定
-    headers: {
-      "Content-Type": "text/plain"
-    },
-    body: JSON.stringify(form)
-  })
-  .then(function() {
-    if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
-    
-    alert(`✅ 紀錄成功！\n資料已安全發送至 Google 雲端 WorkoutLogs 中！`);
-    
-    // 成功後清空輸入框數值
-    if (weightEl) weightEl.value = '';
-    if (setsEl) setsEl.value = '';
-    if (repsEl) repsEl.value = '';
-    if (newCatEl) newCatEl.value = '';
-    if (newItemEl) newItemEl.value = '';
-    
-    // 自動重新刷新歷史力量曲線
-    if (typeof onItemChange === 'function') onItemChange();
-  })
-  .catch(function(err) {
-    if (btn) { btn.innerHTML = oriText; btn.disabled = false; }
-    alert('連線失敗，請確認網路連線：' + err);
-  });
-} // 👈 完美閉合，大功告成！
 </script>
 </body>
 </html>
