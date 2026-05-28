@@ -19,7 +19,7 @@
        色彩系統 — 唯一色彩來源
        ════════════════════════════════════════ */
     :root {
-      --bg-base:        #32413a;
+      --bg-base:        #1c2420;
       --bg-card:        #222c28;
       --bg-card2:       #2a3530;
       --bg-input:       #263028;
@@ -27,7 +27,7 @@
       --border-gold:    #8a7040;
       --border-silver:  #4a5a54;
       --gold:           #c9a84c;
-      --gold-light:     #edeae2;
+      --gold-light:     #e8c97a;
       --gold-dim:       #8a6e30;
       --gold-glow:      rgba(201,168,76,0.12);
       --silver:         #a0b0a8;
@@ -375,7 +375,7 @@
             
             <div id="inbodyContent" style="display:none;">
               <div class="d-flex justify-content-between align-items-center mb-2">
-             
+      
                 <button class="btn btn-sm btn-outline-secondary" onclick="lockInBody()">隱藏數據</button>
               </div>
 
@@ -556,7 +556,7 @@
         rowHTML += `
           <td class="${cellClass}">
             <div class="cell-content">
-              <div style="font-weight:700; font-size:16px; margin-bottom:2px;">${v}</div>
+              <div style="font-weight:300; font-size:16px; margin-bottom:2px; color:#ccd8d0;">${v}</div>
               ${diffHTML}
             </div>
             <canvas id="${cellCanvasId}" class="cell-spark-canvas"></canvas>
@@ -685,7 +685,7 @@
         .then(res => res.json())
         .then(data => {
           if (!data || data.length === 0) {
-            statusDiv.innerText = "全新項目，尚無歷史數據";
+            statusDiv.innerText = "這是全新項目，尚無歷史數據";
             return;
           }
           statusDiv.style.display = 'none';
@@ -760,7 +760,7 @@
           },
           datalabels: {
             display: true, align: 'top', offset: 4,
-            color: '#edeae2',
+            color: '#e8c97a',
             font: { size: 12, weight: 'bold' }, 
             formatter: function(value, context) {
               const pt = chartPoints[context.dataIndex];
