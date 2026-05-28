@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Do愛運動</title>
+  <meta name="apple-mobile-web-app-title" content="Do愛運動"> 
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+  <base target="_top">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ════════════════════════════════════════
+       色彩系統 — 唯一色彩來源
+       ════════════════════════════════════════ */
+    :root {
+      --bg-base:        #1c2420;
+      --bg-card:        #222c28;
+      --bg-card2:       #2a3530;
+      --bg-input:       #263028;
+      --border:         #344038;
+      --border-gold:    #8a7040;
+      --border-silver:  #4a5a54;
+      --gold:           #c9a84c;
+      --gold-light:     #e8c97a;
+      --gold-dim:       #8a6e30;
+      --gold-glow:      rgba(201,168,76,0.12);
+      --silver:         #a0b0a8;
+      --silver-light:   #ccd8d0;
+      --silver-dim:     #506058;
+      --text-1:         #edeae2;
+      --text-2:         #8a9e94;
+      --text-muted:     #607868;
+      --danger-bg:      rgba(192,57,43,0.18);
+      --danger-text:    #e07060;
+      --success-bg:     rgba(50,120,80,0.18);
+      --success-text:   #70c090;
+      --warn-bg:        rgba(200,140,40,0.18);
+      --warn-text:      #d4a040;
+    }
+
+    /* ════════════════════════════════════════
+       基礎
+       ════════════════════════════════════════ */
+    html, body {
+      width: 100%; margin: 0; padding: 0;
+      overflow-x: hidden;
+      background-color: var(--bg-base);
+    }
+    body {
+      font-family: 'Noto Sans TC', -apple-system, sans-serif;
+      color: var(--text-1);
+      font-size: 17px;
+    }
+    .container-fluid { padding: 16px; max-width: 1400px; }
+
+    /* ════════════════════════════════════════
+       頁面標題
+       ════════════════════════════════════════ */
+    .page-header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 0.5px solid var(--border-gold);
+    }
+    .page-header h2 {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gold-light);
+      letter-spacing: 0.08em;
+      margin: 0;
+    }
+    .page-header .subtitle {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ════════════════════════════════════════
+       卡片
+       ════════════════════════════════════════ */
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 0.5px solid var(--border);
+      box-shadow: none;
+      margin-bottom: 14px;
+      padding: 18px;
+    }
+
+    /* 區塊標題 */
+    h5 {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+      border-left: 3px solid var(--gold);
+      padding-left: 10px;
+      margin-bottom: 16px;
+      border-radius: 0;
+    }
+
+    /* 子標題 */
+    h6 {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--silver-light);
+      margin-top: 18px;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      background: var(--bg-card2);
+      border-radius: 4px;
+      border-left: 2px solid var(--silver-dim);
+    }
+
+    /* ════════════════════════════════════════
+       InBody 表格
+       ════════════════════════════════════════ */
+    .table-responsive {
+      position: relative;
+      border-radius: 8px;
+      overflow-x: auto;
+      background: var(--bg-card);
+      border: 0.5px solid var(--border);
+    }
+
+    .inbody-table {
+      margin: 0;
+      color: var(--text-1);
+    }
+    .inbody-table thead th {
+      background: var(--bg-card2) !important;
+      color: var(--gold);
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      border-bottom: 0.5px solid var(--border-gold) !important;
+      border-color: var(--border) !important;
+      padding: 8px 0;
+      text-align: center;
+    }
+    .inbody-table tbody td {
+      border-color: var(--border) !important;
+      vertical-align: middle;
+    }
+    .inbody-table tbody tr:hover td {
+      background: rgba(201,168,76,0.04);
+    }
+
+    .col-data, .inbody-table td:not(.metric-name) {
+      width: 75px; min-width: 75px; max-width: 75px;
+      height: 54px;
+      position: relative;
+      text-align: center;
+      vertical-align: middle;
+      padding: 0 !important;
+    }
+    .cell-content {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      height: 100%;
+      pointer-events: none;
+    }
+    .metric-name {
+      font-weight: 600;
+      background: var(--bg-card2) !important;
+      color: var(--silver-light) !important;
+      text-align: left !important;
+      font-size: 15px;
+      width: 115px; min-width: 115px;
+      padding-left: 12px !important;
+      position: -webkit-sticky; position: sticky;
+      left: 0; z-index: 4;
+      border-right: 0.5px solid var(--border-gold) !important;
+    }
+    .inbody-table th.metric-name {
+      background: var(--bg-card2) !important;
+      z-index: 5;
+    }
+    .cell-spark-canvas {
+      position: absolute; top: 0; left: 0;
+      width: 100% !important; height: 100% !important;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* placeholder 提示文字 */
+    ::placeholder { color: var(--text-2); opacity: 1; }
+    ::-webkit-input-placeholder { color: var(--text-2); opacity: 1; }
+
+    /* 條件顏色 */
+    .val-good { color: var(--gold-light) !important; font-weight: 700; }
+    .val-warn { background-color: var(--warn-bg) !important; color: var(--warn-text) !important; }
+    .diff-badge {
+      font-size: 11px; font-weight: 700;
+      padding: 1px 3px; border-radius: 3px;
+      display: block; line-height: 1.2; margin-top: 2px;
+    }
+    .diff-up   { background: var(--danger-bg); color: var(--danger-text); }
+    .diff-down { background: var(--success-bg); color: var(--success-text); }
+
+    /* InBody 鎖屏 */
+    .inbody-locked {
+      background: var(--bg-card2);
+      border-radius: 8px;
+      padding: 20px;
+      border: 0.5px dashed var(--border-gold);
+      font-size: 14px;
+      color: var(--text-2);
+    }
+
+    /* ════════════════════════════════════════
+       表單元素
+       ════════════════════════════════════════ */
+    .form-label {
+      color: var(--silver);
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+    .form-select, .form-control {
+      background-color: var(--bg-input) !important;
+      border: 0.5px solid var(--border) !important;
+      color: var(--text-1) !important;
+      height: 50px;
+      font-size: 16px;
+      border-radius: 8px;
+      padding: 6px 12px;
+      transition: border-color 0.2s;
+    }
+    .form-select:focus, .form-control:focus {
+      border-color: var(--gold-dim) !important;
+      box-shadow: 0 0 0 3px var(--gold-glow) !important;
+      outline: none;
+    }
+    /* date input 顏色修正 */
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); }
+
+    /* Bootstrap select arrow */
+    .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%237a7670' d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") !important;
+    }
+
+    /* ════════════════════════════════════════
+       主要按鈕
+       ════════════════════════════════════════ */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold-dim) 0%, var(--gold) 50%, var(--gold-light) 100%);
+      border: none;
+      color: #0e0e0e;
+      height: 55px;
+      font-size: 17px;
+      font-weight: 700;
+      border-radius: 8px;
+      letter-spacing: 0.06em;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover  { opacity: 0.9; color: #0e0e0e; }
+    .btn-primary:active { transform: translateY(1px); color: #0e0e0e; }
+    .btn-primary:disabled { opacity: 0.4; }
+
+    .btn-outline-success {
+      background: transparent;
+      border: 0.5px solid var(--border-gold) !important;
+      color: var(--gold) !important;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      height: 50px;
+      transition: background 0.2s;
+    }
+    .btn-outline-success:hover { background: var(--gold-glow) !important; color: var(--gold-light) !important; }
+
+    .btn-sm.btn-outline-secondary {
+      background: transparent;
+      border: 0.5px solid var(--border-silver) !important;
+      color: var(--silver) !important;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    .btn-sm.btn-outline-secondary:hover { background: rgba(154,164,174,0.1) !important; }
+
+    /* ════════════════════════════════════════
+       Badge
+       ════════════════════════════════════════ */
+    .badge.bg-success {
+      background: var(--gold-glow) !important;
+      color: var(--gold) !important;
+      border: 0.5px solid var(--border-gold);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      border-radius: 4px;
+      padding: 4px 8px;
+    }
+
+    /* ════════════════════════════════════════
+       力量圖表
+       ════════════════════════════════════════ */
+    .chart-container {
+      background-color: var(--bg-card2);
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      padding: 32px 8px 8px 8px;
+      position: relative;
+      width: 100%;
+      min-height: 280px;
+    }
+    #chartStatus {
+      color: var(--text-muted);
+      font-size: 13px;
+      letter-spacing: 0.06em;
+    }
+
+    /* ════════════════════════════════════════
+       媒體區域
+       ════════════════════════════════════════ */
+    .media-wrapper {
+      width: 100%;
+      height: 180px;
+      background-color: var(--bg-card2);
+      border-radius: 8px;
+      border: 0.5px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .media-wrapper img, .media-wrapper video, .media-wrapper iframe {
+      width: 100%; height: 100%; object-fit: contain;
+    }
+
+    /* ════════════════════════════════════════
+       Bootstrap overrides
+       ════════════════════════════════════════ */
+    .table { --bs-table-bg: transparent; --bs-table-border-color: var(--border); }
+    .table > :not(caption) > * > * { background-color: transparent !important; }
+
+    @media (max-width: 575.98px) {
+      .row.g-1 .col-4, .row.g-1 .col-6 { padding-left: 3px !important; padding-right: 3px !important; }
+      .form-control.px-1 { padding-left: 4px !important; padding-right: 4px !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container-fluid">
+  <div class="page-header">
+    <h2>Do愛運動健康紀錄</h2>
+    <div class="subtitle">Health &amp; Strength Tracker</div>
+  </div>
+
+  <div class="row">
+    
+    <div class="col-12 col-md-5">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <h5>InBody 儀表板</h5>
+            <div id="lockScreen" class="inbody-locked text-center">
+              <input type="password" id="unlockPwd" class="form-control mb-3" placeholder="輸入密碼查看數據">
+              <button class="btn btn-outline-success w-100" onclick="checkPwd()">展開數據</button>
+            </div>
+            
+            <div id="inbodyContent" style="display:none;">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-success">歷史趨勢整合於項目右側</span>
+                <button class="btn btn-sm btn-outline-secondary" onclick="lockInBody()">隱藏數據</button>
+              </div>
+
+              <h6>第一層：身體組成分析</h6>
+              <div class="table-responsive mb-3">
+                <table class="table inbody-table">
+                  <thead id="headBodyComp"></thead>
+                  <tbody id="dataBodyComp"></tbody>
+                </table>
+              </div>
+
+              <h6>第二層：肌肉分佈 (Kg)</h6>
+              <div class="table-responsive mb-3">
+                <table class="table inbody-table">
+                  <thead id="headMuscle"></thead>
+                  <tbody id="dataMuscle"></tbody>
+                </table>
+              </div>
+
+              <h6>第三層：脂肪分佈 (Kg)</h6>
+              <div class="table-responsive">
+                <table class="table inbody-table">
+                  <thead id="headFat"></thead>
+                  <tbody id="dataFat"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="card">
+            <h5>健身紀錄</h5>
+            <div class="mb-3">
+              <label class="form-label">訓練日期</label>
+              <input type="date" id="logDate" class="form-control">
+            </div>
+
+            <div class="row g-1 mb-2">
+              <div class="col-6">
+                <label class="form-label">部位分類</label>
+                <select id="catSelect" class="form-select" onchange="onCategoryChange()">
+                  <option value="">載入中...</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label">運動項目</label>
+                <select id="itemSelect" class="form-select" onchange="onItemChange()">
+                  <option value="">選擇部位</option>
+                </select>
+              </div>
+            </div>
+
+            <input type="text" id="newCatInput" class="form-control mb-2" style="display:none;" placeholder="請輸入新部位">
+            <input type="text" id="newItemInput" class="form-control mb-2" style="display:none;" placeholder="請輸入新動作">
+            
+            <div class="mt-3">
+              <div class="media-wrapper" id="mediaContainer">
+                <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500" id="itemImg">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-7">
+      <div class="card">
+        <h5>力量成長曲線 (最近 10 次數據)</h5>
+        <div class="chart-container">
+          <div id="chartStatus" class="text-center pt-5" style="position:absolute; width:100%; z-index:2;">
+            請先選擇運動項目
+          </div>
+          <canvas id="weightChart" style="width:100%; height:250px; display:none;"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5>今日訓練成果</h5>
+        <div class="row g-1 mb-4">
+          <div class="col-4">
+            <label class="form-label text-center d-block">重量</label>
+            <input type="number" id="w" class="form-control text-center px-1" placeholder="kg" inputmode="decimal">
+          </div>
+          <div class="col-4">
+            <label class="form-label text-center d-block">組數</label>
+            <input type="number" id="s" class="form-control text-center px-1" placeholder="組" inputmode="numeric">
+          </div>
+          <div class="col-4">
+            <label class="form-label text-center d-block">次數</label>
+            <input type="number" id="r" class="form-control text-center px-1" placeholder="次" inputmode="numeric">
+          </div>
+        </div>
+        <button id="saveBtn" class="btn btn-primary w-100" onclick="submitForm()">儲存紀錄至 Excel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTdrao1uUJS_PqrQ4-1Fxz4_foSfsqC4meWjL9RqHnGLxc8IwAC4WzKBpk8_s9ZWACCQ/exec";
+  let activeInBodyCharts = []; 
+  let fullMenuData = {};
+  let myChart = null; 
+  const DEFAULT_IMG = "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500";
+
+  function checkPwd() {
+    if (document.getElementById('unlockPwd').value === "3914") {
+      fetchInBodyData();
+    } else { alert("密碼錯誤！"); }
+  }
+
+  function lockInBody() {
+    document.getElementById('lockScreen').style.display = 'block';
+    document.getElementById('inbodyContent').style.display = 'none';
+    document.getElementById('unlockPwd').value = "";
+  }
+
+  async function fetchInBodyData() {
+    try {
+      const res = await fetch(`${GAS_WEB_APP_URL}?action=getInBody`);
+      const data = await res.json();
+      renderInBody(data);
+      document.getElementById('lockScreen').style.display = 'none';
+      document.getElementById('inbodyContent').style.display = 'block';
+    } catch (e) { alert("無法讀取 InBody 資料庫"); }
+  }
+
+  function renderInBody(raw) {
+    if (!raw || raw.length < 2) return;
+
+    if (typeof activeInBodyCharts !== 'undefined' && activeInBodyCharts.length > 0) {
+      activeInBodyCharts.forEach(c => { if(c && typeof c.destroy === 'function') c.destroy(); });
+      activeInBodyCharts = [];
+    } else {
+      window.activeInBodyCharts = [];
+    }
+
+    const originalDates = raw[0].slice(1); 
+    const sliceCount = originalDates.length; 
+    const viewDates = originalDates.slice(0, sliceCount).reverse();
+    const rows = raw.slice(1);
+
+    const tables = {
+      bodyComp: { head: document.getElementById('headBodyComp'), data: document.getElementById('dataBodyComp'), html: "" },
+      muscle: { head: document.getElementById('headMuscle'), data: document.getElementById('dataMuscle'), html: "" },
+      fat: { head: document.getElementById('headFat'), data: document.getElementById('dataFat'), html: "" }
+    };
+
+    let headerHTML = `<tr><th class="metric-name">項目</th>`;
+    viewDates.forEach(d => headerHTML += `<th class="col-data">${formatDate(d)}</th>`);
+    headerHTML += `</tr>`; 
+    
+    if (tables.bodyComp.head) tables.bodyComp.head.innerHTML = headerHTML;
+    if (tables.muscle.head) tables.muscle.head.innerHTML = headerHTML;
+    if (tables.fat.head) tables.fat.head.innerHTML = headerHTML;
+
+    rows.forEach((rowData, rowIndex) => {
+      const name = rowData[0];
+      const viewValues = rowData.slice(1).slice(0, sliceCount).reverse();        
+
+      let rowHTML = `<tr><td class="metric-name">${name}</td>`;
+      
+      viewValues.forEach((v, i) => {
+        let cellClass = "";
+        if (name.includes("細胞外水比") && parseFloat(v) > 0.390) cellClass = "val-warn";
+        if (name.includes("骨骼肌") && i === viewValues.length - 1) cellClass = "val-good";
+
+        let diffHTML = "";
+        if (i > 0 && !isNaN(parseFloat(v)) && !isNaN(parseFloat(viewValues[i-1]))) {
+          const diff = (parseFloat(v) - parseFloat(viewValues[i-1])).toFixed(1);
+          if (diff > 0) diffHTML = `<span class="diff-badge diff-up">▲${diff}</span>`;
+          else if (diff < 0) diffHTML = `<span class="diff-badge diff-down">▼${Math.abs(diff)}</span>`;
+        }
+
+        const cellCanvasId = `canvas-r${rowIndex}-c${i}`;
+        rowHTML += `
+          <td class="${cellClass}">
+            <div class="cell-content">
+              <div style="font-weight:700; font-size:16px; margin-bottom:2px;">${v}</div>
+              ${diffHTML}
+            </div>
+            <canvas id="${cellCanvasId}" class="cell-spark-canvas"></canvas>
+          </td>`;
+      });
+
+      rowHTML += `</tr>`;
+
+      if (rowIndex < 7) {
+        tables.bodyComp.html += rowHTML;
+      } else if (rowIndex >= 7 && rowIndex < 12) {
+        tables.muscle.html += rowHTML;
+      } else {
+        tables.fat.html += rowHTML;
+      }
+
+      setTimeout(() => {
+        drawGridSparkline(rowIndex, viewValues);
+      }, 120);
+    });
+
+    if (tables.bodyComp.data) tables.bodyComp.data.innerHTML = tables.bodyComp.html;
+    if (tables.muscle.data) tables.muscle.data.innerHTML = tables.muscle.html;
+    if (tables.fat.data) tables.fat.data.innerHTML = tables.fat.html;
+  }
+
+  function drawGridSparkline(rowIndex, rowDataPoints) {
+    const validValues = rowDataPoints.map(v => parseFloat(v)).filter(v => !isNaN(v));
+    if (validValues.length === 0) return;
+    
+    const maxVal = Math.max(...validValues);
+    const minVal = Math.min(...validValues);
+    const valRange = maxVal - minVal;
+    const yMin = valRange === 0 ? minVal - 1 : minVal - (valRange * 0.25);
+    const yMax = valRange === 0 ? maxVal + 1 : maxVal + (valRange * 0.25);
+
+    rowDataPoints.forEach((_, colIndex) => {
+      const canvasId = `canvas-r${rowIndex}-c${colIndex}`;
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: rowDataPoints.map((_, idx) => idx),
+          datasets: [{
+            data: rowDataPoints,
+            borderColor: '#5a5040',       /* 暗金色線條 */
+            borderWidth: 1.2,
+            pointRadius: 3,
+            pointBackgroundColor: '#1e1e1e', 
+            pointBorderColor: '#7a6432',  
+            pointBorderWidth: 1.2,
+            fill: false,
+            tension: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: {
+              top: 10, bottom: 14,
+              left: colIndex === 0 ? 37.5 : 0,
+              right: colIndex === rowDataPoints.length - 1 ? 37.5 : 0
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false },
+            datalabels: { display: false }
+          },
+          scales: {
+            x: {
+              type: 'linear', display: false,
+              min: colIndex === 0 ? 0 : colIndex - 0.5,
+              max: colIndex === rowDataPoints.length - 1 ? colIndex : colIndex + 0.5
+            },
+            y: { display: false, min: yMin, max: yMax }
+          }
+        }
+      });
+      
+      if (window.activeInBodyCharts) {
+        window.activeInBodyCharts.push(chart);
+      }
+    });
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return "";
+    let str = dateStr.toString().trim();
+    if (str.includes('T')) str = str.split('T')[0];
+    str = str.replace(/-/g, '/');
+    const parts = str.split('/');
+    if (parts.length >= 3) {
+      return `${parseInt(parts[1], 10)}/${parseInt(parts[2], 10)}`;
+    } else if (parts.length === 2) {
+      return `${parseInt(parts[0], 10)}/${parseInt(parts[1], 10)}`;
+    }
+    return str;
+  }
+
+  function onItemChange() {
+    const cat = document.getElementById('catSelect').value;
+    const item = document.getElementById('itemSelect').value;
+    const statusDiv = document.getElementById('chartStatus');
+    const canvas = document.getElementById('weightChart');
+
+    document.getElementById('newItemInput').style.display = (item === 'Other') ? 'block' : 'none';
+
+    let mediaUrl = "";
+    if (cat && item && fullMenuData[cat]) {
+      const found = fullMenuData[cat].find(obj => obj.name === item);
+      if(found && found.img) mediaUrl = found.img; 
+    }
+    updateMediaDisplay(mediaUrl);
+
+    if (item && item !== 'Other') {
+      statusDiv.style.display = 'block';
+      statusDiv.innerText = "正在讀取歷史曲線...";
+      canvas.style.display = 'none';
+      
+      fetch(`${GAS_WEB_APP_URL}?action=getHistory&item=${encodeURIComponent(item)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data || data.length === 0) {
+            statusDiv.innerText = "這是全新項目，尚無歷史數據";
+            return;
+          }
+          statusDiv.style.display = 'none';
+          canvas.style.display = 'block';
+          renderChart(data);
+        })
+        .catch(err => { statusDiv.innerText = "歷史紀錄載入失敗"; });
+    } else {
+      statusDiv.style.display = 'block';
+      statusDiv.innerText = "請先選擇運動項目";
+      canvas.style.display = 'none';
+    }
+  }
+
+  function renderChart(historyData) {
+    if (typeof Chart === 'undefined') return;
+    const sortedData = [...historyData].reverse(); 
+    const labels = sortedData.map(log => {
+      if (log.date && log.date.includes('/')) {
+        const p = log.date.split('/');
+        return p.length >= 3 ? `${p[1]}/${p[2]}` : log.date;
+      }
+      return log.date || "";
+    });
+    
+    const chartPoints = sortedData.map(log => {
+      const content = log.displayContent ? log.displayContent.toString().trim() : "";
+      let weight = 0, setRepStr = "";
+      if (content.includes('*')) {
+        const parts = content.split('*');
+        weight = parseFloat(parts[0]) || 0;
+        const rest = parts[1] || "";
+        if (rest.includes('(') && rest.includes(')')) {
+          const subParts = rest.split('(');
+          setRepStr = `${subParts[0] || "0"}組/${(subParts[1] || "").replace(')', '')}次`;
+        } else { setRepStr = rest ? `${rest}組` : ""; }
+      } else { weight = parseFloat(content) || 0; }
+      return { weight: weight, labelStr: setRepStr };
+    });
+
+    if (myChart) { myChart.destroy(); }
+    const ctx = document.getElementById('weightChart').getContext('2d');
+    myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: chartPoints.map(p => p.weight),
+          borderColor: '#c9a84c',
+          backgroundColor: 'rgba(201,168,76,0.12)',
+          borderWidth: 2,
+          pointRadius: 5,
+          pointBackgroundColor: '#0e0e0e',
+          pointBorderColor: '#c9a84c',
+          pointBorderWidth: 2,
+          fill: true,
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 35, bottom: 5, left: 10, right: 10 } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            backgroundColor: '#1e1e1e',
+            borderColor: '#7a6432',
+            borderWidth: 0.5,
+            titleColor: '#c9a84c',
+            bodyColor: '#ede8df',
+          },
+          datalabels: {
+            display: true, align: 'top', offset: 4,
+            color: '#e8c97a',
+            font: { size: 12, weight: 'bold' }, 
+            formatter: function(value, context) {
+              const pt = chartPoints[context.dataIndex];
+              return (pt && pt.labelStr) ? `${value}kg\n(${pt.labelStr})` : `${value}kg`;
+            },
+            textAlign: 'center' 
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { font: { size: 13, weight: '500' }, color: '#8a9e94' }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { font: { size: 13, weight: '500' }, color: '#8a9e94' },
+            grace: '35%'
+          }
+        }
+      },
+      plugins: (typeof ChartDataLabels !== 'undefined') ? [ChartDataLabels] : []
+    });
+  }
+
+  window.onload = function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('logDate').value = today;
+
+    fetch(`${GAS_WEB_APP_URL}?_nocache=${Date.now()}`, { method: "GET" })
+      .then(response => response.json())
+      .then(data => { fullMenuData = data; updateCategorySelect(); })
+      .catch(err => { alert("連線到 Google 失敗：" + err.message); });
+  };
+
+  function updateCategorySelect() {
+    const catSelect = document.getElementById('catSelect');
+    if (Object.keys(fullMenuData).length === 0) {
+      catSelect.innerHTML = '<option value="">無設定資料</option>';
+    } else {
+      catSelect.innerHTML = '<option value="">— 部位 —</option>';
+      for (let cat in fullMenuData) { catSelect.options.add(new Option(cat, cat)); }
+    }
+    catSelect.options.add(new Option("+ 新增部位", "Other"));
+  }
+  
+  function onCategoryChange() {
+    const cat = document.getElementById('catSelect').value;
+    const itemSelect = document.getElementById('itemSelect');
+    document.getElementById('newCatInput').style.display = (cat === 'Other') ? 'block' : 'none';
+    itemSelect.innerHTML = '<option value="">— 動作 —</option>';
+    if (cat && cat !== 'Other' && fullMenuData[cat]) {
+      fullMenuData[cat].forEach(obj => itemSelect.options.add(new Option(obj.name, obj.name)));
+    }
+    itemSelect.options.add(new Option("+ 新增動作", "Other"));
+    onItemChange();
+  }
+
+  function updateMediaDisplay(url) {
+    const container = document.getElementById('mediaContainer');
+    if (!url || url.trim() === "") {
+      container.innerHTML = `<img src="${DEFAULT_IMG}">`;
+      return;
+    }
+    const cleanUrl = url.trim();
+    if (cleanUrl.includes("youtube.com") || cleanUrl.includes("youtu.be")) {
+      let videoId = "";
+      if (cleanUrl.includes("v=")) videoId = cleanUrl.split("v=")[1].split("&")[0];
+      else if (cleanUrl.includes("youtu.be/")) videoId = cleanUrl.split("youtu.be/")[1].split("?")[0];
+      else if (cleanUrl.includes("embed/")) videoId = cleanUrl.split("embed/")[1].split("?")[0];
+      if(videoId) {
+        container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
+        return;
+      }
+    }
+    const isVideoFile = cleanUrl.match(/\.(mp4|webm|mov|ogg)($|\?)/i) || cleanUrl.includes("video");
+    if (isVideoFile) {
+      container.innerHTML = `<video src="${cleanUrl}" controls loop muted playsinline></video>`;
+      return;
+    }
+    container.innerHTML = `<img src="${cleanUrl}" onerror="this.src='${DEFAULT_IMG}';">`;
+  }
+
+  function submitForm() {
+    const btn = document.getElementById('saveBtn');
+    const payload = {
+      action: "saveLog",
+      category: document.getElementById('catSelect').value,
+      newCategory: document.getElementById('newCatInput').value,
+      item: document.getElementById('itemSelect').value,
+      newItem: document.getElementById('newItemInput').value,
+      date: document.getElementById('logDate').value,
+      weight: document.getElementById('w').value,
+      sets: document.getElementById('s').value,
+      reps: document.getElementById('r').value
+    };
+    if(!payload.category || !payload.item || !payload.date) return alert("請完整選擇部位、動作與日期");
+    btn.disabled = true; btn.innerText = "正在儲存...";
+    fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+      .then(res => res.json())
+      .then(result => { alert(result.message || "儲存成功！"); location.reload(); })
+      .catch(err => { alert("儲存失敗：" + err.message); btn.disabled = false; btn.innerText = "儲存紀錄至 Excel"; });
+  }
+</script>
+</body>
+</html>
