@@ -760,9 +760,9 @@
             bodyColor: '#ede8df',
           },
           datalabels: {
-            display: true, align: 'top', offset: 4,
-            color: '#e8c97a',
-            font: { size: 12, weight: 'bold' }, 
+            display: true, align: 'top', offset: 3,
+            color: '#a0b0a8',        // ← 數字顏色（銀灰）
+            font: { size: 9, weight: '400' }, 
             formatter: function(value, context) {
               const pt = chartPoints[context.dataIndex];
               return (pt && pt.labelStr) ? `${value}kg\n(${pt.labelStr})` : `${value}kg`;
