@@ -702,7 +702,8 @@
 
   function renderChart(historyData) {
     if (typeof Chart === 'undefined') return;
-    const sortedData = [...historyData].reverse(); 
+    // 確保舊到新排序：直接用原始資料（不 reverse），最舊在左、最新在右
+    const sortedData = [...historyData];
     const labels = sortedData.map(log => {
       if (log.date && log.date.includes('/')) {
         const p = log.date.split('/');
